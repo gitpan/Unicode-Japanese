@@ -38,6 +38,7 @@ t/fromutf8.t
 t/getcode.t
 t/hirakata.t
 t/illlet.t
+t/jis.t
 t/outrange.t
 t/random.pl
 t/random_redo.pl
@@ -50,3 +51,4 @@ t/z2h.t
 win32/Japanese.rc
 win32/resource.h
 xs_test.c             xsコンパイルテスト用コード
+META.yml                                 Module meta-data (added by MakeMaker)

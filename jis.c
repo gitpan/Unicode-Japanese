@@ -1,5 +1,5 @@
 
-/* $Id: jis.c,v 1.4 2004/01/16 11:16:42 hio Exp $ */
+/* $Id: jis.c,v 1.5 2004/05/25 15:12:02 hio Exp $ */
 
 #include "Japanese.h"
 #include "sjis.h"
@@ -10,10 +10,12 @@
 #define JIS_0208 ((const unsigned char*)"\x1b$B")
 #define JIS_0212 ((const unsigned char*)"\x1b$(D")
 #define JIS_ASC  ((const unsigned char*)"\x1b(B")
+#define JIS_ROMAN ((const unsigned char*)"\x1b(J")
 #define JIS_KANA ((const unsigned char*)"\x1b(I")
 #define JIS_0208_LEN 3
 #define JIS_0212_LEN 4
 #define JIS_ASC_LEN  3
+#define JIS_ROMAN_LEN  3
 #define JIS_KANA_LEN 3
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -200,6 +202,20 @@ xs_jis_sjis(SV* sv_str)
       const unsigned char* begin;
       /*fprintf(stderr,"  <jis.asc>\n"); */
       src += JIS_ASC_LEN;
+      begin = src;
+      while( src<src_end && *src!='\x1b')
+      {
+	++src;
+      }
+      if( src!=begin )
+      {
+	SV_Buf_append_str(&result,begin,src-begin);
+      }
+    }else if( src_end-src>=JIS_ROMAN_LEN && memcmp(src,JIS_ROMAN,JIS_ROMAN_LEN)==0 )
+    { /* <<jis.roman>> */
+      const unsigned char* begin;
+      /*fprintf(stderr,"  <jis.roman>\n"); */
+      src += JIS_ROMAN_LEN;
       begin = src;
       while( src<src_end && *src!='\x1b')
       {

@@ -1,5 +1,8 @@
 Revision history for Perl extension Unicode::Japanese.
 
+0.21 Tue May 25 23:59:15 JST 2004
+        - Bug Fix, jis.roman escape sequence is not processed on XS code.
+
 0.20 Sun Mar  7 19:08:55 JST 2004
         - Bug Fix, when pure-perl, make test had failed.
 	- untaint.

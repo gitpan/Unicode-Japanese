@@ -10,6 +10,7 @@ t/emoji.t
 t/fromutf8.t
 t/hirakata.t
 t/illlet.t
+t/jis.t
 t/toutf8.t
 t/util.t
 t/z2h.t
