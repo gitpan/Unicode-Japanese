@@ -1,0 +1,11 @@
+Changes
+Japanese.pm
+Makefile.PL
+MANIFEST
+t/base.t
+t/fromutf8.t
+t/hirakata.t
+t/illlet.t
+t/toutf8.t
+t/util.t
+t/z2h.t
