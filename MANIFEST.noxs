@@ -1,0 +1,14 @@
+Changes
+Japanese.pm           Unicode::Japanese パッケージ
+Makefile.PL
+MANIFEST
+MANIFEST.noxs
+t/base.t
+t/fromutf8.t
+t/hirakata.t
+t/illlet.t
+t/toutf8.t
+t/util.t
+t/z2h.t
+t/getcode.t
+t/outrange.t
