@@ -30,6 +30,7 @@ sjis_imode.c          sjis(i-mode)<=>utf8 変換コード
 sjis_jsky.c           sjis(j-sky)<=>utf8 変換コード
 str.h                 SV* 操作用クラス
 ucs2_utf8.c
+utf16.c
 t/0.loadxs.t
 t/allchar_utf8.pl
 t/base.t
@@ -37,6 +38,7 @@ t/emoji.t
 t/fromutf8.t
 t/getcode.t
 t/hirakata.t
+t/illegal.t
 t/illlet.t
 t/jis.t
 t/outrange.t

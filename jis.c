@@ -1,5 +1,5 @@
 
-/* $Id: jis.c,v 1.5 2004/05/25 15:12:02 hio Exp $ */
+/* $Id: jis.c,v 1.6 2004/11/02 08:51:59 hio Exp $ */
 
 #include "Japanese.h"
 #include "sjis.h"
@@ -126,7 +126,6 @@ xs_sjis_jis(SV* sv_str)
 	fprintf(stderr,"  (sjis:kana)");
 	fflush(stderr);
 #endif
-	esc_asc = 0;
         do
 	{
 #if TEST && S2J_DISP

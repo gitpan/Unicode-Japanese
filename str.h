@@ -1,7 +1,7 @@
 #ifndef UNICODE__JAPANESE__STR_H__
 #define UNICODE__JAPANESE__STR_H__
 
-/* $Id: str.h,v 1.10 2002/11/05 07:51:14 hio Exp $ */
+/* $Id: str.h,v 1.11 2004/11/02 08:51:34 hio Exp $ */
 
 
 /* ----------------------------------------------------------------------------
@@ -44,7 +44,7 @@ typedef struct SV_Buf SV_Buf;
 
 /* ----------------------------------------------------------------------------
  * SV* getSv() */
-#define SV_Buf_getSv(pbuf) ((pbuf)->sv)
+#define SV_Buf_getSv(pbuf) (*(pbuf)->dst='\0', (pbuf)->sv)
 
 /* ----------------------------------------------------------------------------
  * inline void append_ch(unsigned char ch) */
@@ -114,7 +114,9 @@ typedef struct SV_Buf SV_Buf;
  * void checkbuf(STRLEN len) */
 #define SV_Buf_checkbuf(pbuf,len) \
   { \
-    if( (STRLEN)((pbuf)->dst-(pbuf)->dst_begin)+(len)>=(pbuf)->alloc_len ) \
+    if( (STRLEN)((pbuf)->dst-(pbuf)->dst_begin)+(len)+1<(pbuf)->alloc_len ) \
+    { \
+    }else \
     { \
       STRLEN now_len; \
       STRLEN new_len; \

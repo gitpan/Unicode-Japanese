@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Makefile.PL for Unicode-Japanese.
 # -----------------------------------------------------------------------------
-# $Id: Makefile.PL,v 1.41 2004/03/07 10:54:37 hio Exp $
+# $Id: Makefile.PL,v 1.42 2004/11/02 13:06:43 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::MakeMaker;
 
@@ -43,7 +43,7 @@ my %param_xs = (
 	  },
     'OBJECT' => join(' ',qw( Japanese.o memmap.o conv.o ucs2_utf8.o
 			     getcode.o getcode_map.o sjis.o eucjp.o jis.o
-			     sjis_imode.o sjis_jsky.o sjis_doti.o
+			     sjis_imode.o sjis_jsky.o sjis_doti.o utf16.o
 			     mediate.o 
 			     ) ),
     'XS' => {'Japanese.xs'=>'Japanese.c',},

@@ -1,22 +1,22 @@
 /* ----------------------------------------------------------------------------
- * ucs2_utf8.c
+ * utf16_utf8.c
  * ----------------------------------------------------------------------------
  * Mastering programed by YAMASHINA Hio
  * ----------------------------------------------------------------------------
- * $Id: ucs2_utf8.c,v 1.6 2004/11/04 07:23:32 hio Exp $
+ * $Id: utf16.c,v 1.3 2004/11/04 07:23:32 hio Exp $
  * ------------------------------------------------------------------------- */
 
 
 #include "Japanese.h"
 
-#undef ENABLE_SURROGATE_PAIR
+#define ENABLE_SURROGATE_PAIR 1
 
 /* ----------------------------------------------------------------------------
- * convert ucs2 into utf-8
+ * convert utf-16 into utf-8
  * ------------------------------------------------------------------------- */
 EXTERN_C
 SV*
-xs_ucs2_utf8(SV* sv_str)
+xs_utf16_utf8(SV* sv_str)
 {
   unsigned char* src;
   int len;
@@ -32,46 +32,46 @@ xs_ucs2_utf8(SV* sv_str)
   src = (unsigned char*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
   src_end = src+(len&~1);
-  /*fprintf(stderr,"Unicode::Japanese::(xs)ucs2_utf8\n",len);*/
+  /*fprintf(stderr,"Unicode::Japanese::(xs)utf16_utf8\n",len);*/
   /*bin_dump("in ",src,len);*/
   SV_Buf_init(&result,len*3/2+4);
 
   if( len&1 )
   {
-    Perl_croak(aTHX_ "Unicode::Japanese::ucs2_utf8, invalid length (not 2*n)");
+    Perl_croak(aTHX_ "Unicode::Japanese::utf16_utf8, invalid length (not 2*n)");
   }
 
   for(; src<src_end; src+=2 )
   {
-    const unsigned short ucs2 = ntohs(*(unsigned short*)src);
-    if( ucs2<0x80 )
+    const unsigned short utf16 = ntohs(*(unsigned short*)src);
+    if( utf16<0x80 )
     {
-      SV_Buf_append_ch(&result,(unsigned char)ucs2);
-    }else if( ucs2<0x800 )
+      SV_Buf_append_ch(&result,(unsigned char)utf16);
+    }else if( utf16<0x800 )
     {
-      buf[0] = 0xC0 | (ucs2 >> 6);
-      buf[1] = 0x80 | (ucs2 & 0x3F);
+      buf[0] = 0xC0 | (utf16 >> 6);
+      buf[1] = 0x80 | (utf16 & 0x3F);
       SV_Buf_append_ch2(&result,*(unsigned short*)buf);
-    }else if( !(0xd800 <= ucs2 && ucs2 <= 0xdfff) )
+    }else if( !(0xd800 <= utf16 && utf16 <= 0xdfff) )
     { /* normal char (non surrogate pair) */
-      buf[0] = 0xE0 | (ucs2 >> 12);
-      buf[1] = 0x80 | ((ucs2 >> 6) & 0x3F);
-      buf[2] = 0x80 | (ucs2 & 0x3F);
+      buf[0] = 0xE0 | (utf16 >> 12);
+      buf[1] = 0x80 | ((utf16 >> 6) & 0x3F);
+      buf[2] = 0x80 | (utf16 & 0x3F);
       SV_Buf_append_ch3(&result,*(unsigned int*)buf);
     }else
     { /* surrogate pair */
       if( src+2<src_end )
       {
-#ifdef ENABLE_SURROGATE_PAIR
-        const unsigned short ucs2a = ntohs(*(unsigned short*)src+2);
-        const unsigned long  ucs4  = ((ucs2&0x03FF)<<10|(ucs2a&0x3FFF))+0x010000;
+#if ENABLE_SURROGATE_PAIR
+        const unsigned short utf16a = ntohs(*(unsigned short*)src+2);
+        const unsigned long  ucs4   = ((utf16&0x03FF)<<10|(utf16a&0x3FFF))+0x010000;
         src += 2;
         if( 0x010000<=ucs4 && ucs4<=0x1FFFFF )
         {
-          buf[0] = 0xF0 | ((ucs2>>18) & 0x3F);
-          buf[1] = 0x80 | ((ucs2>>12) & 0x3F);
-          buf[2] = 0x80 | ((ucs2>>6) & 0x3F);
-          buf[3] = 0x80 | (ucs2 & 0x3F);
+          buf[0] = 0xF0 | ((utf16>>18) & 0x3F);
+          buf[1] = 0x80 | ((utf16>>12) & 0x3F);
+          buf[2] = 0x80 | ((utf16>>6) & 0x3F);
+          buf[3] = 0x80 | (utf16 & 0x3F);
           SV_Buf_append_ch4(&result,*(unsigned int*)buf);
         }else
         {
@@ -100,11 +100,11 @@ xs_ucs2_utf8(SV* sv_str)
 }
 
 /* ----------------------------------------------------------------------------
- * convert utf-8 into ucs2
+ * convert utf-8 into utf-16
  * ------------------------------------------------------------------------- */
 EXTERN_C
 SV*
-xs_utf8_ucs2(SV* sv_str)
+xs_utf8_utf16(SV* sv_str)
 {
   unsigned char* src;
   int len;
@@ -119,7 +119,7 @@ xs_utf8_ucs2(SV* sv_str)
   src = (unsigned char*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
   src_end = src+len;
-  /*fprintf(stderr,"Unicode::Japanese::(xs)utf8_ucs2\n",len); */
+  /*fprintf(stderr,"Unicode::Japanese::(xs)utf8_utf16\n",len); */
   /*bin_dump("in ",src,len); */
   SV_Buf_init(&result,len*2);
   
@@ -294,7 +294,7 @@ xs_utf8_ucs2(SV* sv_str)
     }
 
     if( ucs & ~0xFFFF )
-    { /* ucs2¤ÎÈÏ°Ï³° (ucs4¤ÎÈÏ°Ï) */
+    { /* utf16¤ÎÈÏ°Ï³° (ucs4¤ÎÈÏ°Ï) */
       SV_Buf_append_ch2(&result,htons('?'));
       continue;
     }

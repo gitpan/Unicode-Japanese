@@ -1,5 +1,11 @@
-
-/* $Id: conv.c,v 1.4 2002/10/31 11:08:50 hio Exp $ */
+/* ----------------------------------------------------------------------------
+ * conv.c
+ * convert sjis <=> utf8
+ * ----------------------------------------------------------------------------
+ * Mastering programed by YAMASHINA Hio
+ * ----------------------------------------------------------------------------
+ * $Id: conv.c,v 1.6 2004/11/04 06:08:04 hio Exp $
+ * ------------------------------------------------------------------------- */
 
 #ifdef _MSC_VER
 #include "EXTERN.h"
@@ -34,6 +40,10 @@
 typedef enum bool { false, true, } bool;
 #endif
 
+/* ----------------------------------------------------------------------------
+ * SV* sv_utf8 = xs_sjis_utf8(SV* sv_sjis)
+ * convert sjis into utf8.
+ * ------------------------------------------------------------------------- */
 EXTERN_C
 SV*
 xs_sjis_utf8(SV* sv_str)
@@ -69,19 +79,19 @@ xs_sjis_utf8(SV* sv_str)
       ++src;
       continue;
     }else if( 0xa1<=src[0] && src[0]<=0xdf )
-    { /* 半角カナ. */
+    { /* half-width katakana (ja:半角カナ) */
       /*fprintf(stderr,"kana": %02x\n",src[0]); */
       ptr = (unsigned char*)&g_s2u_table[src[0]];
       ++src;
     }else if( ((0x81<=src[0] && src[0]<=0x9f) || (0xe0<=src[0] && src[0]<=0xfc) )
-	      && (0x40<=src[1] && src[1]<=0xfc && src[1]!=0x7f) )
-    { /* 2バイト文字. */
+              && (0x40<=src[1] && src[1]<=0xfc && src[1]!=0x7f) )
+    { /* a double-byte letter (ja:2バイト文字) */
       register const unsigned short sjis = ntohs(*(unsigned short*)src);
       /*fprintf(stderr,"sjis: %04x\n",sjis); */
       ptr = (unsigned char*)&g_s2u_table[sjis];
       src += 2;
     }else
-    { /* 不明. */
+    { /* unknown */
       /*fprintf(stderr,"unknown: %02x\n",src[0]); */
       SV_Buf_append_ch(&result,'?');
       ++src;
@@ -118,6 +128,10 @@ xs_sjis_utf8(SV* sv_str)
   return SV_Buf_getSv(&result);
 }
 
+/* ----------------------------------------------------------------------------
+ * SV* sv_sjis = xs_utf8_sjis(SV* sv_utf8)
+ * convert utf8 into sjis.
+ * ------------------------------------------------------------------------- */
 EXTERN_C
 SV*
 xs_utf8_sjis(SV* sv_str)
@@ -142,125 +156,195 @@ xs_utf8_sjis(SV* sv_str)
 
   while( src<src_end )
   {
-    int i;
-    int utf8_len;
-    bool succ;
     unsigned int ucs;
     
     if( *src<=0x7f )
     {
-      /* ASCIIはまとめて追加〜 */
+      /* ascii chars sequence (ja:ASCIIはまとめて追加〜) */
       int len = 1;
       while( src+len<src_end && src[len]<=0x7f )
       {
-	++len;
+        ++len;
       }
       SV_Buf_append_str(&result,src,len);
       src+=len;
       continue;
     }
-    /* utf8をucsに変換 */
-    /* utf8の１文字の長さチェック */
-    if( 0xc0<=*src && *src<=0xdf )
+    
+    /* non-ascii */
+    if( 0xe0<=*src && *src<=0xef )
     {
-      utf8_len = 2;
-    }else if( 0xe0<=*src && *src<=0xef )
-    {
-      utf8_len = 3;
+      const int          utf8_len = 3;
+      const unsigned int ucs_min  = 0x800;
+      const unsigned int ucs_max  = 0xffff;
+      /* check length */
+      if( src+utf8_len<=src_end )
+      { /* noop */
+      }else
+      { /* no enough sequence */
+        SV_Buf_append_ch(&result,'?');
+        ++src;
+        continue;
+      }
+      /* check follow sequences */
+      if( 0x80<=src[1] && src[1]<=0xbf && 0x80<=src[2] && src[2]<=0xbf )
+      { /* noop */
+      }else
+      {
+        SV_Buf_append_ch(&result,'?');
+        ++src;
+        continue;
+      }
+      
+      /* compute code point */
+      ucs = ((src[0] & 0x0F)<<12)|((src[1] & 0x3F)<<6)|(src[2] & 0x3F);
+      src += utf8_len;
+      if( ucs_min<=ucs && ucs<=ucs_max )
+      { /* noop */
+      }else
+      { /* illegal sequence */
+        SV_Buf_append_ch(&result,'?');
+        continue;
+      }
+      /* ok. */
     }else if( 0xf0<=*src && *src<=0xf7 )
     {
-      utf8_len = 4;
+      const int          utf8_len = 4;
+      const unsigned int ucs_min  = 0x010000;
+      const unsigned int ucs_max  = 0x10ffff;
+      /* check length */
+      if( src+utf8_len<=src_end )
+      { /* noop */
+      }else
+      { /* no enough sequence */
+        SV_Buf_append_ch(&result,'?');
+        ++src;
+        continue;
+      }
+      /* check follow sequences */
+      if( 0x80<=src[1] && src[1]<=0xbf && 0x80<=src[2] && src[2]<=0xbf
+          && 0x80<=src[3] && src[3]<=0xbf )
+      { /* noop */
+      }else
+      {
+        SV_Buf_append_ch(&result,'?');
+        ++src;
+        continue;
+      }
+      
+      /* compute code point */
+      ucs = ((src[0] & 0x07)<<18)|((src[1] & 0x3F)<<12)|
+        ((src[2] & 0x3f) << 6)|(src[3] & 0x3F);
+      src += utf8_len;
+      if( ucs_min<=ucs && ucs<=ucs_max )
+      { /* noop */
+      }else
+      { /* illegal sequence */
+        SV_Buf_append_ch(&result,'?');
+        continue;
+      }
+      /* private area: block emoji */ 
+      if( 0x0f0000<=ucs && ucs<=0x0fffff )
+      { 
+        SV_Buf_append_ch(&result,'?');
+        continue;
+      }
+      
+      /* > U+FFFF not supported. */
+      SV_Buf_append_ch(&result,'?');
+      continue;
+    }else if( 0xc0<=*src && *src<=0xdf )
+    {
+      const int          utf8_len = 2;
+      const unsigned int ucs_min  =  0x80;
+      const unsigned int ucs_max  = 0x7ff;
+      if( src+utf8_len<=src_end )
+      { /* noop */
+      }else
+      { /* no enough sequence */
+        SV_Buf_append_ch(&result,'?');
+        ++src;
+        continue;
+      }
+      /* check follow sequences */
+      if( 0x80<=src[1] && src[1]<=0xbf )
+      { /* noop */
+      }else
+      {
+        SV_Buf_append_ch(&result,'?');
+        ++src;
+        continue;
+      }
+      
+      /* compute code point */
+      ucs = ((src[0] & 0x1F)<<6)|(src[1] & 0x3F);
+      src += utf8_len;
+      if( ucs_min<=ucs && ucs<=ucs_max )
+      { /* noop */
+      }else
+      { /* illegal sequence */
+        SV_Buf_append_ch(&result,'?');
+        continue;
+      }
+      
+      /* ok. */
     }else if( 0xf8<=*src && *src<=0xfb )
     {
-      utf8_len = 5;
+      const int          utf8_len = 5;
+      if( src+utf8_len<=src_end )
+      { /* noop */
+      }else
+      { /* no enough sequence */
+        SV_Buf_append_ch(&result,'?');
+        ++src;
+        continue;
+      }
+      /* check follow sequences */
+      if( 0x80<=src[1] && src[1]<=0xbf && 0x80<=src[2] && src[2]<=0xbf
+          && 0x80<=src[3] && src[3]<=0xbf && 0x80<=src[4] && src[4]<=0xbf )
+      { /* noop */
+      }else
+      {
+        SV_Buf_append_ch(&result,'?');
+        ++src;
+        continue;
+      }
+      
+      /* compute code point */
+      src += utf8_len;
+      SV_Buf_append_ch(&result,'?');
+      continue;
     }else if( 0xfc<=*src && *src<=0xfd )
     {
-      utf8_len = 6;
+      const int          utf8_len = 6;
+      if( src+utf8_len<=src_end )
+      { /* noop */
+      }else
+      { /* no enough sequence */
+        SV_Buf_append_ch(&result,'?');
+        ++src;
+        continue;
+      }
+      /* check follow sequences */
+      if( 0x80<=src[1] && src[1]<=0xbf && 0x80<=src[2] && src[2]<=0xbf
+          && 0x80<=src[3] && src[3]<=0xbf && 0x80<=src[4] && src[4]<=0xbf
+          && 0x80<=src[5] && src[5]<=0xbf )
+      { /* noop */
+      }else
+      {
+        SV_Buf_append_ch(&result,'?');
+        ++src;
+        continue;
+      }
+      
+      /* compute code point */
+      src += utf8_len;
+      SV_Buf_append_ch(&result,'?');
+      continue;
     }else
     {
       SV_Buf_append_ch(&result,'?');
       ++src;
-      continue;
-    }
-    /* 長さ足りてるかチェック */
-    if( src+utf8_len-1>=src_end )
-    {
-      ECHO_U2S((stderr,"  no enough buffer, here is %d, need %d\n",src_end-src,utf8_len));
-      SV_Buf_append_ch(&result,'?');
-      ++src;
-      continue;
-    }
-    /* ２バイト目以降が正しい文字範囲か確認 */
-    succ = true;
-    for( i=1; i<utf8_len; ++i )
-    {
-      if( src[i]<0x80 || 0xbf<src[i] )
-      {
-	ECHO_U2S((stderr,"  at %d, char out of range\n",i));
-	succ = false;
-	break;
-      }
-    }
-    if( !succ )
-    {
-      SV_Buf_append_ch(&result,'?');
-      ++src;
-      continue;
-    }
-    /* utf8からucsのコードを算出 */
-    ECHO_U2S((stderr,"utf8-charlen: [%d]\n",utf8_len));
-    switch(utf8_len)
-    {
-    case 2:
-      {
-	ucs = ((src[0] & 0x1F)<<6)|(src[1] & 0x3F);
-	break;
-      }
-    case 3:
-      {
-	ucs = ((src[0] & 0x0F)<<12)|((src[1] & 0x3F)<<6)|(src[2] & 0x3F);
-	break;
-      }
-    case 4:
-      {
-	ucs = ((src[0] & 0x07)<<18)|((src[1] & 0x3F)<<12)|
-	  ((src[2] & 0x3f) << 6)|(src[3] & 0x3F);
-	break;
-      }
-    case 5:
-      {
-	ucs = ((src[0] & 0x03) << 24)|((src[1] & 0x3F) << 18)|
-	    ((src[2] & 0x3f) << 12)|((src[3] & 0x3f) << 6)|
-	    (src[4] & 0x3F);
-	break;
-      }
-    case 6:
-      {
-	ucs = ((src[0] & 0x03) << 30)|((src[1] & 0x3F) << 24)|
-	    ((src[2] & 0x3f) << 18)|((src[3] & 0x3f) << 12)|
-	    ((src[4] & 0x3f) << 6)|(src[5] & 0x3F);
-	break;
-      }
-    default:
-      {
-        /* NOT REACH HERE */
-	ECHO_U2S((stderr,"invalid utf8-length: %d\n",utf8_len));
-	ucs = '?';
-      }
-    }
-
-    if( 0x0f0000<=ucs && ucs<=0x0fffff )
-    { /* 絵文字判定(sjis) */
-      SV_Buf_append_ch(&result,'?');
-      assert(utf8_len>=4);
-      src += utf8_len;
-      continue;
-    }
-
-    if( ucs & ~0xFFFF )
-    { /* ucs2の範囲外 (ucs4の範囲) */
-      SV_Buf_append_entityref(&result,ucs);
-      src += utf8_len;
       continue;
     }
     
@@ -272,10 +356,10 @@ xs_utf8_sjis(SV* sv_str)
     { /* 対応文字がある時とucs=='\0'の時 */
       if( g_u2s_table[ucs] & 0xff00 )
       {
-	SV_Buf_append_ch2(&result,g_u2s_table[ucs]);
+        SV_Buf_append_ch2(&result,g_u2s_table[ucs]);
       }else
       {
-	SV_Buf_append_ch(&result,(unsigned char)g_u2s_table[ucs]);
+        SV_Buf_append_ch(&result,(unsigned char)g_u2s_table[ucs]);
       }
     }else if( ucs<=0x7F )
     {
@@ -284,8 +368,6 @@ xs_utf8_sjis(SV* sv_str)
     {
       SV_Buf_append_entityref(&result,ucs);
     }
-    src += utf8_len;
-    /*bin_dump("now",dst_begin,dst-dst_begin); */
   } /* for */
 
   ON_U2S( bin_dump("out",result.getBegin(),result.getLength()) );
@@ -293,3 +375,7 @@ xs_utf8_sjis(SV* sv_str)
 
   return SV_Buf_getSv(&result);
 }
+
+/* ----------------------------------------------------------------------------
+ * End Of File.
+ * ------------------------------------------------------------------------- */

@@ -2,7 +2,7 @@
 #ifndef UNICODE__JAPANESE_H__
 #define UNICODE__JAPANESE_H__
 
-/* $Id: Japanese.h,v 1.20 2002/11/05 07:51:14 hio Exp $ */
+/* $Id: Japanese.h,v 1.21 2004/11/02 13:06:42 hio Exp $ */
 
 #if !defined(__cplusplus) && !defined(bool)
 #define bool char
@@ -81,9 +81,13 @@ extern "C"
   SV* xs_sjis_doti_utf8(SV* sv_str);
   SV* xs_utf8_sjis_doti(SV* sv_str);
 
-  /* ucs_utf8 */
+  /* ucs2<=>utf-8 */
   SV* xs_ucs2_utf8(SV* sv_str);
   SV* xs_utf8_ucs2(SV* sv_str);
+  
+  /* utf-16<=>utf8 */
+  SV* xs_utf16_utf8(SV* sv_str);
+  SV* xs_utf8_utf16(SV* sv_str);
   
   /* for memory mapped file.        */
   /* (ja:) メモリマップファイル関連 */

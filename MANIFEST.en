@@ -28,11 +28,13 @@ sjis_imode.c          sjis(i-mode)<=>utf8 conversion
 sjis_jsky.c           sjis(j-sky)<=>utf8 conversion
 str.h                 SV* manipulate class
 ucs2_utf8.c
+utf16.c
 t/allchar_utf8.pl
 t/base.t
 t/emoji.t
 t/fromutf8.t
 t/hirakata.t
+t/illegal.t
 t/illlet.t
 t/jis.t
 t/toutf8.t
