@@ -2,6 +2,8 @@
 use vars qw(%param %param_xs $ostype);
 
 init_param();
+add_ccflags('-Werror');
+#add_ccflags('-DNDEBUG'); # uncomment for release, 
 #include_test();
 do_mediate();
 
@@ -10,10 +12,12 @@ WriteMakefile(%param,%param_xs);
 
 sub include_test
 {
-  $param_xs{'CCFLAGS'} = '-g -DTEST=1';
+  $param_xs{'CCFLAGS'} .= '-g -DTEST=1';
   $param_xs{'OBJECT'}  .= ' test.o';
 }
 
+#
+# mediate.h/mediate.cpp ¤ÎºîÀ®
 sub do_mediate
 {
   # check @ARGV
@@ -168,6 +172,7 @@ sub init_param
     'EXE_FILES' => ['Japanese/u2s-s2u.dat','Japanese/emoji.dat'],
     'INSTALLSCRIPT' => '$(INST_LIBDIR)',
     'CC' => $cc,
+    'CCFLAGS' => '-Wall',
     'LD' => $ld,
     'OBJECT' => $object,
     'XS' => {'Japanese.xs','Japanese.c',},
@@ -178,3 +183,7 @@ sub init_param
   );
 }
 
+sub add_ccflags
+{
+  $param_xs{'CCFLAGS'} = join(' ',$param_xs{'CC_FLAGS'},@_);  
+}

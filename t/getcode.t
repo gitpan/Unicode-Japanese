@@ -1,14 +1,21 @@
 
 use Test;
 
-use Unicode::Japanese;
+use Unicode::Japanese qw(PurePerl);
 
 BEGIN { plan tests => 15 }
 
 ## getcode method
 
-my $code;
+sub test
+{
+  my $src = shift;
+  my $icode = shift;
+  my $code = Unicode::Japanese->new->getcode($src);
+  ok($code, $icode, 'src:'.unpack('H*',$src));
+}
 
+my $code;
 
 $code = Unicode::Japanese->new->getcode("\x00\x00\xfe\xff");
 ok($code, 'utf32');
@@ -43,8 +50,7 @@ ok($code, 'euc');
 $code = Unicode::Japanese->new->getcode("\x88\xa4");
 ok($code, 'sjis');
 
-$code = Unicode::Japanese->new->getcode("\x88\xa4\xf8\xdf");
-ok($code, 'sjis-imode');
+test("\x88\xa4\xf8\xdf", 'sjis-imode');
 
 $code = Unicode::Japanese->new->getcode("\x88\xa4\xf1\xb5");
 ok($code, 'sjis-doti');

@@ -1,5 +1,5 @@
 
-// $Id: sjis_jsky.cpp,v 1.6 2002/02/27 11:59:53 hio Exp $
+// $Id: sjis_jsky.cpp,v 1.18 2002/07/04 04:52:29 hio Exp $
 
 #include <stdio.h>
 #include "Japanese.h"
@@ -82,10 +82,10 @@ xs_sjis_jsky_utf8(SV* sv_str)
       //fprintf(stderr,"kana": %02x\n",src[0]);
       ptr = (unsigned char*)&g_s2u_table[src[0]];
       ++src;
-    }else if( ((0x81<=src[0] && src[0]<=0x9f) || (0xe0<=src[0] && src[0]<=0xef) )
+    }else if( ((0x81<=src[0] && src[0]<=0x9f) || (0xe0<=src[0] && src[0]<=0xfc) )
 	      && (0x40<=src[1] && src[1]<=0xfc && src[1]!=0x7f) )
     { // 2バイト文字
-      unsigned short sjis = ntohs(*(unsigned short*)src);
+      register const unsigned short sjis = ntohs(*(unsigned short*)src);
       //fprintf(stderr,"sjis: %04x\n",sjis);
       ptr = (unsigned char*)&g_s2u_table[sjis];
       src += 2;
@@ -97,8 +97,12 @@ xs_sjis_jsky_utf8(SV* sv_str)
       continue;
     }
 
-    //fprintf(stderr,"utf8-char : %02x %02x %02x\n",ptr[0],ptr[1],ptr[2]);
-    if( ptr[2] )
+    //fprintf(stderr,"utf8-char : %02x %02x %02x %02x\n",ptr[0],ptr[1],ptr[2],ptr[3]);
+    if( ptr[3] )
+    {
+      //fprintf(stderr,"utf8-len: [%d]\n",4);
+      result.append_ch4(*(int*)ptr);
+    }else if( ptr[2] )
     {
       //fprintf(stderr,"utf8-len: [%d]\n",3);
       result.append_ch3(*(int*)ptr);
@@ -130,119 +134,170 @@ xs_utf8_sjis_jsky(SV* sv_str)
   unsigned char* src = (unsigned char*)SvPV(sv_str,PL_na);
   int len = sv_len(sv_str);
 
-  ECHO_U2EJ((stderr,"Unicode::Japanese::(xs)utf8_sjis_jsky\n"));
+  ECHO_U2EJ((stderr,"Unicode::Japanese::(xs)utf8_sjis\n"));
   ON_U2EJ( bin_dump("in ",src,len) );
-  
+
   SV_Buf result(len+4);
   const unsigned char* src_end = src+len;
-  const unsigned char* src_begin = src;
 
   while( src<src_end )
   {
-    //fprintf(stderr,"(try) %02x\n",*src);
     if( *src<=0x7f )
     {
-      int utf8_len = 1;
-      while( src+utf8_len<src_end && src[utf8_len]<=0x7f )
+      // ASCIIはまとめて追加〜
+      int len = 1;
+      while( src+len<src_end && src[len]<=0x7f )
       {
-	++utf8_len;
+	++len;
       }
-      result.append(src,utf8_len);
-      src+=utf8_len;
+      result.append(src,len);
+      src+=len;
       continue;
     }
-    int utf8_len,ucs2;
+    // utf8をucsに変換
+    // utf8の１文字の長さチェック
+    int utf8_len;
     if( 0xc0<=*src && *src<=0xdf )
-    { // length [2]
+    {
       utf8_len = 2;
-      if( src+1>=src_end ||
-	  src[1]<0x80 || 0xbf<src[1] )
-      {
-	result.append(*src++);
-	continue;
-      }
-      ucs2 = ((src[0] & 0x1F)<<6)|(src[1] & 0x3F);
     }else if( 0xe0<=*src && *src<=0xef )
-    { // length [3]
+    {
       utf8_len = 3;
-      if( src+2>=src_end ||
-	  src[1]<0x80 || 0xbf<src[1] ||
-	  src[2]<0x80 || 0xbf<src[2] )
-      {
-	result.append(*src++);
-	continue;
-      }
-      ucs2 = ((src[0] & 0x0F)<<12)|((src[1] & 0x3F)<<6)|(src[2] & 0x3F);
     }else if( 0xf0<=*src && *src<=0xf7 )
-    { // length [4]
+    {
       utf8_len = 4;
-      if( src+3>=src_end ||
-	  src[1]<0x80 || 0xbf<src[1] ||
-	  src[2]<0x80 || 0xbf<src[2] ||
-	  src[3]<0x80 || 0xbf<src[3] )
-      {
-	result.append(*src++);
-	continue;
-      }
-      ucs2 = ((src[0] & 0x07)<<18)|((src[1] & 0x3F)<<12)|
-	((src[2] & 0x3f) << 6)|(src[3] & 0x3F);
-      //fprintf(stderr," [len:4] ucs4: %06x\n",ucs2);
-      if( 0x0ff000<=ucs2 && ucs2<=0x0fffff )
-      { // 先に絵文字判定
-	const unsigned char* sjis = &g_eu2j_table[(ucs2 - 0x0ff000)*5];
-	//fprintf(stderr,"  emoji: %02x %02x %02x %02x %02x\n",
-	//	  sjis[0],sjis[1],sjis[2],sjis[3],sjis[4]);
-	if( sjis[0]!=0 )
-	{
-	  result.append(sjis,sjis[4]?5:strlen((const char*)sjis));
-	  src += 4;
-	  continue;
-	}
-      }
     }else if( 0xf8<=*src && *src<=0xfb )
-    { // length [5]
+    {
       utf8_len = 5;
-      if( src+4>=src_end ||
-	  src[1]<0x80 || 0xbf<src[1] ||
-	  src[2]<0x80 || 0xbf<src[2] ||
-	  src[3]<0x80 || 0xbf<src[3] ||
-	  src[4]<0x80 || 0xbf<src[4] )
-      {
-	result.append(*src++);
-	continue;
-      }
-      // not supported.
-      result.append(*src++);
-      continue;
     }else if( 0xfc<=*src && *src<=0xfd )
-    { // length [6]
+    {
       utf8_len = 6;
-      if( src+5>=src_end ||
-	  src[1]<0x80 || 0xbf<src[1] ||
-	  src[2]<0x80 || 0xbf<src[2] ||
-	  src[3]<0x80 || 0xbf<src[3] ||
-	  src[4]<0x80 || 0xbf<src[4] ||
-	  src[5]<0x80 || 0xbf<src[5] )
+    }else
+    {
+      result.append('?');
+      ++src;
+      continue;
+    }
+    // 長さ足りてるかチェック
+    if( src+utf8_len-1>=src_end )
+    {
+      ECHO_U2EJ((stderr,"  no enough buffer, here is %d, need %d\n",src_end-src,utf8_len));
+      result.append('?');
+      ++src;
+      continue;
+    }
+    // ２バイト目以降が正しい文字範囲か確認
+    bool succ = true;
+    for( int i=1; i<utf8_len; ++i )
+    {
+      if( src[i]<0x80 || 0xbf<src[i] )
       {
-	result.append(*src++);
+	ECHO_U2EJ((stderr,"  at %d, char out of range\n",i));
+	succ = false;
+	break;
+      }
+    }
+    if( !succ )
+    {
+      result.append('?');
+      ++src;
+      continue;
+    }
+    // utf8からucsのコードを算出
+    ECHO_U2EJ((stderr,"utf8-charlen: [%d]\n",utf8_len));
+    unsigned int ucs;
+    switch(utf8_len)
+    {
+    case 2:
+      {
+	ucs = ((src[0] & 0x1F)<<6)|(src[1] & 0x3F);
+	break;
+      }
+    case 3:
+      {
+	ucs = ((src[0] & 0x0F)<<12)|((src[1] & 0x3F)<<6)|(src[2] & 0x3F);
+	break;
+      }
+    case 4:
+      {
+	ucs = ((src[0] & 0x07)<<18)|((src[1] & 0x3F)<<12)|
+	  ((src[2] & 0x3f) << 6)|(src[3] & 0x3F);
+	break;
+      }
+    case 5:
+      {
+	ucs = ((src[0] & 0x03) << 24)|((src[1] & 0x3F) << 18)|
+	    ((src[2] & 0x3f) << 12)|((src[3] & 0x3f) << 6)|
+	    (src[4] & 0x3F);
+	break;
+      }
+    case 6:
+      {
+	ucs = ((src[0] & 0x03) << 30)|((src[1] & 0x3F) << 24)|
+	    ((src[2] & 0x3f) << 18)|((src[3] & 0x3f) << 12)|
+	    ((src[4] & 0x3f) << 6)|(src[5] & 0x3F);
+	break;
+      }
+    default:
+      {
+        // NOT REACH HERE
+	ECHO_U2EJ((stderr,"invalid utf8-length: %d\n",utf8_len));
+	ucs = '?';
+      }
+    }
+
+    if( 0x0f0000<=ucs && ucs<=0x0fffff )
+    { // 私用領域
+      assert(utf8_len>=4);
+      if( ucs<0x0ff000 )
+      { // 知らない使用領域
+	result.append('?');
+	src += utf8_len;
 	continue;
       }
-      // not supported.
-      result.append(*src++);
-      continue;
-    }else
-    { // invalid
-      result.append(*src++);
+      // 絵文字判定(j-sky)
+      const unsigned char* const sjis = &g_eu2j_table[(ucs - 0x0ff000)*5];
+      //fprintf(stderr,"  emoji: %02x %02x %02x %02x %02x\n",
+      //	  sjis[0],sjis[1],sjis[2],sjis[3],sjis[4]);
+      if( sjis[4]!=0 )
+      { // ５バイト文字に.
+	result.append_ch5(sjis);
+      }else if( sjis[3]!=0 )
+      { // ４バイト文字に.
+	assert("not reach here" && 0);
+	result.append_ch4(*reinterpret_cast<const int*>(sjis));
+      }else if( sjis[2]!=0 )
+      { // ３バイト文字に.
+	assert("not reach here" && 0);
+	result.append_ch3(*reinterpret_cast<const int*>(sjis));
+      }else if( sjis[1]!=0 )
+      { // ２バイト文字に.
+	result.append_ch2(*reinterpret_cast<const unsigned short*>(sjis));
+      }else if( sjis[0]!=0 )
+      { // １バイト文字に.
+	result.append(*sjis);
+      }else
+      { // マッピングなし
+	result.append('?');
+      }
+      src += utf8_len;
       continue;
     }
 
-    //fprintf(stderr,"utf8-charlen: [%d]\n",utf8_len);
-    //fprintf(stderr,"ucs2 [%04x]\n",ucs2);
-    unsigned short sjis = g_u2s_table[ucs2];
-    //fprintf(stderr,"sjis [%04x]\n",sjis);
-    //fprintf(stderr,"sjis [%04x=>%04x]\n",htons(ucs2),ntohs(g_u2s_table[htons(ucs2)]));
-    if( sjis || !ucs2 )
-    {
+    if( ucs & ~0xFFFF )
+    { // ucs2の範囲外 (ucs4の範囲)
+      result.append('?');
+      src += utf8_len;
+      continue;
+    }
+    
+    // ucs => sjis
+    ECHO_U2EJ((stderr,"ucs2 [%04x]\n",ucs));
+    const unsigned short sjis = g_u2s_table[ucs];
+    ECHO_U2EJ((stderr,"sjis [%04x]\n",ntohs(sjis) ));
+    
+    if( sjis || !ucs )
+    { // 対応文字がある時とucs=='\0'の時
       if( sjis & 0xff00 )
       {
 	result.append_ch2(sjis);
@@ -250,15 +305,20 @@ xs_utf8_sjis_jsky(SV* sv_str)
       {
 	result.append((unsigned char)sjis);
       }
+    }else if( ucs<=0x7F )
+    {
+      result.append((unsigned char)ucs);
     }else
     {
-      result.append((unsigned char)'?');
+      result.append('?');
     }
     src += utf8_len;
     //bin_dump("now",dst_begin,dst-dst_begin);
   } /* for */
-  //fprintf(stderr,"  utf8 => sjis(j-sky) completed\n");
-  //bin_dump("tmp",result.getBegin(),result.getLength());
+
+  ON_U2EJ( bin_dump("out",result.getBegin(),result.getLength()) );
+  result.setLength();
+  sv_2mortal(result.getSv());
 
   // packing J-SKY emoji escapes
   SV_Buf pack(result.getLength());

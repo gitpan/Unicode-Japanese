@@ -1,5 +1,5 @@
 
-// $Id: conv.cpp,v 1.9 2002/02/27 11:59:53 hio Exp $
+// $Id: conv.cpp,v 1.15 2002/07/04 04:52:29 hio Exp $
 
 #include <stdio.h>
 #include "Japanese.h"
@@ -50,10 +50,10 @@ xs_sjis_utf8(SV* sv_str)
       //fprintf(stderr,"kana": %02x\n",src[0]);
       ptr = (unsigned char*)&g_s2u_table[src[0]];
       ++src;
-    }else if( ((0x81<=src[0] && src[0]<=0x9f) || (0xe0<=src[0] && src[0]<=0xef) )
+    }else if( ((0x81<=src[0] && src[0]<=0x9f) || (0xe0<=src[0] && src[0]<=0xfc) )
 	      && (0x40<=src[1] && src[1]<=0xfc && src[1]!=0x7f) )
     { // 2バイト文字
-      unsigned short sjis = ntohs(*(unsigned short*)src);
+      register const unsigned short sjis = ntohs(*(unsigned short*)src);
       //fprintf(stderr,"sjis: %04x\n",sjis);
       ptr = (unsigned char*)&g_s2u_table[sjis];
       src += 2;
@@ -65,8 +65,12 @@ xs_sjis_utf8(SV* sv_str)
       continue;
     }
 
-    //fprintf(stderr,"utf8-char : %02x %02x %02x\n",ptr[0],ptr[1],ptr[2]);
-    if( ptr[2] )
+    //fprintf(stderr,"utf8-char : %02x %02x %02x %02x\n",ptr[0],ptr[1],ptr[2],ptr[3]);
+    if( ptr[3] )
+    {
+      //fprintf(stderr,"utf8-len: [%d]\n",4);
+      result.append_ch4(*(int*)ptr);
+    }else if( ptr[2] )
     {
       //fprintf(stderr,"utf8-len: [%d]\n",3);
       result.append_ch3(*(int*)ptr);
@@ -74,10 +78,13 @@ xs_sjis_utf8(SV* sv_str)
     {
       //fprintf(stderr,"utf8-len: [%d]\n",2);
       result.append_ch2(*(short*)ptr);
-    }else
+    }else if( ptr[0] )
     {
       //fprintf(stderr,"utf8-len: [%d]\n",1);
       result.append(*ptr);
+    }else
+    {
+      result.append('?');
     }
   }
 #if DISP_S2U
@@ -109,6 +116,7 @@ xs_utf8_sjis(SV* sv_str)
   {
     if( *src<=0x7f )
     {
+      // ASCIIはまとめて追加〜
       int len = 1;
       while( src+len<src_end && src[len]<=0x7f )
       {
@@ -118,6 +126,8 @@ xs_utf8_sjis(SV* sv_str)
       src+=len;
       continue;
     }
+    // utf8をucsに変換
+    // utf8の１文字の長さチェック
     int utf8_len;
     if( 0xc0<=*src && *src<=0xdf )
     {
@@ -136,15 +146,19 @@ xs_utf8_sjis(SV* sv_str)
       utf8_len = 6;
     }else
     {
-      result.append(*src++);
+      result.append('?');
+      ++src;
       continue;
     }
+    // 長さ足りてるかチェック
     if( src+utf8_len-1>=src_end )
     {
       ECHO_U2S((stderr,"  no enough buffer, here is %d, need %d\n",src_end-src,utf8_len));
-      result.append(*src++);
+      result.append('?');
+      ++src;
       continue;
     }
+    // ２バイト目以降が正しい文字範囲か確認
     bool succ = true;
     for( int i=1; i<utf8_len; ++i )
     {
@@ -157,48 +171,75 @@ xs_utf8_sjis(SV* sv_str)
     }
     if( !succ )
     {
-      result.append(*src++);
+      result.append('?');
+      ++src;
       continue;
     }
+    // utf8からucsのコードを算出
     ECHO_U2S((stderr,"utf8-charlen: [%d]\n",utf8_len));
-    unsigned int ucs2;
+    unsigned int ucs;
     switch(utf8_len)
     {
     case 2:
       {
-	ucs2 = ((src[0] & 0x1F)<<6)|(src[1] & 0x3F);
+	ucs = ((src[0] & 0x1F)<<6)|(src[1] & 0x3F);
 	break;
       }
     case 3:
       {
-	ucs2 = ((src[0] & 0x0F)<<12)|((src[1] & 0x3F)<<6)|(src[2] & 0x3F);
+	ucs = ((src[0] & 0x0F)<<12)|((src[1] & 0x3F)<<6)|(src[2] & 0x3F);
 	break;
       }
     case 4:
       {
-	ucs2 = ((src[0] & 0x07)<<18)|((src[1] & 0x3F)<<12)|
+	ucs = ((src[0] & 0x07)<<18)|((src[1] & 0x3F)<<12)|
 	  ((src[2] & 0x3f) << 6)|(src[3] & 0x3F);
+	break;
+      }
+    case 5:
+      {
+	ucs = ((src[0] & 0x03) << 24)|((src[1] & 0x3F) << 18)|
+	    ((src[2] & 0x3f) << 12)|((src[3] & 0x3f) << 6)|
+	    (src[4] & 0x3F);
+	break;
+      }
+    case 6:
+      {
+	ucs = ((src[0] & 0x03) << 30)|((src[1] & 0x3F) << 24)|
+	    ((src[2] & 0x3f) << 18)|((src[3] & 0x3f) << 12)|
+	    ((src[4] & 0x3f) << 6)|(src[5] & 0x3F);
 	break;
       }
     default:
       {
-	ECHO_U2S((stderr,"utf8-charlen %d is not supported\n",utf8_len));
-	result.append(*src++);
-	continue;
+        // NOT REACH HERE
+	ECHO_U2S((stderr,"invalid utf8-length: %d\n",utf8_len));
+	ucs = '?';
       }
     }
-    ECHO_U2S((stderr,"ucs2 [%04x]\n",ucs2));
-    unsigned short sjis;
-    if( ucs2<=0xFFFF )
-    {
-      sjis = g_u2s_table[ucs2];
-    }else
-    {
-      sjis = '?';
+
+    if( 0x0f0000<=ucs && ucs<=0x0fffff )
+    { // 絵文字判定(sjis)
+      result.append('?');
+      assert(utf8_len>=4);
+      src += utf8_len;
+      continue;
     }
+
+    if( ucs & ~0xFFFF )
+    { // ucs2の範囲外 (ucs4の範囲)
+      result.append_entityref(ucs);
+      src += utf8_len;
+      continue;
+    }
+    
+    // ucs => sjis
+    ECHO_U2S((stderr,"ucs2 [%04x]\n",ucs));
+    const unsigned short sjis = g_u2s_table[ucs];
     ECHO_U2S((stderr,"sjis [%04x]\n",ntohs(sjis) ));
-    if( sjis || !ucs2 )
-    {
+    
+    if( sjis || !ucs )
+    { // 対応文字がある時とucs=='\0'の時
       if( sjis & 0xff00 )
       {
 	result.append_ch2(sjis);
@@ -206,17 +247,12 @@ xs_utf8_sjis(SV* sv_str)
       {
 	result.append((unsigned char)sjis);
       }
+    }else if( ucs<=0x7F )
+    {
+      result.append((unsigned char)ucs);
     }else
     {
-      char buf[32];
-      //fprintf(stderr,"outrange: [&#%d;]\n",ucs2);
-      int write_len = snprintf(buf,32,"&#%d;",ucs2);
-      if( write_len==-1 )
-      {
-	result.append(*src++);
-	continue;
-      }
-      result.append((unsigned char*)buf,write_len);
+      result.append_entityref(ucs);
     }
     src += utf8_len;
     //bin_dump("now",dst_begin,dst-dst_begin);

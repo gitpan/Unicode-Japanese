@@ -2,12 +2,13 @@
 #ifndef UNICODE__JAPANESE
 #define UNICODE__JAPANESE
 
-/* $Id: Japanese.h,v 1.9 2002/02/27 11:59:53 hio Exp $ */
+/* $Id: Japanese.h,v 1.11 2002/06/30 23:12:58 hio Exp $ */
 
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
 #include "mediate.h"
+#include <assert.h>
 
 #ifdef __cplusplus
 #include "str.h"
@@ -63,9 +64,9 @@ EXTERN_C
   SV* xs_sjis_doti_utf8(SV* sv_str);
   SV* xs_utf8_sjis_doti(SV* sv_str);
 
-  /* ucs_utf8, not available */
-  //SV* xs_ucs2_utf8(SV* sv_str);
-  //int ucs2_utf8_ch(const unsigned char* src, unsigned char* buf);
+  /* ucs_utf8 */
+  SV* xs_ucs2_utf8(SV* sv_str);
+  SV* xs_utf8_ucs2(SV* sv_str);
 
   /* メモリマップファイル関連 */
   void do_memmap();

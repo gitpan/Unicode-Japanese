@@ -2,7 +2,7 @@
 #ifndef STR_H__
 #define STR_H__
 
-// $Id: str.h,v 1.4 2002/01/22 14:39:58 hio Exp $
+// $Id: str.h,v 1.7 2002/07/04 04:52:29 hio Exp $
 
 // BUF_MALLOC : use malloc()
 // (undef)    : use SV* buffer directly
@@ -20,7 +20,7 @@ private:
 
 public:
 #ifndef BUF_MALLOC
-  SV_Buf(int len) : alloc_len(len)
+  SV_Buf(STRLEN len) : alloc_len(len)
   {
     sv = newSVpvn("",0);
     STRLEN alen = alloc_len+1;
@@ -30,7 +30,7 @@ public:
     dst_begin = dst;
   }
 #else
-  SV_Buf(int len) : alloc_len(len)
+  SV_Buf(STRLEN len) : alloc_len(len)
   {
     dst = (unsigned char*)malloc(alloc_len+1);
     dst_begin = dst;
@@ -57,6 +57,11 @@ public:
 #endif
   }
   inline void append(unsigned char ch)
+  { // same as append_ch
+    checkbuf(1);
+    *dst++ = ch;
+  }
+  inline void append_ch(unsigned char ch)
   {
     checkbuf(1);
     *dst++ = ch;
@@ -73,13 +78,39 @@ public:
     *(int*)dst = ch;
     dst += 3;
   }
+  inline void append_ch4(int ch)
+  {
+    checkbuf(4);
+    *(int*)dst = ch;
+    dst += 4;
+  }
+  inline void append_ch5(const unsigned char* src)
+  {
+    checkbuf(5);
+    memcpy(dst,src,5);
+    dst += 5;
+  }
   inline void append(const unsigned char* src, int len)
   {
     checkbuf(len);
     memcpy(dst,src,len);
     dst += len;
   }
-  void checkbuf(int len)
+  // entity reference で追加
+  inline void append_entityref(unsigned long ucs)
+  {
+    char buf[32];
+    register int write_len = snprintf(buf,32,"&#%lu;",ucs);
+    if( write_len!=-1 && write_len<32 )
+    {
+      append((unsigned char*)buf,write_len);
+    }else
+    { // 失敗するコトなんてないと思うけど….
+      // -1はglibc2.0.6以前, 2.1以降は必要なサイズ
+      append_ch('?');
+    }
+  }
+  void checkbuf(STRLEN len)
   {
 #ifdef TEST
     if( len==0 )
@@ -87,16 +118,16 @@ public:
       fprintf(stderr,"SV_Buf.checkbuf, check length 0.\n");
     }
 #endif
-    if( dst+len-dst_begin>=alloc_len )
+    if( (dst-dst_begin)+len>=alloc_len )
     {
-      int now_len = dst-dst_begin;
-      int new_len = (alloc_len+len)*2;
+      STRLEN now_len = dst-dst_begin;
+      STRLEN new_len = (alloc_len+len)*2;
 #ifdef TEST
       fprintf(stderr,"<<SV_Buf.realloc>> %d+%d/%d => %d\n",now_len,len,alloc_len,new_len);
 #endif
 #ifndef BUF_MALLOC
       setLength();
-      I32 alen = new_len+1;
+      STRLEN alen = new_len+1;
       SvGROW(sv,alen);
       STRLEN curlen;
       dst_begin = (unsigned char*)SvPV(sv,curlen);

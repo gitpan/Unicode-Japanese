@@ -1,5 +1,5 @@
 
-// $Id: getcode.cpp,v 1.3 2001/12/28 02:19:38 hio Exp $
+// $Id: getcode.cpp,v 1.4 2002/07/01 00:17:02 hio Exp $
 
 #include "Japanese.h"
 #include "getcode.h"
@@ -45,7 +45,7 @@ enum charcode_t
 #define RE_BOM4_BE  "\x00\x00\xfe\xff"
 #define RE_BOM4_LE  "\xff\xfe\x00\x00"
 
-#ifdef TEST
+#if defined(TEST) || 1
 // 文字コード定数を文字コード名に
 static const char* charcodeToStr(charcode_t code)
 {
@@ -66,6 +66,8 @@ static const char* charcodeToStr(charcode_t code)
   }
   return NULL;
 }
+#endif
+#ifdef TEST
 DECL_MAP_MODE(ascii,1) = { "ascii", };
 DECL_MAP_MODE(eucjp,5) =
 { "eucjp", "0212:3.1","0212:3.2","c:2.1","kana:2.1",};

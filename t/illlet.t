@@ -28,6 +28,7 @@ ok($string->sjis_doti, "\xf4\xa8\xf0\x49");
 $string = new Unicode::Japanese "\xf3\xbf\xa2\xa8";
 ok($string->sjis_jsky, "\x1b\x24\x46\x60\x0f");
 
+# U+? U+000ff38e
 $string = new Unicode::Japanese "\xf3\xbf\x81\x88\xf3\xbf\x8e\x8e";
 ok($string->sjis_jsky, "\x1b\x24\x46\x43\x0f\x82\xd2");
 

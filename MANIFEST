@@ -21,7 +21,9 @@ sjis_imode.cpp        sjis(i-mode)<=>utf8 変換コード
 sjis_jsky.cpp         sjis(j-sky)<=>utf8 変換コード
 str.h                 SV* 操作用クラス
 ucs2_utf8.cpp
+t/allchar_utf8.pl
 t/base.t
+t/emoji.t
 t/fromutf8.t
 t/hirakata.t
 t/illlet.t
@@ -30,4 +32,8 @@ t/util.t
 t/z2h.t
 t/getcode.t
 t/outrange.t
+t/random.pl
+t/random_redo.pl
+t/ucs2_utf8.pl
+t/verify_sjis_ucs2.pl
 xs_test.c             xsコンパイルテスト用コード

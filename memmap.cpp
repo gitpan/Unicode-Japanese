@@ -1,5 +1,5 @@
 
-// $Id: memmap.cpp,v 1.8 2002/04/03 14:32:26 hio Exp $
+// $Id: memmap.cpp,v 1.9 2002/06/25 16:30:27 hio Exp $
 
 #include "Japanese.h"
 #include <unistd.h>   // memmap
@@ -120,12 +120,12 @@ do_memmap()
 
   if( st_u2s.st_size!=0x60000 )
   {
-    Perl_croak(aTHX_ "do_memmap, u2s-s2u size != 0x60000.");
+    Perl_croak(aTHX_ "do_memmap, u2s-s2u size != 0x60000, [got %#x].",st_u2s.st_size);
     return;
   }
   if( st_emj.st_size!=0xb800 )
   {
-    Perl_croak(aTHX_ "do_memmap, emoji.dat size != 0xb800.");
+    Perl_croak(aTHX_ "do_memmap, emoji.dat size != 0xb800, [got %#x].",st_emj.st_size);
     return;
   }
 
