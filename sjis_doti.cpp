@@ -1,8 +1,8 @@
 
-/* $Id: sjis_doti.cpp,v 1.15 2002/07/08 07:50:28 hio Exp $ */
+/* $Id: sjis_doti.cpp,v 1.16 2002/07/17 16:34:53 hio Exp $ */
 
-#include <stdio.h>
 #include "Japanese.h"
+#include <stdio.h>
 
 EXTERN_C
 SV*

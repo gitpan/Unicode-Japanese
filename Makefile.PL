@@ -1,60 +1,42 @@
 
+package Unicode::Japanese::MakeMaker;
+
 use strict;
 use ExtUtils::Manifest;
+use ExtUtils::MakeMaker;
 
 my $MANIFEST_bak = $ExtUtils::Manifest::MANIFEST;
 
-my (%param, %param_xs);
+my %argv = map{ /^(\w+)=(.*)$/ } @ARGV;
+
+my $useXS; # 0:PurePerl,1:useXS,undef:not specified
+
+unlink(qw(medaite.h mediate.cpp));
 
 # --------------------------------------------------------------------
 # create default parameter
-init_param();
-
-# --------------------------------------------------------------------
-# add CCFLAGS
-#add_ccflags('-Werror');
-add_ccflags('-DNDEBUG'); # uncomment for release
-
-#include_test();
-do_mediate();
-
-use ExtUtils::MakeMaker;
-WriteMakefile(%param,%param_xs);
-
-$ExtUtils::Manifest::MANIFEST = $MANIFEST_bak;
-
-# --------------------------------------------------------------------
-# follows are subroutins only.
-
-sub init_param
-{
-  my %arg = map{ /^(\w+)=(.*)$/ } @ARGV;
-  my $cc = $arg{'CC'} || 'g++';
-  my $ld = $arg{'LD'} || $cc;
-
-  my $object = join(' ',qw( Japanese.o memmap.o conv.o ucs2_utf8.o
-			    getcode.o getcode_map.o sjis.o eucjp.o jis.o
-			    sjis_imode.o sjis_jsky.o sjis_doti.o
-			    mediate.o 
-			    ) );
-
-  %param = (
+my %param = (
     'NAME'		=> 'Unicode::Japanese',
     'VERSION_FROM'	=> 'Japanese.pm', # finds $VERSION
     'ABSTRACT_FROM'     => 'Japanese.pm', #
     'AUTHOR'		=> 'SANO Taku (SAWATARI Mikage) and YAMASHINA Hio',
 
     'PREREQ_PM'		=> {}, # e.g., Module::Name => 1.1
+    'PL_FILES'          => {},
+
+    'CONFIGURE'         => \&configure,	 
   );
-  %param_xs = (
+my %param_xs = (
     'PM'=>{'Japanese/u2s-s2u.dat'=>'$(INST_LIBDIR)/Japanese/u2s-s2u.dat',
 	   'Japanese/emoji.dat'=>'$(INST_LIBDIR)/Japanese/emoji.dat',
 	   'Japanese.pm'=>'$(INST_LIBDIR)/Japanese.pm',
 	  },
-    'CC' => $cc,
     'CCFLAGS' => '-Wall',
-    'LD' => $ld,
-    'OBJECT' => $object,
+    'OBJECT' => join(' ',qw( Japanese.o memmap.o conv.o ucs2_utf8.o
+			     getcode.o getcode_map.o sjis.o eucjp.o jis.o
+			     sjis_imode.o sjis_jsky.o sjis_doti.o
+			     mediate.o 
+			     ) ),
     'XS' => {'Japanese.xs'=>'Japanese.c',},
     'XSOPT'=>'-C++',
     'XSPROTOARG'=>'-prototypes',
@@ -65,81 +47,146 @@ sub init_param
 
     'clean'    => { FILES => 'mediate.{cpp,h}' },
   );
-}
 
-sub include_test
+# --------------------------------------------------------------------
+# check devel mode.
+if( ! -e 'devel.PL' )
 {
-  $param_xs{'CCFLAGS'} .= '-g -DTEST=1';
-  $param_xs{'OBJECT'}  .= ' test.o';
-}
-
-#
-# generate mediate.h/mediate.cpp
-sub do_mediate
+  # for Release.
+  add_ccflags('-DNDEBUG');
+}else
 {
-  # check 'PurePerl' from @ARGV, and remove if exists.
-  my @arg;
-  @ARGV = grep{ !(@arg-push(@arg,/^(PurePerl|NoXS)(=(0|1|yes|no|y|n))?$/i)) } @ARGV;
-  if( @arg )
+  # for Development Environment.
+  print "for devel.\n";
+  if( open DEVEL_PL,'devel.PL' )
   {
-    my $v = $arg[1] ? $arg[2] : '1';
-    if( $v eq '1' || $v eq 'y' || $v eq 'yes' )
+    my $code = join('',<DEVEL_PL>);
+    eval $code;
+    if( $@ )
     {
-      print "install with PurePerl mode\n";
-      disable_xs();
-      return;
+      die "'devel.PL' failed : $@";
     }
+    close DEVEL_PL;
   }
+  print " >> (devel mode) CCFLAGS = '$param_xs{'CCFLAGS'}'\n";
+}
 
-  # check os type
-
-  my ($hdr,$cpp);
-  
-  my $ostype = `uname -s` || '';
-  if( $ostype =~ /(Linux)/ )
+# --------------------------------------------------------------------
+# check 'PurePerl'or'NoXS' from @ARGV, and remove if exists.
+my @arg;
+@ARGV = grep{ !(@arg-push(@arg,/^(PurePerl|NoXS)(=(0|1|yes|no|y|n))?$/i)) } @ARGV;
+if( @arg )
+{
+  my $v = $arg[1] ? $arg[2] : '1';
+  if( $v eq '1' || $v eq 'y' || $v eq 'yes' )
   {
-    $ostype = $1;
-  }elsif( $ostype =~ /(BSD)/ )
-  {
-    $ostype = $1;
-    $hdr = "#include <fcntl.h>\n\n";
-  }elsif( $ostype =~ /(SunOS)/ )
-  {
-    $ostype = $1;
-    $hdr = "#include <fcntl.h>\n\n";
-  }elsif( !$ostype )
-  {
-    # unknown ...
-    print "cannot detect your environment, disable XS...\n";
-    disable_xs();
-    return;
+    print "install with PurePerl mode\n";
+    disableXS();
   }
+}
 
+# --------------------------------------------------------------------
+# run MakerMaker :: WriteMakefile
+
+WriteMakefile(%param);
+
+$ExtUtils::Manifest::MANIFEST = $MANIFEST_bak;
+
+
+# --------------------------------------------------------------------
+# follows are subroutins only.
+
+sub configure
+{
+  print "**** CONFIGURE ****\n";
   if( $] < 5.006 )
   {
-    /`/;
-    $hdr .= <<'EOF';
-#define aTHX_
-#define pTHX_
-#define dTHX_
+    add_ccflags('-DUNIJP__PERL_OLDER_THAN_5_006');
+  }
+  if( $] < 5.005 )
+  {
+    add_ccflags('-DUNIJP__PERL_OLDER_THAN_5_005');
+  }
 
-#define get_av(var_name,create_flag) perl_get_av(var_name,create_flag);
+  if( !defined($useXS) )
+  {
+    print " >> no hints ran ?\n";
+    enableXS('(no hints)',undef,undef);
+  }
 
-#ifndef newSVpvn
-#define newSVpvn(str,len) newSVpv(str,len)
-#endif
-
-EOF
-    if( $] < 5.005 )
+  if( $useXS )
+  {
+    # compile check.
+    use Config;
+    use ExtUtils::Embed;
+    my $cc = exists $argv{CC} ? $argv{CC} : $Config{cc};
+    my $ccopts = ExtUtils::Embed::ccopts();
+    my $xstest_src = $^O eq 'MSWin32' ? 'memmap_win32.c' : 'memmap.cpp';
+    my $xstest_out = $^O eq 'MSWin32' ? 'memmap_win32.obj' : 'memmap.o';
+    my $cmd = "$cc $ccopts -c $xstest_src -o $xstest_out";
+    print "Checking XS Compiling... : $cmd\n";
+    my $rc = 0xffff & system($cmd);
+    unlink($xstest_out);
+    if( $rc )
     {
-      $hdr .= <<'EOF';
-#ifndef PL_sv_undef
-#define PL_sv_undef sv_undef
-#endif
-EOF
-    } # if( $] < 5.005 )
-  /`/;
-  } # if( $] < 5.006 )
+      if( $rc == 0xffff )
+      {
+	print " >> Here environment cannot use XS.\n";
+	print " >> Because : command failed : $!\n";
+	return disableXS();
+      }elsif( $rc > 0x80 )
+      {
+        print " >> Here environment cannot use XS.\n";
+	print " >> Because : ran with non-zero exit status $rc\n";
+	return disableXS();
+      }elsif( $rc & 0x80 )
+      {
+	$rc &= ~0x80;
+	print " >> Compile failed..\n";
+	print " >> Because : ran with coredump from signal $rc\n";
+	exit 1;
+      }else
+      {
+        print " >> Compile failed..\n";
+        print " >> Because : ran with signal $rc\n";
+	exit 1;
+      }
+    }
+    print " >> ok, test succeed.\n";
+  }else
+  {
+    print "skip xs compile test\n";
+  }
+  
+  \%param_xs;
+}
+
+sub disableXS
+{
+  print " >> disableXS...\n";
+  $useXS = 0;  
+  $ExtUtils::Manifest::MANIFEST = 'MANIFEST.noxs';
+  $param{linkext} = { 'LINKTYPE'=>'' };
+  %param_xs = ('linkext'=>{'LINKTYPE'=>''});
+  \%param_xs;
+}
+
+sub enableXS
+{
+  my $type = shift;
+  my $hdr  = shift || "/* nothing is needed. */\n";
+  my $cpp  = shift || "/* nothing is needed. */\n";
+
+  if( $type eq 'MSWin32' )
+  {
+    $param_xs{'OBJECT'} =~ s/\bmemmap.o\b/memmap_win32.o/;
+  }
+
+  !defined($useXS) and $useXS = 1;
+  print " >> enableXS...\n";
+  $useXS or print " >> but XS was disabled previously... (keep disabled)\n";
+  $hdr = "/* from hints/$type.pl */\n\n".$hdr;
+  $cpp = "/* from hints/$type.pl */\n\n".$cpp;
 
   use FileHandle;
   my $fh_hdr = new FileHandle('>mediate.h');
@@ -149,66 +196,33 @@ EOF
     die 'cannot open mediate.h or .cpp for output';
   }
 
-  $hdr = "/* nothing is needed. */\n" unless( $hdr );
-  $cpp = "/* nothing is needed. */\n" unless( $cpp );
-
-  print $fh_cpp <<EOF;
-
-#include "Japanese.h"
-
-$cpp
-EOF
-
   print $fh_hdr <<EOF;
 #ifndef MEDIATE_H__
 #define MEDIATE_H__
 
 $hdr
+
 #endif
 EOF
 
-  # compile check.
-  my $cmd = "$param_xs{CC} -shared -c xs_test.c";
-  print "Checking XS Compiling... : $cmd\n";
-  my $rc = 0xffff & system($cmd);
-  if( $rc )
-  {
-    if( $rc == 0xffff )
-    {
-      print "Here environment cannot use XS.\n";
-      print "Because : command failed : $!\n";
-      disable_xs();
-      return;
-    }elsif( $rc > 0x80 )
-    {
-      print "Here environment cannot use XS.\n";
-      print "Because : ran with non-zero exit status $rc\n";
-      disable_xs();
-      return;
-    }elsif( $rc & 0x80 )
-    {
-      $rc &= ~0x80;
-      print "Compile failed..\n";
-      print "Because : ran with coredump from signal $rc\n";
-      exit 1;
-    }else
-    {
-      print "Compile failed..\n";
-      print "Because : ran with signal $rc\n";
-      exit 1;
-    }
-  }
-  unlink('xs_test.o');
+  print $fh_cpp $cpp;
+
+  $fh_hdr->close();
+  $fh_cpp->close();
+  
+  \%param_xs;
 }
 
-sub disable_xs
-{
-  $ExtUtils::Manifest::MANIFEST = 'MANIFEST.noxs';
-  %param_xs = ('linkext'=>{'LINKTYPE'=>''});
-  #rename('Japanese','Japanese-notused');
-}
+# --------------------------------------------------------------------
+# misc.
 
 sub add_ccflags
 {
   $param_xs{'CCFLAGS'} = join(' ',$param_xs{'CCFLAGS'},@_);  
+}
+
+sub include_test
+{
+  $param_xs{'CCFLAGS'} .= '-g -DTEST=1';
+  $param_xs{'OBJECT'}  .= ' test.o';
 }

@@ -1,18 +1,9 @@
 
-// $Id: memmap.cpp,v 1.11 2002/07/21 12:44:04 hio Exp $
+// $Id: memmap_win32.c,v 1.2 2002/07/21 12:44:04 hio Exp $
 
 #include "Japanese.h"
-#include <unistd.h>   // memmap
-#include <sys/mman.h> // memmap
-#include <sys/stat.h> // stat
-#include <fcntl.h>    // open
+#include <windows.h>
 
-#ifndef MAP_FAILED
-#define MAP_FAILED ((void*)-1)
-#endif
-
-EXTERN_C
-{
   /* SJIS <=> UTF8 変換テーブル */
   unsigned short const* g_u2s_table;
   unsigned long  const* g_s2u_table;
@@ -40,59 +31,70 @@ EXTERN_C
   static int   g_mmap_emj_length;
   static char* g_mmap_emj_start;
 
-}
+static HANDLE fd_u2s = INVALID_HANDLE_VALUE;
+static HANDLE fd_emj = INVALID_HANDLE_VALUE;
+static HANDLE hmap_u2s = INVALID_HANDLE_VALUE;
+static HANDLE hmap_emj = INVALID_HANDLE_VALUE;
 
-static int
+static HANDLE
 findfile(AV* INC, const char* filename)
 {
   //fprintf(stderr,"findfile [%s]\n",filename);
   int i;
-  char  path[PATH_MAX];
+  char  path[MAX_PATH];
   int addlen = strlen(filename);
   for( i=0; i<av_len(INC); ++i )
   {
     SV** dir = av_fetch(INC,i,0);
     int len = sv_len(*dir);
+    HANDLE fd;
+    
     if( len==0 ) continue;
-    if( len+addlen+2>=PATH_MAX ) continue;
+    if( len+addlen+2>=MAX_PATH ) continue;
     memcpy(path,SvPV(*dir,PL_na),len);
-    if( path[len-1]!='/' ) path[len++] = '/';
+    if( path[len-1]!='\\' ) path[len++] = '\\';
     memcpy(path+len,filename,addlen);
     path[len+addlen] = '\0';
     //fprintf(stderr,"  trying [%s] ...\n",path);
-    int fd = open(path,O_RDONLY|O_NONBLOCK);
-    if( fd!=-1 )
+    fd = CreateFile(path,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL|FILE_FLAG_RANDOM_ACCESS,NULL);
+    if( fd!=INVALID_HANDLE_VALUE )
     {
       //fprintf(stderr,"findfile [%s] found\n",filename);
       return fd;
     }
   }
   //fprintf(stderr,"findfile [%s] failed\n",filename);
-  return -1;
+  return INVALID_HANDLE_VALUE;
 }
 
 void
 do_memmap()
 {
+  AV* INC;
+  DWORD siz_u2s,siz_emj;
+
   //fprintf(stderr,"* Unicode::Japanese::(xs)do_memmap *\n");
-  AV* INC = get_av("INC",0);
+
+  INC = get_av("INC",0);
   if( INC==NULL )
   {
     Perl_croak(aTHX_ "do_memmap, cannot get @INC.");
     return;
   }
-  int fd_u2s = findfile(INC,"Unicode/Japanese/u2s-s2u.dat");
-  int fd_emj = findfile(INC,"Unicode/Japanese/emoji.dat");
+  fd_u2s = findfile(INC,"Unicode/Japanese/u2s-s2u.dat");
+  fd_emj = findfile(INC,"Unicode/Japanese/emoji.dat");
 
-  if( fd_u2s==-1 || fd_emj==-1 )
+  if( fd_u2s==INVALID_HANDLE_VALUE || fd_emj==INVALID_HANDLE_VALUE )
   {
-    if( fd_u2s!=-1 )
+    if( fd_u2s!=INVALID_HANDLE_VALUE )
     {
-      close(fd_u2s);
-      Perl_croak(aTHX_ "do_memmap, emoji table not found or could not open.");
-    }else if( fd_emj!=-1 )
+      CloseHandle(fd_u2s);
+      fd_u2s = INVALID_HANDLE_VALUE;
+      Perl_croak(aTHX_ "do_memmap, emoji table not found or could not  open.");
+    }else if( fd_emj!=INVALID_HANDLE_VALUE )
     {
-      close(fd_emj);
+      CloseHandle(fd_emj);
+      fd_emj = INVALID_HANDLE_VALUE;
       Perl_croak(aTHX_ "do_memmap, u2s table not found or could not open.");
     }else
     {
@@ -100,57 +102,58 @@ do_memmap()
     }
     return;
   }
-  struct stat st_u2s,st_emj;
-  int res_u2s = fstat(fd_u2s,&st_u2s);
-  int res_emj = fstat(fd_emj,&st_emj);
-  if( res_u2s==-1 && res_emj==-1 )
+  siz_u2s = GetFileSize(fd_u2s,NULL);
+  siz_emj = GetFileSize(fd_emj,NULL);
+  if( siz_u2s==-1 && siz_emj==-1 )
   {
-    close(fd_u2s);
-    close(fd_emj);
-    if( res_u2s!=-1 )
+    CloseHandle(fd_u2s);
+    CloseHandle(fd_emj);
+    fd_u2s = fd_emj = INVALID_HANDLE_VALUE;
+    if( siz_u2s!=-1 )
     {
-      Perl_croak(aTHX_ "do_memmap, stat emoji table (for mmap) failed.");
-    }else if( res_emj!=-1 )
+      Perl_croak(aTHX_ "do_memmap, GetFileSize emoji table (for mmap) failed.");
+    }else if( siz_emj!=-1 )
     {
-      Perl_croak(aTHX_ "do_memmap, stat u2s table (for mmap) failed.");
+      Perl_croak(aTHX_ "do_memmap, GetFileSize u2s table (for mmap) failed.");
     }else
     {
-      Perl_croak(aTHX_ "do_memmap, stat u2s and emoji tables (for mmap) failed.");
+      Perl_croak(aTHX_ "do_memmap, GetFileSize u2s and emoji tables (for mmap) failed.");
     }
     return;
   }
 
-  if( st_u2s.st_size!=0x60000 )
+  if( siz_u2s!=0x60000 )
   {
-    close(fd_u2s);
-    close(fd_emj);
-    Perl_croak(aTHX_ "do_memmap, u2s-s2u size != 0x60000, [got %#x].",st_u2s.st_size);
+    CloseHandle(fd_u2s);
+    CloseHandle(fd_emj);
+    fd_u2s = fd_emj = INVALID_HANDLE_VALUE;
+    Perl_croak(aTHX_ "do_memmap, u2s-s2u size != 0x60000, [got %#x].",siz_u2s);
     return;
   }
-  if( st_emj.st_size!=0xb800 )
+  if( siz_emj!=0xb800 )
   {
-    close(fd_u2s);
-    close(fd_emj);
-    Perl_croak(aTHX_ "do_memmap, emoji.dat size != 0xb800, [got %#x].",st_emj.st_size);
+    CloseHandle(fd_u2s);
+    CloseHandle(fd_emj);
+    fd_u2s = fd_emj = INVALID_HANDLE_VALUE;
+    Perl_croak(aTHX_ "do_memmap, emoji.dat size != 0xb800, [got %#x].",siz_emj);
     return;
   }
 
-  g_mmap_u2s_length  = st_u2s.st_size;
-  g_mmap_u2s_start = (char*)mmap(NULL,g_mmap_u2s_length,PROT_READ,MAP_PRIVATE,fd_u2s,0);
-  g_mmap_emj_length  = st_emj.st_size;
-  g_mmap_emj_start = (char*)mmap(NULL,g_mmap_emj_length,PROT_READ,MAP_PRIVATE,fd_emj,0);
+  hmap_u2s = CreateFileMapping(fd_u2s,NULL,PAGE_READONLY,0,siz_u2s,"Unicode-Japanese-u2s");
+  hmap_emj = CreateFileMapping(fd_emj,NULL,PAGE_READONLY,0,siz_emj,"Unicode-Japanese-emj");
+  g_mmap_u2s_length  = siz_u2s;
+  g_mmap_u2s_start = (char*)MapViewOfFile(hmap_u2s,FILE_MAP_READ,0,0,siz_u2s);
+  g_mmap_emj_length  = siz_emj;
+  g_mmap_emj_start = (char*)MapViewOfFile(hmap_emj,FILE_MAP_READ,0,0,siz_emj);
 
-  close(fd_u2s);
-  close(fd_emj);
-
-  if( g_mmap_u2s_start==MAP_FAILED || g_mmap_emj_start==MAP_FAILED )
+  if( g_mmap_u2s_start==NULL || g_mmap_emj_start==NULL )
   {
     const char* msg;
-    if( g_mmap_u2s_start!=MAP_FAILED )
+    if( g_mmap_u2s_start!=NULL )
     {
       msg = "do_memmap, mmap emoji table failed.";
       g_mmap_emj_start = NULL;
-    }else if( g_mmap_emj_start!=MAP_FAILED )
+    }else if( g_mmap_emj_start!=NULL )
     {
       msg = "do_memmap, mmap u2s table failed.";
       g_mmap_u2s_start = NULL;
@@ -194,22 +197,45 @@ do_memunmap()
   // u2s table
   if( g_mmap_u2s_start!=NULL )
   {
-    int res = munmap(g_mmap_u2s_start,g_mmap_u2s_length);
-    if( res==-1 )
+    BOOL res = UnmapViewOfFile(g_mmap_u2s_start);
+    if( !res )
     {
-      Perl_warn(aTHX_ "do_memunmap, munmap u2s table failed.");
+      Perl_warn(aTHX_ "do_memunmap, UnmapViewOfFile u2s table failed.");
     }
     g_mmap_u2s_start = NULL;
   }
   // emoji table
   if( g_mmap_emj_start!=NULL )
   {
-    int res = munmap(g_mmap_emj_start,g_mmap_emj_length);
-    if( res==-1 )
+    BOOL res = UnmapViewOfFile(g_mmap_emj_start);
+    if( !res )
     {
-      Perl_warn(aTHX_ "do_memunmap, munmap emoji table failed.");
+      Perl_warn(aTHX_ "do_memunmap, UnmapViewOfFile emoji table failed.");
     }
     g_mmap_emj_start = NULL;
+  }
+
+  if( hmap_u2s!=INVALID_HANDLE_VALUE )
+  {
+     CloseHandle(hmap_u2s);
+     hmap_u2s = NULL;
+  }
+  if( hmap_emj!=INVALID_HANDLE_VALUE )
+  {
+     CloseHandle(hmap_emj);
+     hmap_emj = NULL;
+  }
+
+  if( fd_u2s!=INVALID_HANDLE_VALUE )
+  {
+    CloseHandle(fd_u2s);
+    fd_u2s = NULL;
+  }
+  
+  if( fd_emj!=INVALID_HANDLE_VALUE )
+  {
+    CloseHandle(fd_emj);
+    fd_emj = NULL;
   }
 
   return;

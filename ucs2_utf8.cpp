@@ -1,5 +1,5 @@
 
-// $Id: ucs2_utf8.cpp,v 1.7 2002/07/10 20:11:57 hio Exp $
+// $Id: ucs2_utf8.cpp,v 1.8 2002/07/17 16:34:53 hio Exp $
 
 #include "Japanese.h"
 
@@ -14,7 +14,6 @@ xs_ucs2_utf8(SV* sv_str)
   {
     return newSVpvn("",0);
   }
-  STRLEN PL_na;
   unsigned char* src = (unsigned char*)SvPV(sv_str,PL_na);
   const int len = sv_len(sv_str);
 
@@ -69,7 +68,6 @@ xs_utf8_ucs2(SV* sv_str)
   {
     return newSVpvn("",0);
   }
-  STRLEN PL_na;
   unsigned char* src = (unsigned char*)SvPV(sv_str,PL_na);
   const int len = sv_len(sv_str);
 

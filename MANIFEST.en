@@ -1,0 +1,43 @@
+Changes
+Japanese/u2s-s2u.dat  sjis<=>utf8 mapping table
+Japanese/emoji.dat    i-mode/j-sky/dot-i<=>utf8 conversion table
+Japanese.pm           Unicode::Japanese perl module
+Japanese.xs           Unicode::Japanese XS code
+Japanese.h            forward declarations for XS-Unicode::Japanese
+Makefile.PL
+MANIFEST              MANIFEST in Japanese
+MANIFEST.en           MANIFEST in English
+MANIFEST.noxs
+conv.cpp              sjis<=>utf8 conversion
+eucjp.cpp             sjis<=>eucjp conversion
+getcode.cpp           getcode method
+getcode.h
+getcode_map.cpp       state transition disgram table for getcode
+hints/freebsd.pl      hints file (FreeBSD)
+hints/linux.pl        hints file (Linux)
+hints/sunos.pl        hints file (Solaris)
+jis.cpp               sjis<=>jis conversion
+memmap.cpp            mmapping of mapping table
+sjis.cpp              validate table for sjis
+sjis.h                forward decls for sjis validator
+sjis_doti.cpp         sjis(dot-i)<=>utf8 conversion
+sjis_imode.cpp        sjis(i-mode)<=>utf8 conversion
+sjis_jsky.cpp         sjis(j-sky)<=>utf8 conversion
+str.h                 SV* manipulate class
+ucs2_utf8.cpp
+t/allchar_utf8.pl
+t/base.t
+t/emoji.t
+t/fromutf8.t
+t/hirakata.t
+t/illlet.t
+t/toutf8.t
+t/util.t
+t/z2h.t
+t/getcode.t
+t/outrange.t
+t/random.pl
+t/random_redo.pl
+t/ucs2_utf8.pl
+t/verify_sjis_ucs2.pl
+xs_test.c             compile test code for xs.

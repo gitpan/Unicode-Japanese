@@ -2,12 +2,13 @@
 #ifndef UNICODE__JAPANESE
 #define UNICODE__JAPANESE
 
-/* $Id: Japanese.h,v 1.12 2002/07/10 20:14:24 hio Exp $ */
+/* $Id: Japanese.h,v 1.15 2002/07/20 06:41:52 hio Exp $ */
 
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
 #include "mediate.h"
+
 #ifndef assert
 #include <assert.h>
 #endif
@@ -32,15 +33,20 @@
 #endif
 
 #ifndef u_char
-#define u_char u_char
-typedef unsigned char u_char;
+/*typedef unsigned char u_char;*/
+#define u_char unsigned char
 #endif
 
 /* util */
 #define new_SV_UNDEF() newSVsv(&PL_sv_undef)
 
-EXTERN_C
+/* -------------------------------------------------------------------
+ * XS methods.
+ */
+#ifdef __cplusplus
+extern "C"
 {
+#endif
   /* sjis <=> utf8  (conv.cpp) */
   SV* xs_sjis_utf8(SV* sv_str);
   SV* xs_utf8_sjis(SV* sv_str);
@@ -95,7 +101,27 @@ EXTERN_C
   extern int g_eu2j_size;
   extern int g_ed2u_size;
   extern int g_eu2d_size;
+#ifdef __cplusplus
 }
+#endif
 
+#ifdef UNIJP__PERL_OLDER_THEN_5_006
+
+#define aTHX_
+#define pTHX_
+#define dTHX_
+#define get_av(var_name,create_flag) perl_get_av(var_name,create_flag);
+
+#ifndef newSVpvn
+#define newSVpvn(str,len) newSVpv(str,len)
+#endif
+
+#endif
+
+#ifdef UNIJP__PERL_OLDER_THEN_5_005
+#ifndef PL_sv_undef
+#define PL_sv_undef sv_undef
+#endif
+#endif
 
 #endif /* UNICODE__JAPANESE */

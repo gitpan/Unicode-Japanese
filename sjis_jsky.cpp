@@ -1,8 +1,8 @@
 
-// $Id: sjis_jsky.cpp,v 1.18 2002/07/04 04:52:29 hio Exp $
+// $Id: sjis_jsky.cpp,v 1.19 2002/07/17 16:34:53 hio Exp $
 
-#include <stdio.h>
 #include "Japanese.h"
+#include <stdio.h>
 
 #define ECHO_EJ2U(arg) //fprintf arg
 #define ON_EJ2U(cmd) //cmd
