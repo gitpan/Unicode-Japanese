@@ -1,5 +1,6 @@
 
 use vars qw(%param %param_xs $ostype);
+my @argv_back = @ARGV;
 
 init_param();
 add_ccflags('-Werror');
@@ -10,6 +11,52 @@ do_mediate();
 use ExtUtils::MakeMaker;
 WriteMakefile(%param,%param_xs);
 
+@ARGV = @argv_bak;
+
+# --------------------------------------------------------------------
+# follows are subroutins only.
+
+sub init_param
+{
+  my %arg = map{ /^(\w+)=(.*)$/ } @ARGV;
+  my $cc = $arg{'CC'} || 'g++';
+  my $ld = $arg{'LD'} || $cc;
+
+  my $object = join(' ',qw( Japanese.o memmap.o conv.o ucs2_utf8.o
+			    getcode.o getcode_map.o sjis.o eucjp.o jis.o
+			    sjis_imode.o sjis_jsky.o sjis_doti.o
+			    mediate.o 
+			    ) );
+
+  %param = (
+    'NAME'		=> 'Unicode::Japanese',
+    'VERSION_FROM'	=> 'Japanese.pm', # finds $VERSION
+    'ABSTRACT_FROM'     => 'Japanese.pm', #
+    'AUTHOR'		=> 'SANO Taku (SAWATARI Mikage) and YAMASHINA Hio',
+
+    'PREREQ_PM'		=> {}, # e.g., Module::Name => 1.1
+  );
+  %param_xs = (
+    'PM'=>{'Japanese/u2s-s2u.dat'=>'$(INST_LIBDIR)/Japanese/u2s-s2u.dat',
+	   'Japanese/emoji.dat'=>'$(INST_LIBDIR)/Japanese/emoji.dat',
+	   'Japanese.pm'=>'$(INST_LIBDIR)/Japanese.pm',
+	  },
+    'CC' => $cc,
+    'CCFLAGS' => '-Wall',
+    'LD' => $ld,
+    'OBJECT' => $object,
+    'XS' => {'Japanese.xs'=>'Japanese.c',},
+    'XSOPT'=>'-C++',
+    'XSPROTOARG'=>'-prototypes',
+
+    'LIBS'		=> [''], # e.g., '-lm'
+    'DEFINE'		=> '', # e.g., '-DHAVE_SOMETHING'
+    'INC'		=> '', # e.g., '-I/usr/include/other'
+
+    'clean'    => { FILES => 'mediate.{cpp,h}' },
+  );
+}
+
 sub include_test
 {
   $param_xs{'CCFLAGS'} .= '-g -DTEST=1';
@@ -17,10 +64,10 @@ sub include_test
 }
 
 #
-# mediate.h/mediate.cpp の作成
+# generate mediate.h/mediate.cpp
 sub do_mediate
 {
-  # check @ARGV
+  # check 'PurePerl' from @ARGV
   my @arg;
   @ARGV = grep{ !(@arg-push(@arg,/^(PurePerl|NoXS)(=(0|1|yes|no|y|n))?$/i)) } @ARGV;
   if( @arg )
@@ -33,6 +80,9 @@ sub do_mediate
       return;
     }
   }
+
+  # check os type
+
   $ostype = `uname -s` || '';
   if( $ostype =~ /(Linux)/ )
   {
@@ -47,7 +97,8 @@ sub do_mediate
     $hdr = "#include <fcntl.h>\n\n";
   }elsif( !$ostype )
   {
-    print "Here environment cannot use XS.\n";
+    # unknown ...
+    print "cannot detect your environment, disable XS...\n";
     disable_xs();
     return;
   }
@@ -69,7 +120,6 @@ sub do_mediate
 EOF
     if( $] < 5.005 )
     {
-      # PL_naも作ってもいいけどむしろ使わない方向で.
       $hdr .= <<'EOF';
 #ifndef PL_sv_undef
 #define PL_sv_undef sv_undef
@@ -145,42 +195,6 @@ sub disable_xs
   $ExtUtils::Manifest::MANIFEST = 'MANIFEST.noxs';
   %param_xs = ('linkext'=>{'LINKTYPE'=>''});
   #rename('Japanese','Japanese-notused');
-}
-
-sub init_param
-{
-  my $cc = 'g++';
-  my $ld = $cc;
-  
-  @ARGV = grep{ /^CC=(.*)/ ? !($cc=$1) : 1 } @ARGV;
-
-  my $object = join(' ',qw( Japanese.o memmap.o conv.o ucs2_utf8.o
-			    getcode.o getcode_map.o sjis.o eucjp.o jis.o
-			    sjis_imode.o sjis_jsky.o sjis_doti.o
-			    mediate.o 
-			    ) );
-
-  %param = (
-    'NAME'		=> 'Unicode::Japanese',
-    'VERSION_FROM'	=> 'Japanese.pm', # finds $VERSION
-    'PREREQ_PM'		=> {}, # e.g., Module::Name => 1.1
-    'LIBS'		=> [''], # e.g., '-lm'
-    'DEFINE'		=> '', # e.g., '-DHAVE_SOMETHING'
-    'INC'		=> '', # e.g., '-I/usr/include/other'
-  );
-  %param_xs = (
-    'EXE_FILES' => ['Japanese/u2s-s2u.dat','Japanese/emoji.dat'],
-    'INSTALLSCRIPT' => '$(INST_LIBDIR)',
-    'CC' => $cc,
-    'CCFLAGS' => '-Wall',
-    'LD' => $ld,
-    'OBJECT' => $object,
-    'XS' => {'Japanese.xs','Japanese.c',},
-    'XSOPT'=>'-C++',
-    'XSPROTOARG'=>'-prototypes',
-
-    'clean'    => { FILES => 'mediate.{cpp,h}' },
-  );
 }
 
 sub add_ccflags

@@ -3,7 +3,7 @@ package Unicode::Japanese;
 
 use strict;
 use vars qw($VERSION $PurePerl $xs_loaderror);
-$VERSION = '0.09';
+$VERSION = '0.10';
 
 sub import
 {
