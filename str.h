@@ -1,7 +1,7 @@
 #ifndef UNICODE__JAPANESE__STR_H__
 #define UNICODE__JAPANESE__STR_H__
 
-/* $Id: str.h,v 1.9 2002/10/31 11:08:50 hio Exp $ */
+/* $Id: str.h,v 1.10 2002/11/05 07:51:14 hio Exp $ */
 
 
 /* ----------------------------------------------------------------------------
@@ -57,24 +57,27 @@ typedef struct SV_Buf SV_Buf;
  * inline void append_ch2(unsigned short ch) */
 #define SV_Buf_append_ch2(pbuf,ch) \
   { \
+    const unsigned short xxtmp = (ch); \
     SV_Buf_checkbuf(pbuf,2); \
-    *(unsigned short*)(pbuf)->dst = (ch); \
+    memcpy((pbuf)->dst,&xxtmp,2); \
     (pbuf)->dst += 2; \
   } \
 /* ----------------------------------------------------------------------------
  * inline void append_ch3(int ch) */
 #define SV_Buf_append_ch3(pbuf,ch) \
   { \
+    const int xxtmp = (ch); \
     SV_Buf_checkbuf(pbuf,4); \
-    *(int*)(pbuf)->dst = (ch); \
+    memcpy((pbuf)->dst,&xxtmp,3); \
     (pbuf)->dst += 3; \
   }
 /* ----------------------------------------------------------------------------
  * inline void append_ch4(int ch) */
 #define SV_Buf_append_ch4(pbuf,ch) \
   { \
+    const int xxtmp = (ch); \
     SV_Buf_checkbuf(pbuf,4); \
-    *(int*)(pbuf)->dst = (ch); \
+    memcpy((pbuf)->dst,&xxtmp,4); \
     (pbuf)->dst += 4; \
   }
 /* ----------------------------------------------------------------------------

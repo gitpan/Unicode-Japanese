@@ -1,4 +1,10 @@
-
+## ----------------------------------------------------------------------------
+# Makefile.PL
+# -----------------------------------------------------------------------------
+# Makefile.PL for Unicode-Japanese.
+# -----------------------------------------------------------------------------
+# $Id: Makefile.PL,v 1.37 2002/11/06 09:27:41 hio Exp $
+# -----------------------------------------------------------------------------
 package Unicode::Japanese::MakeMaker;
 
 use strict;
@@ -32,7 +38,6 @@ my %param_xs = (
 	   'Japanese/emoji.dat'=>'$(INST_LIBDIR)/Japanese/emoji.dat',
 	   'Japanese.pm'=>'$(INST_LIBDIR)/Japanese.pm',
 	  },
-    'CCFLAGS' => ccopts().' -Wall',
     'OBJECT' => join(' ',qw( Japanese.o memmap.o conv.o ucs2_utf8.o
 			     getcode.o getcode_map.o sjis.o eucjp.o jis.o
 			     sjis_imode.o sjis_jsky.o sjis_doti.o
@@ -48,6 +53,11 @@ my %param_xs = (
 
     'clean'    => { FILES => 'mediate.{c,h}' },
   );
+my @CCFLAGS;
+
+# --------------------------------------------------------------------
+# add CCFLAGS
+#add_ccflags('-Wall');
 
 # --------------------------------------------------------------------
 # check devel mode.
@@ -88,6 +98,7 @@ if( @arg )
 
 # --------------------------------------------------------------------
 # run MakerMaker :: WriteMakefile
+#   and hints, configure().
 
 WriteMakefile(%param);
 
@@ -111,17 +122,18 @@ sub configure
 
   if( !defined($useXS) )
   {
-    print " >> no hints ran ?\n";
+    print " >> no hints ran ? (maybe not tested on this platform)\n";
     enableXS('(no hints)',undef,undef);
   }
-
+  
+  flush_ccflags();
   if( $useXS )
   {
     # compile check.
     use Config;
     use ExtUtils::Embed;
     my $cc = exists $argv{CC} ? $argv{CC} : $Config{cc};
-    my $ccopts = ExtUtils::Embed::ccopts() .' '.$param_xs{'CCFLAGS'};
+    my $ccopts = $param_xs{'CCFLAGS'}||ExtUtils::Embed::ccopts();
     my $xstest_src = $^O eq 'MSWin32' ? 'memmap_win32.c' : 'memmap.c';
     my $xstest_out = $^O eq 'MSWin32' ? 'memmap_win32.obj' : 'memmap.o';
     my $cmd = "$cc $ccopts -c $xstest_src -o $xstest_out";
@@ -228,8 +240,26 @@ EOF
 
 sub add_ccflags
 {
-  $param_xs{'CCFLAGS'} = join(' ',$param_xs{'CCFLAGS'},@_);  
-  print "new : $param_xs{'CCFLAGS'}\n";
+  push(@CCFLAGS,@_);
+  $param_xs{'CCFLAGS'} = join(' ',($param_xs{'CCFLAGS'}||ccopts()),@_);  
+  #print "new-ccflags : $param_xs{'CCFLAGS'}\n";
+}
+
+sub remove_ccflags
+{
+  @CCFLAGS = grep{ $_ ne $_[0] } @CCFLAGS;
+}
+
+sub flush_ccflags
+{
+  if( @CCFLAGS )
+  {
+    $param_xs{'CCFLAGS'} = join(' ',ccopts(),@CCFLAGS);
+    #$param_xs{'CCFLAGS'} =~ s/ -MD / -MDd /g or die $param_xs{'CCFLAGS'};
+  }else
+  {
+    delete $param_xs{'CCFLAGS'};
+  }
 }
 
 sub include_test

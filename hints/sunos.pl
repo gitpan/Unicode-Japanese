@@ -1,5 +1,4 @@
 
-
 use strict;
 
 print "**** hints/sunos.pl ****\n";

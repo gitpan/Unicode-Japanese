@@ -16,7 +16,8 @@ getcode.h
 getcode_map.c         state transition disgram table for getcode
 hints/freebsd.pl      hints file (FreeBSD)
 hints/linux.pl        hints file (Linux)
-hints/sunos.pl        hints file (Solaris)
+hints/solaris.pl      hitns file (Solaris 8 and later)
+hints/sunos.pl        hints file (SunOS, Solaris 2.6 and prior)
 jis.c                 sjis<=>jis conversion
 memmap.c              mmapping of mapping table
 sjis.c                validate table for sjis

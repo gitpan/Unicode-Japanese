@@ -2,7 +2,7 @@
 # Unicode::Japanese
 # Unicode::Japanese::PurePerl
 # -----------------------------------------------------------------------------
-# $Id: Japanese.pm,v 1.60 2002/10/31 11:54:28 hio Exp $
+# $Id: Japanese.pm,v 1.63 2002/11/06 09:48:01 hio Exp $
 # -----------------------------------------------------------------------------
 
 package Unicode::Japanese::PurePerl;
@@ -17,7 +17,7 @@ package Unicode::Japanese;
 
 use strict;
 use vars qw($VERSION $PurePerl $xs_loaderror);
-$VERSION = '0.17';
+$VERSION = '0.18';
 
 # `use bytes' and `use Encode' if on perl-5.8.0 or later.
 my $evalerr_bak = $@;
@@ -34,15 +34,17 @@ $@ = $evalerr_bak;
 sub import
 {
   my $pkg = shift;
-  my @na = grep{ !/^PurePerl$/i }@_;
-  if( scalar(@na) != scalar(@_) )
+  my @na;
+  foreach(@_)
   {
-    $PurePerl = 1;
+    $_ eq 'PurePerl' and $PurePerl=1, next;
+    $_ eq 'no_I18N_Japanese' and $^H &= ~0x0f00_0000,next;
+    push(@na,$_);
   }
   if( @na )
   {
-    # use Carp;
-    # croak("invalid parameter (".join(',',@na).")");
+    #use Carp;
+    #croak("invalid parameter (".join(',',@na).")");
   }
 }
 
@@ -439,6 +441,54 @@ sub _getFile {
     or die "Can't read $file. [$!]\n";
   
   $data;
+}
+
+# -----------------------------------------------------------------------------
+# use_I18N_Japanese
+#   copy from I18N::Japanese in jperl-5.5.3
+#
+sub use_I18N_Japanese
+{
+  shift;
+  if( @_ )
+  {
+    my $bits = 0;
+    foreach( @_ )
+    {
+      $bits |= 0x1000000 if $_ eq 're';
+      $bits |= 0x2000000 if $_ eq 'tr';
+      $bits |= 0x4000000 if $_ eq 'format';
+      $bits |= 0x8000000 if $_ eq 'string';
+    }
+    $^H |= $bits;
+  }else
+  {
+    $^H |= 0x0f00_0000;
+  }
+}
+
+# -----------------------------------------------------------------------------
+# no_I18N_Japanese
+#   copy from I18N::Japanese in jperl-5.5.3
+#
+sub no_I18N_Japanese
+{
+  shift;
+  if( @_ )
+  {
+    my $bits = 0;
+    foreach( @_ )
+    {
+      $bits |= 0x1000000 if $_ eq 're';
+      $bits |= 0x2000000 if $_ eq 'tr';
+      $bits |= 0x4000000 if $_ eq 'format';
+      $bits |= 0x8000000 if $_ eq 'string';
+    }
+    $^H &= ~$bits;
+  }else
+  {
+    $^H &= ~0x0f00_0000;
+  }
 }
 
 1;
@@ -1029,7 +1079,2073 @@ SUGIURA Tatsuki & Debian JP Project
 
 
 __DATA__
-  2{'jcode/emoji2/ed2u.dat'=>{'length'=>5120,'offset'=>'269459'},'jcode/emoji2/eu2d.dat'=>{'length'=>8192,'offset'=>'274579'},'_loadConvTable'=>{'length'=>17934,'offset'=>'0'},'euc'=>{'length'=>175,'offset'=>'18108'},'h2zNum'=>{'length'=>174,'offset'=>'17934'},'z2hKana'=>{'length'=>89,'offset'=>'18283'},'splitCsv'=>{'length'=>465,'offset'=>'18372'},'strlen'=>{'length'=>360,'offset'=>'18837'},'join_csv'=>{'length'=>92,'offset'=>'19197'},'utf16'=>{'length'=>187,'offset'=>'19289'},'_utf16_utf8'=>{'length'=>769,'offset'=>'19476'},'jcode/emoji2/eu2j2.dat'=>{'length'=>20480,'offset'=>'248979'},'jcode/emoji2/ei2u2.dat'=>{'length'=>2048,'offset'=>'212115'},'_u2s'=>{'length'=>2209,'offset'=>'20245'},'_j2s2'=>{'length'=>382,'offset'=>'22454'},'z2hKanaD'=>{'length'=>498,'offset'=>'22836'},'_j2s3'=>{'length'=>337,'offset'=>'23334'},'joinCsv'=>{'length'=>644,'offset'=>'23671'},'jcode/emoji2/eu2j.dat'=>{'length'=>20480,'offset'=>'225427'},'sjis_jsky1'=>{'length'=>70,'offset'=>'24315'},'_sj2u1'=>{'length'=>1144,'offset'=>'24385'},'sjis_jsky2'=>{'length'=>70,'offset'=>'25529'},'_sj2u2'=>{'length'=>1503,'offset'=>'25599'},'jcode/emoji2/ej2u2.dat'=>{'length'=>3072,'offset'=>'245907'},'_utf32be_ucs4'=>{'length'=>70,'offset'=>'27102'},'_s2e2'=>{'length'=>446,'offset'=>'27172'},'z2hKanaK'=>{'length'=>979,'offset'=>'27618'},'h2zKana'=>{'length'=>185,'offset'=>'28597'},'_ucs2_utf8'=>{'length'=>549,'offset'=>'28782'},'z2hAlpha'=>{'length'=>836,'offset'=>'29331'},'_utf32le_ucs4'=>{'length'=>178,'offset'=>'30167'},'_utf8_utf16'=>{'length'=>950,'offset'=>'30345'},'getcode'=>{'length'=>1776,'offset'=>'31295'},'_decodeBase64'=>{'length'=>609,'offset'=>'33071'},'sjis_doti'=>{'length'=>188,'offset'=>'33680'},'jcode/emoji2/eu2i2.dat'=>{'length'=>8192,'offset'=>'214163'},'jcode/u2s.dat'=>{'length'=>85504,'offset'=>'67798'},'sjis_jsky'=>{'length'=>189,'offset'=>'33868'},'tag2bin'=>{'length'=>328,'offset'=>'34057'},'strcut'=>{'length'=>1009,'offset'=>'34385'},'sjis_imode'=>{'length'=>192,'offset'=>'36876'},'_utf8_ucs2'=>{'length'=>672,'offset'=>'36204'},'h2zKanaD'=>{'length'=>810,'offset'=>'35394'},'get'=>{'length'=>162,'offset'=>'40108'},'_u2sd'=>{'length'=>1616,'offset'=>'38492'},'_utf8_ucs4'=>{'length'=>1424,'offset'=>'37068'},'utf8'=>{'length'=>164,'offset'=>'40270'},'hira2kata'=>{'length'=>1242,'offset'=>'40434'},'h2zKanaK'=>{'length'=>979,'offset'=>'41676'},'z2h'=>{'length'=>114,'offset'=>'42655'},'_encodeBase64'=>{'length'=>741,'offset'=>'42769'},'jcode/emoji2/ei2u.dat'=>{'length'=>2048,'offset'=>'201875'},'h2zAlpha'=>{'length'=>264,'offset'=>'43510'},'_s2e'=>{'length'=>244,'offset'=>'43774'},'_e2s2'=>{'length'=>535,'offset'=>'44018'},'_utf16le_utf16'=>{'length'=>179,'offset'=>'44553'},'sjis_doti1'=>{'length'=>69,'offset'=>'44732'},'_s2j'=>{'length'=>272,'offset'=>'44801'},'_s2j2'=>{'length'=>376,'offset'=>'45073'},'_s2j3'=>{'length'=>355,'offset'=>'45449'},'sjis_imode1'=>{'length'=>71,'offset'=>'45804'},'sjis_imode2'=>{'length'=>71,'offset'=>'45875'},'getu'=>{'length'=>266,'offset'=>'45946'},'_u2si1'=>{'length'=>1620,'offset'=>'46212'},'conv'=>{'length'=>1645,'offset'=>'47832'},'_u2si2'=>{'length'=>1621,'offset'=>'49477'},'_s2u'=>{'length'=>988,'offset'=>'51098'},'jcode/emoji2/eu2i.dat'=>{'length'=>8192,'offset'=>'203923'},'_j2s'=>{'length'=>177,'offset'=>'52086'},'_si2u1'=>{'length'=>1228,'offset'=>'52263'},'h2z'=>{'length'=>114,'offset'=>'53491'},'_si2u2'=>{'length'=>1227,'offset'=>'53605'},'z2hSym'=>{'length'=>570,'offset'=>'54832'},'ucs2'=>{'length'=>183,'offset'=>'55402'},'set'=>{'length'=>2980,'offset'=>'55585'},'ucs4'=>{'length'=>183,'offset'=>'58565'},'z2hNum'=>{'length'=>284,'offset'=>'58748'},'jcode/emoji2/ej2u.dat'=>{'length'=>3072,'offset'=>'222355'},'_validate_utf8'=>{'length'=>70,'offset'=>'59032'},'_utf32_ucs4'=>{'length'=>312,'offset'=>'59483'},'jis'=>{'length'=>179,'offset'=>'59304'},'_e2s'=>{'length'=>202,'offset'=>'59102'},'jcode/s2u.dat'=>{'length'=>48573,'offset'=>'153302'},'kata2hira'=>{'length'=>1242,'offset'=>'59795'},'_ucs4_utf8'=>{'length'=>936,'offset'=>'61037'},'split_csv'=>{'length'=>195,'offset'=>'61973'},'_utf16_utf16'=>{'length'=>300,'offset'=>'63941'},'_u2sj1'=>{'length'=>1773,'offset'=>'62168'},'_u2sj2'=>{'length'=>1774,'offset'=>'65462'},'_sd2u'=>{'length'=>1221,'offset'=>'64241'},'_utf16be_utf16'=>{'length'=>71,'offset'=>'67727'},'sjis'=>{'length'=>177,'offset'=>'67550'},'h2zSym'=>{'length'=>314,'offset'=>'67236'}}sub _loadConvTable {
+  h{'utf16'=>{'length'=>187,'offset'=>0},'joinCsv'=>{'length'=>644,'offset'=>187},'_decodeBase64'=>{'length'=>609,'offset'=>831},'z2hNum'=>{'length'=>284,'offset'=>1440},'_utf16le_utf16'=>{'length'=>179,'offset'=>2966},'kata2hira'=>{'length'=>1242,'offset'=>1724},'_u2si2'=>{'length'=>1621,'offset'=>3145},'z2hAlpha'=>{'length'=>836,'offset'=>4766},'jcode/emoji2/eu2i.dat'=>{'length'=>8192,'offset'=>203923},'splitCsv'=>{'length'=>465,'offset'=>5602},'jcode/emoji2/eu2i2.dat'=>{'length'=>8192,'offset'=>214163},'_ucs4_utf8'=>{'length'=>936,'offset'=>6067},'h2zSym'=>{'length'=>314,'offset'=>7003},'sjis_jsky1'=>{'length'=>70,'offset'=>7317},'h2z'=>{'length'=>114,'offset'=>7387},'_s2j3'=>{'length'=>355,'offset'=>7501},'_u2s'=>{'length'=>2209,'offset'=>7856},'sjis'=>{'length'=>177,'offset'=>10065},'_u2si1'=>{'length'=>1620,'offset'=>10242},'_sj2u1'=>{'length'=>1144,'offset'=>11862},'tag2bin'=>{'length'=>328,'offset'=>13006},'z2hSym'=>{'length'=>570,'offset'=>13334},'_utf16_utf8'=>{'length'=>769,'offset'=>13904},'ucs2'=>{'length'=>183,'offset'=>14673},'jcode/emoji2/ei2u2.dat'=>{'length'=>2048,'offset'=>212115},'h2zNum'=>{'length'=>174,'offset'=>14856},'_si2u1'=>{'length'=>1228,'offset'=>15030},'h2zKanaK'=>{'length'=>979,'offset'=>16258},'strlen'=>{'length'=>360,'offset'=>17237},'_utf8_utf16'=>{'length'=>950,'offset'=>17597},'sjis_jsky2'=>{'length'=>70,'offset'=>18547},'jcode/emoji2/ei2u.dat'=>{'length'=>2048,'offset'=>201875},'getcode'=>{'length'=>1776,'offset'=>18617},'sjis_imode2'=>{'length'=>71,'offset'=>20393},'_j2s2'=>{'length'=>382,'offset'=>20464},'_validate_utf8'=>{'length'=>70,'offset'=>20846},'h2zKanaD'=>{'length'=>810,'offset'=>20916},'z2hKanaK'=>{'length'=>979,'offset'=>21726},'h2zAlpha'=>{'length'=>264,'offset'=>22705},'_utf16_utf16'=>{'length'=>300,'offset'=>22969},'_ucs2_utf8'=>{'length'=>549,'offset'=>23269},'set'=>{'length'=>2980,'offset'=>23818},'_sj2u2'=>{'length'=>1503,'offset'=>26798},'jcode/emoji2/ed2u.dat'=>{'length'=>5120,'offset'=>269459},'_utf32_ucs4'=>{'length'=>312,'offset'=>28301},'sjis_imode1'=>{'length'=>71,'offset'=>28613},'utf8'=>{'length'=>164,'offset'=>28684},'_s2e'=>{'length'=>244,'offset'=>29122},'h2zKana'=>{'length'=>185,'offset'=>28937},'z2hKana'=>{'length'=>89,'offset'=>28848},'_si2u2'=>{'length'=>1227,'offset'=>31139},'_u2sj1'=>{'length'=>1773,'offset'=>29366},'_u2sj2'=>{'length'=>1774,'offset'=>32366},'jcode/s2u.dat'=>{'length'=>48573,'offset'=>153302},'conv'=>{'length'=>1645,'offset'=>34140},'sjis_doti'=>{'length'=>188,'offset'=>35785},'_e2s'=>{'length'=>202,'offset'=>35973},'_utf16be_utf16'=>{'length'=>71,'offset'=>36175},'jcode/emoji2/eu2j.dat'=>{'length'=>20480,'offset'=>225427},'jcode/emoji2/ej2u2.dat'=>{'length'=>3072,'offset'=>245907},'hira2kata'=>{'length'=>1242,'offset'=>36246},'euc'=>{'length'=>175,'offset'=>37488},'_j2s3'=>{'length'=>337,'offset'=>37663},'jcode/emoji2/ej2u.dat'=>{'length'=>3072,'offset'=>222355},'ucs4'=>{'length'=>183,'offset'=>38000},'_sd2u'=>{'length'=>1221,'offset'=>38183},'sjis_doti1'=>{'length'=>69,'offset'=>39404},'_s2j'=>{'length'=>272,'offset'=>39473},'_s2e2'=>{'length'=>446,'offset'=>39745},'z2hKanaD'=>{'length'=>498,'offset'=>40191},'_u2sd'=>{'length'=>1616,'offset'=>40689},'jcode/emoji2/eu2j2.dat'=>{'length'=>20480,'offset'=>248979},'jcode/emoji2/eu2d.dat'=>{'length'=>8192,'offset'=>274579},'jcode/u2s.dat'=>{'length'=>85504,'offset'=>67798},'_utf8_ucs2'=>{'length'=>672,'offset'=>42305},'join_csv'=>{'length'=>92,'offset'=>42977},'_s2u'=>{'length'=>988,'offset'=>43069},'_utf32le_ucs4'=>{'length'=>178,'offset'=>44057},'sjis_jsky'=>{'length'=>189,'offset'=>44235},'sjis_imode'=>{'length'=>192,'offset'=>44959},'_e2s2'=>{'length'=>535,'offset'=>44424},'_s2j2'=>{'length'=>376,'offset'=>45151},'jis'=>{'length'=>179,'offset'=>45527},'_utf8_ucs4'=>{'length'=>1424,'offset'=>46447},'_encodeBase64'=>{'length'=>741,'offset'=>45706},'get'=>{'length'=>162,'offset'=>47871},'z2h'=>{'length'=>114,'offset'=>48033},'getu'=>{'length'=>266,'offset'=>48147},'split_csv'=>{'length'=>195,'offset'=>48413},'_loadConvTable'=>{'length'=>17934,'offset'=>48608},'strcut'=>{'length'=>1009,'offset'=>66542},'_utf32be_ucs4'=>{'length'=>70,'offset'=>67551},'_j2s'=>{'length'=>177,'offset'=>67621}}# -----------------------------------------------------------------------------
+# $bytes_utf16 = $unijp->utf16();
+# 
+sub utf16
+{
+  my $this = shift;
+  $this->_utf8_utf16($this->{str});
+}
+sub joinCsv {
+  my $this = shift;
+  my $list;
+  
+  if(ref($_[0]) eq 'ARRAY')
+    {
+      $list = shift;
+      if( $]>=5.008 )
+      {
+	$list = [ @$list ];
+	foreach(@$list)
+	{
+	  Encode::_utf8_off($_);
+	}
+      }
+    }
+  elsif(!ref($_[0]))
+    {
+      $list = [ @_ ];
+      if( $]>=5.008 )
+      {
+	foreach(@$list)
+	{
+	  Encode::_utf8_off($_);
+	}
+      }
+    }
+  else
+    {
+      my $ref = ref($_[0]);
+      die "String->joinCsv, Param[1] is not ARRAY/ARRRAY-ref. [$ref]\n";
+    }
+      
+  my $text;
+  $text = join ',', map {(s/"/""/g or /[\r\n,]/) ? qq("$_") : $_} @$list;
+
+  $this->{str} = $text."\n";
+  $this->{icode} = 'binary';
+
+  $this;
+}
+sub _decodeBase64
+{
+  local($^W) = 0; # unpack("u",...) gives bogus warning in 5.00[123]
+
+  my $this = shift;
+  my $str = shift;
+  my $res = "";
+
+  $str =~ tr|A-Za-z0-9+=/||cd;            # remove non-base64 chars
+  if (length($str) % 4)
+    {
+      warn("Length of base64 data not a multiple of 4");
+    }
+  $str =~ s/=+$//;                        # remove padding
+  $str =~ tr|A-Za-z0-9+/| -_|;            # convert to uuencoded format
+  while ($str =~ /(.{1,60})/gs)
+    {
+      my $len = chr(32 + length($1)*3/4); # compute length byte
+      $res .= unpack("u", $len . $1 );    # uudecode
+    }
+  $res;
+}
+sub z2hNum {
+  my $this = shift;
+
+  if(!defined(%_z2hNum))
+    {
+      $this->_loadConvTable;
+    }
+
+  $this->{str} =~ s/(\xef\xbc\x90|\xef\xbc\x91|\xef\xbc\x92|\xef\xbc\x93|\xef\xbc\x94|\xef\xbc\x95|\xef\xbc\x96|\xef\xbc\x97|\xef\xbc\x98|\xef\xbc\x99)/$_z2hNum{$1}/eg;
+  
+  $this;
+}
+sub kata2hira {
+  my $this = shift;
+
+  if(!defined(%_kata2hira))
+    {
+      $this->_loadConvTable;
+    }
+
+  $this->{str} =~ s/(\xe3\x82\xa1|\xe3\x82\xa2|\xe3\x82\xa3|\xe3\x82\xa4|\xe3\x82\xa5|\xe3\x82\xa6|\xe3\x82\xa7|\xe3\x82\xa8|\xe3\x82\xa9|\xe3\x82\xaa|\xe3\x82\xab|\xe3\x82\xac|\xe3\x82\xad|\xe3\x82\xae|\xe3\x82\xaf|\xe3\x82\xb0|\xe3\x82\xb1|\xe3\x82\xb2|\xe3\x82\xb3|\xe3\x82\xb4|\xe3\x82\xb5|\xe3\x82\xb6|\xe3\x82\xb7|\xe3\x82\xb8|\xe3\x82\xb9|\xe3\x82\xba|\xe3\x82\xbb|\xe3\x82\xbc|\xe3\x82\xbd|\xe3\x82\xbe|\xe3\x82\xbf|\xe3\x83\x80|\xe3\x83\x81|\xe3\x83\x82|\xe3\x83\x83|\xe3\x83\x84|\xe3\x83\x85|\xe3\x83\x86|\xe3\x83\x87|\xe3\x83\x88|\xe3\x83\x89|\xe3\x83\x8a|\xe3\x83\x8b|\xe3\x83\x8c|\xe3\x83\x8d|\xe3\x83\x8e|\xe3\x83\x8f|\xe3\x83\x90|\xe3\x83\x91|\xe3\x83\x92|\xe3\x83\x93|\xe3\x83\x94|\xe3\x83\x95|\xe3\x83\x96|\xe3\x83\x97|\xe3\x83\x98|\xe3\x83\x99|\xe3\x83\x9a|\xe3\x83\x9b|\xe3\x83\x9c|\xe3\x83\x9d|\xe3\x83\x9e|\xe3\x83\x9f|\xe3\x83\xa0|\xe3\x83\xa1|\xe3\x83\xa2|\xe3\x83\xa3|\xe3\x83\xa4|\xe3\x83\xa5|\xe3\x83\xa6|\xe3\x83\xa7|\xe3\x83\xa8|\xe3\x83\xa9|\xe3\x83\xaa|\xe3\x83\xab|\xe3\x83\xac|\xe3\x83\xad|\xe3\x83\xae|\xe3\x83\xaf|\xe3\x83\xb0|\xe3\x83\xb1|\xe3\x83\xb2|\xe3\x83\xb3)/$_kata2hira{$1}/eg;
+  
+  $this;
+}
+sub _utf16le_utf16 {
+  my $this = shift;
+  my $str = shift;
+
+  my $result = '';
+  foreach my $ch (unpack('v*', $str))
+    {
+      $result .= pack('n', $ch);
+    }
+  
+  $result;
+}
+sub _u2si2 {
+  my $this = shift;
+  my $str = shift;
+
+  if(!defined($str))
+    {
+      return '';
+    }
+  
+  if(!defined($u2s_table))
+    {
+      $u2s_table = $this->_getFile('jcode/u2s.dat');
+    }
+
+  if(!defined($eu2i2))
+    {
+      $eu2i2 = $this->_getFile('jcode/emoji2/eu2i2.dat');
+    }
+
+  my $c1;
+  my $c2;
+  my $c3;
+  my $c4;
+  my $c5;
+  my $c6;
+  my $c;
+  my $ch;
+  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
+    defined($2) ? '?' :
+    ((length($1) == 1) ? $1 :
+     (length($1) == 2) ? (
+			  ($c1,$c2) = unpack("C2", $1),
+			  $ch = (($c1 & 0x1F)<<6)|($c2 & 0x3F),
+			  $c = substr($u2s_table, $ch * 2, 2),
+			  ($c eq "\0\0") ? '?' : $c
+			 ) :
+     (length($1) == 3) ? (
+			  ($c1,$c2,$c3) = unpack("C3", $1),
+			  $ch = (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F),
+			  (
+			   ($ch <= 0x9fff) ?
+			   $c = substr($u2s_table, $ch * 2, 2) :
+			   ($ch >= 0xf900 and $ch <= 0xffff) ?
+			   (
+			    $c = substr($u2s_table, ($ch - 0xf900 + 0xa000) * 2, 2),
+			    (($c =~ tr,\0,,d)==2 and $c = "\0\0"),
+			   ) :
+			   (
+			    $c = '?'
+			   )
+			  ),
+			  ($c eq "\0\0") ? '?' : $c
+			 ) :
+     (length($1) == 4) ? (
+			  ($c1,$c2,$c3,$c4) = unpack("C4", $1),
+			  $ch = (($c1 & 0x07)<<18)|(($c2 & 0x3F)<<12)|
+			  (($c3 & 0x3f) << 6)|($c4 & 0x3F),
+			  (
+			   ($ch >= 0x0ff000 and $ch <= 0x0fffff) ?
+			   (
+			    $c = substr($eu2i2, ($ch - 0x0ff000) * 2, 2),
+			    $c =~ tr,\0,,d,
+			    ($c eq '') ? '?' : $c
+			   ) :
+			   '?'
+			  )
+			 ) :
+     '?'
+    )
+      /eg;
+  $str;
+  
+}
+sub z2hAlpha {
+  my $this = shift;
+
+  if(!defined(%_z2hAlpha))
+    {
+      $this->_loadConvTable;
+    }
+
+  $this->{str} =~ s/(\xef\xbc\xa1|\xef\xbc\xa2|\xef\xbc\xa3|\xef\xbc\xa4|\xef\xbc\xa5|\xef\xbc\xa6|\xef\xbc\xa7|\xef\xbc\xa8|\xef\xbc\xa9|\xef\xbc\xaa|\xef\xbc\xab|\xef\xbc\xac|\xef\xbc\xad|\xef\xbc\xae|\xef\xbc\xaf|\xef\xbc\xb0|\xef\xbc\xb1|\xef\xbc\xb2|\xef\xbc\xb3|\xef\xbc\xb4|\xef\xbc\xb5|\xef\xbc\xb6|\xef\xbc\xb7|\xef\xbc\xb8|\xef\xbc\xb9|\xef\xbc\xba|\xef\xbd\x81|\xef\xbd\x82|\xef\xbd\x83|\xef\xbd\x84|\xef\xbd\x85|\xef\xbd\x86|\xef\xbd\x87|\xef\xbd\x88|\xef\xbd\x89|\xef\xbd\x8a|\xef\xbd\x8b|\xef\xbd\x8c|\xef\xbd\x8d|\xef\xbd\x8e|\xef\xbd\x8f|\xef\xbd\x90|\xef\xbd\x91|\xef\xbd\x92|\xef\xbd\x93|\xef\xbd\x94|\xef\xbd\x95|\xef\xbd\x96|\xef\xbd\x97|\xef\xbd\x98|\xef\xbd\x99|\xef\xbd\x9a)/$_z2hAlpha{$1}/eg;
+  
+  $this;
+}
+sub splitCsv {
+  my $this = shift;
+  my $text = $this->{str};
+  my @field;
+  
+  chomp($text);
+
+  while ($text =~ m/"([^"\\]*(?:(?:\\.|\"\")[^"\\]*)*)",?|([^,]+),?|,/g) {
+    my $field = defined($1) ? $1 : (defined($2) ? $2 : '');
+    $field =~ s/["\\]"/"/g;
+    push(@field, $field);
+  }
+  push(@field, '')        if($text =~ m/,$/);
+
+  if( $]>=5.008 && $this->{icode} ne 'binary' )
+  {
+    foreach(@field)
+    {
+      Encode::_utf8_on($_);
+    }
+  }
+
+  \@field;
+}
+sub _ucs4_utf8 {
+  my $this = shift;
+  my $str = shift;
+  
+  if(!defined($str))
+    {
+      return '';
+    }
+  
+  my $result = '';
+  for my $uc (unpack("N*", $str))
+    {
+      $result .= ($uc < 0x80) ? chr($uc) :
+	($uc < 0x800) ? chr(0xC0 | ($uc >> 6)) . chr(0x80 | ($uc & 0x3F)) :
+	  ($uc < 0x10000) ? chr(0xE0 | ($uc >> 12)) . chr(0x80 | (($uc >> 6) & 0x3F)) . chr(0x80 | ($uc & 0x3F)) :
+	    ($uc < 0x200000) ? chr(0xF0 | ($uc >> 18)) . chr(0x80 | (($uc >> 12) & 0x3F)) . chr(0x80 | (($uc >> 6) & 0x3F)) . chr(0x80 | ($uc & 0x3F)) :
+	      ($uc < 0x4000000) ? chr(0xF8 | ($uc >> 24)) . chr(0x80 | (($uc >> 18) & 0x3F)) . chr(0x80 | (($uc >> 12) & 0x3F)) . chr(0x80 | (($uc >> 6) & 0x3F)) . chr(0x80 | ($uc & 0x3F)) :
+		chr(0xFC | ($uc >> 30)) . chr(0x80 | (($uc >> 24) & 0x3F)) . chr(0x80 | (($uc >> 18) & 0x3F)) . chr(0x80 | (($uc >> 12) & 0x3F)) . chr(0x80 | (($uc >> 6) & 0x3F)) . chr(0x80 | ($uc & 0x3F));
+    }
+  
+  $result;
+}
+sub h2zSym {
+  my $this = shift;
+
+  if(!defined(%_h2zSym))
+    {
+      $this->_loadConvTable;
+    }
+
+  $this->{str} =~ s/(\x20|\x21|\x22|\x23|\x24|\x25|\x26|\x27|\x28|\x29|\x2a|\x2b|\x2c|\x2d|\x2e|\x2f|\x3a|\x3b|\x3c|\x3d|\x3e|\x3f|\x40|\x5b|\x5c|\x5d|\x5e|\x60|\x7b|\x7c|\x7d|\x7e)/$_h2zSym{$1}/eg;
+  
+  $this;
+}
+sub sjis_jsky1
+{
+  my $this = shift;
+  $this->_u2sj1($this->{str});
+}
+sub h2z {
+  my $this = shift;
+
+  $this->h2zKana;
+  $this->h2zNum;
+  $this->h2zAlpha;
+  $this->h2zSym;
+
+  $this;
+}
+sub _s2j3 {
+  my $this = shift;
+  my $c = shift;
+
+  my ($c1, $c2) = unpack('CC', $c);
+  if (0x9f <= $c2)
+    {
+      $c1 = $c1 * 2 - ($c1 >= 0xe0 ? 0xe0 : 0x60);
+      $c2 += 2;
+    }
+  else
+    {
+      $c1 = $c1 * 2 - ($c1 >= 0xe0 ? 0xe1 : 0x61);
+      $c2 += 0x60 + ($c2 < 0x7f);
+    }
+  
+  $S2J[unpack('n', $c)] = pack('CC', $c1 - 0x80, $c2 - 0x80);
+}
+# -----------------------------------------------------------------------------
+# utf8 ==> sjis/絵文字
+#
+sub _u2s {
+  my $this = shift;
+  my $str = shift;
+  
+  if(!defined($str))
+    {
+      return '';
+    }
+
+  if(!defined($u2s_table))
+    {
+      $u2s_table = $this->_getFile('jcode/u2s.dat');
+    }
+
+  my $c1;
+  my $c2;
+  my $c3;
+  my $c4;
+  my $c5;
+  my $c6;
+  my $c;
+  my $ch;
+  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
+    defined($2) ? '?' : (
+    $U2S{$1}
+      or ($U2S{$1}
+	  = ((length($1) == 1) ? $1 :
+	     (length($1) == 2) ? (
+				  ($c1,$c2) = unpack("C2", $1),
+				  $ch = (($c1 & 0x1F)<<6)|($c2 & 0x3F),
+				  $c = substr($u2s_table, $ch * 2, 2),
+				  # UTF-3バイト(U+0x80-U+07FF)からsjis-1バイトへのマッピングはないので\0を削除は必要はない
+				  ($c eq "\0\0") ? '&#' . $ch . ';' : $c
+				 ) :
+	     (length($1) == 3) ? (
+				  ($c1,$c2,$c3) = unpack("C3", $1),
+				  $ch = (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F),
+				  (
+				   ($ch <= 0x9fff) ?
+				   $c = substr($u2s_table, $ch * 2, 2) :
+				   ($ch >= 0xf900 and $ch <= 0xffff) ?
+				   (
+				    $c = substr($u2s_table, ($ch - 0xf900 + 0xa000) * 2, 2),
+				    (($c =~ tr,\0,,d)==2 and $c = "\0\0"),
+				   ) :
+				   (
+				    $c = '&#' . $ch . ';'
+				   )
+				  ),
+				  ($c eq "\0\0") ? '&#' . $ch . ';' : $c
+				 ) :
+	     (length($1) == 4) ? (
+				  ($c1,$c2,$c3,$c4) = unpack("C4", $1),
+				  $ch = (($c1 & 0x07)<<18)|(($c2 & 0x3F)<<12)|
+				  (($c3 & 0x3f) << 6)|($c4 & 0x3F),
+				  (
+				   ($ch >= 0x0ff000 and $ch <= 0x0fffff) ?
+				   '?'
+				   : '&#' . $ch . ';'
+				  )
+				 ) :
+	     (length($1) == 5) ? (($c1,$c2,$c3,$c4,$c5) = unpack("C5", $1),
+				  $ch = (($c1 & 0x03) << 24)|(($c2 & 0x3F) << 18)|
+				  (($c3 & 0x3f) << 12)|(($c4 & 0x3f) << 6)|
+				  ($c5 & 0x3F),
+				  '&#' . $ch . ';'
+				 ) :
+	                         (
+				  ($c1,$c2,$c3,$c4,$c5,$c6) = unpack("C6", $1),
+				  $ch = (($c1 & 0x03) << 30)|(($c2 & 0x3F) << 24)|
+				  (($c3 & 0x3f) << 18)|(($c4 & 0x3f) << 12)|
+				  (($c5 & 0x3f) << 6)|($c6 & 0x3F),
+				  '&#' . $ch . ';'
+				 )
+	    )
+	 )
+			 )
+	/eg;
+  $str;
+  
+}
+# -----------------------------------------------------------------------------
+# $bytes_sjis = $unijp->sjis();
+# 
+sub sjis
+{
+  my $this = shift;
+  $this->_u2s($this->{str});
+}
+sub _u2si1 {
+  my $this = shift;
+  my $str = shift;
+
+  if(!defined($str))
+    {
+      return '';
+    }
+  
+  if(!defined($u2s_table))
+    {
+      $u2s_table = $this->_getFile('jcode/u2s.dat');
+    }
+
+  if(!defined($eu2i1))
+    {
+      $eu2i1 = $this->_getFile('jcode/emoji2/eu2i.dat');
+    }
+
+  my $c1;
+  my $c2;
+  my $c3;
+  my $c4;
+  my $c5;
+  my $c6;
+  my $c;
+  my $ch;
+  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
+    defined($2) ? '?' :
+    ((length($1) == 1) ? $1 :
+     (length($1) == 2) ? (
+			  ($c1,$c2) = unpack("C2", $1),
+			  $ch = (($c1 & 0x1F)<<6)|($c2 & 0x3F),
+			  $c = substr($u2s_table, $ch * 2, 2),
+			  ($c eq "\0\0") ? '?' : $c
+			 ) :
+     (length($1) == 3) ? (
+			  ($c1,$c2,$c3) = unpack("C3", $1),
+			  $ch = (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F),
+			  (
+			   ($ch <= 0x9fff) ?
+			   $c = substr($u2s_table, $ch * 2, 2) :
+			   ($ch >= 0xf900 and $ch <= 0xffff) ?
+			   (
+			    $c = substr($u2s_table, ($ch - 0xf900 + 0xa000) * 2, 2),
+			    (($c =~ tr,\0,,d)==2 and $c = "\0\0"),
+			   ) :
+			   (
+			    $c = '?'
+			   )
+			  ),
+			  ($c eq "\0\0") ? '?' : $c
+			 ) :
+     (length($1) == 4) ? (
+			  ($c1,$c2,$c3,$c4) = unpack("C4", $1),
+			  $ch = (($c1 & 0x07)<<18)|(($c2 & 0x3F)<<12)|
+			  (($c3 & 0x3f) << 6)|($c4 & 0x3F),
+			  (
+			   ($ch >= 0x0ff000 and $ch <= 0x0fffff) ?
+			   (
+			    $c = substr($eu2i1, ($ch - 0x0ff000) * 2, 2),
+			    $c =~ tr,\0,,d,
+			    ($c eq '') ? '?' : $c
+			   ) :
+			   '?'
+			  )
+			 ) :
+     '?'
+    )
+      /eg;
+  $str;
+  
+}
+sub _sj2u1 {
+  my $this = shift;
+  my $str = shift;
+
+  if(!defined($str))
+    {
+      return '';
+    }
+  
+  if(!defined($s2u_table))
+    {
+      $s2u_table = $this->_getFile('jcode/s2u.dat');
+    }
+
+  if(!defined($ej2u1))
+    {
+      $ej2u1 = $this->_getFile('jcode/emoji2/ej2u.dat');
+    }
+
+  my $l;
+  my $j1;
+  my $uc;
+  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_JSKYv1}|[\x00-\xff])/
+    (length($1) <= 2) ? 
+      (
+       $l = (unpack('n', $1) or unpack('C', $1)),
+       (
+	($l >= 0xa1 and $l <= 0xdf)     ?
+	(
+	 $uc = substr($s2u_table, ($l - 0xa1) * 3, 3),
+	 $uc =~ tr,\0,,d,
+	 $uc
+	) :
+	($l >= 0x8100 and $l <= 0x9fff) ?
+	(
+	 $uc = substr($s2u_table, ($l - 0x8100 + 0x3f) * 3, 3),
+	 $uc =~ tr,\0,,d,
+	 $uc
+	) :
+	($l >= 0xe000 and $l <= 0xffff) ?
+	(
+	 $uc = substr($s2u_table, ($l - 0xe000 + 0x1f3f) * 3, 3),
+	 $uc =~ tr,\0,,d,
+	 $uc
+	) :
+	($l < 0x80) ?
+	chr($l) :
+	'?'
+       )
+      ) :
+	(
+         $l = $1,
+	 $l =~ s,^$RE{E_JSKY_START}($RE{E_JSKY1v1}),,o,
+	 $j1 = $1,
+	 $uc = '',
+	 $l =~ s!($RE{E_JSKY2})!$uc .= substr($ej2u1, (unpack('n', $j1 . $1) - 0x4500) * 4, 4), ''!ego,
+	 $uc =~ tr,\0,,d,
+	 $uc
+	)
+  /eg;
+  
+  $str;
+  
+}
+# -----------------------------------------------------------------------------
+# tag2bin
+#
+sub tag2bin {
+  my $this = shift;
+
+  $this->{str} =~ s/\&(\#\d+|\#x[a-f0-9A-F]+);/
+    (substr($1, 1, 1) eq 'x') ? $this->_ucs4_utf8(pack('N', hex(substr($1, 2)))) :
+      $this->_ucs4_utf8(pack('N', substr($1, 1)))
+	/eg;
+  
+  $this;
+}
+sub z2hSym {
+  my $this = shift;
+
+  if(!defined(%_z2hSym))
+    {
+      $this->_loadConvTable;
+    }
+
+  $this->{str} =~ s/(\xe3\x80\x80|\xef\xbc\x8c|\xef\xbc\x8e|\xef\xbc\x9a|\xef\xbc\x9b|\xef\xbc\x9f|\xef\xbc\x81|\xef\xbd\x80|\xef\xbc\xbe|\xef\xbc\x8f|\xef\xbd\x9e|\xef\xbd\x9c|\xe2\x80\x99|\xe2\x80\x9d|\xef\xbc\x88|\xef\xbc\x89|\xef\xbc\xbb|\xef\xbc\xbd|\xef\xbd\x9b|\xef\xbd\x9d|\xef\xbc\x8b|\xef\xbc\x8d|\xef\xbc\x9d|\xef\xbc\x9c|\xef\xbc\x9e|\xef\xbf\xa5|\xef\xbc\x84|\xef\xbc\x85|\xef\xbc\x83|\xef\xbc\x86|\xef\xbc\x8a|\xef\xbc\xa0)/$_z2hSym{$1}/eg;
+  
+  $this;
+}
+sub _utf16_utf8 {
+  my $this = shift;
+  my $str = shift;
+  
+  if(!defined($str))
+    {
+      return '';
+    }
+  
+  my $result = '';
+  my $sa;
+  foreach my $uc (unpack("n*", $str))
+    {
+      ($uc >= 0xd800 and $uc <= 0xdbff and $sa = $uc and next);
+      
+      ($uc >= 0xdc00 and $uc <= 0xdfff and ($uc = ((($sa - 0xd800) << 10)|($uc - 0xdc00))+0x10000));
+      
+      $result .= $U2T[$uc] ? $U2T[$uc] :
+	($U2T[$uc] = ($uc < 0x80) ? chr($uc) :
+	 ($uc < 0x800) ? chr(0xC0 | ($uc >> 6)) . chr(0x80 | ($uc & 0x3F)) :
+	 ($uc < 0x10000) ? chr(0xE0 | ($uc >> 12)) . chr(0x80 | (($uc >> 6) & 0x3F)) . chr(0x80 | ($uc & 0x3F)) :
+	 chr(0xF0 | ($uc >> 18)) . chr(0x80 | (($uc >> 12) & 0x3F)) . chr(0x80 | (($uc >> 6) & 0x3F)) . chr(0x80 | ($uc & 0x3F)));
+    }
+  
+  $result;
+}
+# -----------------------------------------------------------------------------
+# $bytes_ucs2 = $unijp->ucs2();
+# 
+sub ucs2
+{
+  my $this = shift;
+  $this->_utf8_ucs2($this->{str});
+}
+sub h2zNum {
+  my $this = shift;
+
+  if(!defined(%_h2zNum))
+    {
+      $this->_loadConvTable;
+    }
+
+  $this->{str} =~ s/(0|1|2|3|4|5|6|7|8|9)/$_h2zNum{$1}/eg;
+  
+  $this;
+}
+sub _si2u1 {
+  my $this = shift;
+  my $str = shift;
+
+  if(!defined($str))
+    {
+      return '';
+    }
+  
+  if(!defined($s2u_table))
+    {
+      $s2u_table = $this->_getFile('jcode/s2u.dat');
+    }
+
+  if(!defined($ei2u1))
+    {
+      $ei2u1 = $this->_getFile('jcode/emoji2/ei2u.dat');
+    }
+
+  $str =~ s/(\&\#(\d+);)/
+    ($2 >= 0xf800 and $2 <= 0xf9ff) ? pack('n', $2) : $1
+      /eg;
+  
+  my $l;
+  my $uc;
+  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_IMODEv1}|[\x00-\xff])/
+    $S2U{$1}
+      or ($S2U{$1} =
+	  (
+	   $l = (unpack('n', $1) or unpack('C', $1)),
+	   (
+	    ($l >= 0xa1 and $l <= 0xdf)     ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0xa1) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0x8100 and $l <= 0x9fff) ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0x8100 + 0x3f) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0xf800 and $l <= 0xf9ff) ?
+	    (
+	     $uc = substr($ei2u1, ($l - 0xf800) * 4, 4),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0xe000 and $l <= 0xffff) ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0xe000 + 0x1f3f) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l < 0x80) ?
+	    chr($l) :
+	    '?'
+	   )
+	  )
+	 )/eg;
+  
+  $str;
+  
+}
+sub h2zKanaK {
+  my $this = shift;
+
+  if(!defined(%_h2zKanaK))
+    {
+      $this->_loadConvTable;
+    }
+
+  $this->{str} =~ s/(\xef\xbd\xa1|\xef\xbd\xa2|\xef\xbd\xa3|\xef\xbd\xa4|\xef\xbd\xa5|\xef\xbd\xa6|\xef\xbd\xa7|\xef\xbd\xa8|\xef\xbd\xa9|\xef\xbd\xaa|\xef\xbd\xab|\xef\xbd\xac|\xef\xbd\xad|\xef\xbd\xae|\xef\xbd\xaf|\xef\xbd\xb0|\xef\xbd\xb1|\xef\xbd\xb2|\xef\xbd\xb3|\xef\xbd\xb4|\xef\xbd\xb5|\xef\xbd\xb6|\xef\xbd\xb7|\xef\xbd\xb8|\xef\xbd\xb9|\xef\xbd\xba|\xef\xbd\xbb|\xef\xbd\xbc|\xef\xbd\xbd|\xef\xbd\xbe|\xef\xbd\xbf|\xef\xbe\x80|\xef\xbe\x81|\xef\xbe\x82|\xef\xbe\x83|\xef\xbe\x84|\xef\xbe\x85|\xef\xbe\x86|\xef\xbe\x87|\xef\xbe\x88|\xef\xbe\x89|\xef\xbe\x8a|\xef\xbe\x8b|\xef\xbe\x8c|\xef\xbe\x8d|\xef\xbe\x8e|\xef\xbe\x8f|\xef\xbe\x90|\xef\xbe\x91|\xef\xbe\x92|\xef\xbe\x93|\xef\xbe\x94|\xef\xbe\x95|\xef\xbe\x96|\xef\xbe\x97|\xef\xbe\x98|\xef\xbe\x99|\xef\xbe\x9a|\xef\xbe\x9b|\xef\xbe\x9c|\xef\xbe\x9d|\xef\xbe\x9e|\xef\xbe\x9f)/$_h2zKanaK{$1}/eg;
+  
+  $this;
+}
+sub strlen {
+  my $this = shift;
+  
+  my $ch_re = '[\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5}';
+  my $length = 0;
+
+  foreach my $c(split(/($ch_re)/,$this->{str})) {
+    next if(length($c) == 0);
+    $length += ((length($c) >= 3) ? 2 : 1);
+  }
+
+  return $length;
+}
+sub _utf8_utf16 {
+  my $this = shift;
+  my $str = shift;
+  
+  if(!defined($str))
+    {
+      return '';
+    }
+
+  my $c1;
+  my $c2;
+  my $c3;
+  my $c4;
+  my $uc;
+  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})/
+    $T2U{$1}
+      or ($T2U{$1}
+	  = ((length($1) == 1) ? pack("n", unpack("C", $1)) :
+	     (length($1) == 2) ? (($c1,$c2) = unpack("C2", $1),
+				  pack("n", (($c1 & 0x1F)<<6)|($c2 & 0x3F))) :
+	     (length($1) == 3) ? (($c1,$c2,$c3) = unpack("C3", $1),
+				  pack("n", (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F))) :
+	     (length($1) == 4) ? (($c1,$c2,$c3,$c4) = unpack("C4", $1),
+				  ($uc = ((($c1 & 0x07) << 18)|(($c2 & 0x3F) << 12)|
+					  (($c3 & 0x3f) << 6)|($c4 & 0x3F)) - 0x10000),
+				  (($uc < 0x100000) ? pack("nn", (($uc >> 10) | 0xd800), (($uc & 0x3ff) | 0xdc00)) : "\0?")) :
+	     "\0?")
+	 );
+  /eg;
+  $str;
+}
+sub sjis_jsky2
+{
+  my $this = shift;
+  $this->_u2sj2($this->{str});
+}
+# -----------------------------------------------------------------------------
+# $code = Unicode::Japanese->getcode($str);
+# 
+sub getcode {
+  my $this = shift;
+  my $str = shift;
+
+  if( $]>=5.008 )
+  {
+    Encode::_utf8_off($str);
+  }
+  
+  my $l = length($str);
+  
+  if((($l % 4) == 0)
+     and ($str =~ m/^(?:$RE{BOM4_BE}|$RE{BOM4_LE})/o))
+    {
+      return 'utf32';
+    }
+  if((($l % 2) == 0)
+     and ($str =~ m/^(?:$RE{BOM2_BE}|$RE{BOM2_LE})/o))
+    {
+      return 'utf16';
+    }
+
+  my $str2;
+  
+  if(($l % 4) == 0)
+    {
+      $str2 = $str;
+      1 while($str2 =~ s/^(?:$RE{UTF32_BE})//o);
+      if($str2 eq '')
+	{
+	  return 'utf32-be';
+	}
+      
+      $str2 = $str;
+      1 while($str2 =~ s/^(?:$RE{UTF32_LE})//o);
+      if($str2 eq '')
+	{
+	  return 'utf32-le';
+	}
+    }
+  
+  if($str !~ m/[\e\x80-\xff]/)
+    {
+      return 'ascii';
+    }
+
+  if($str =~ m/$RE{JIS_0208}|$RE{JIS_0212}|$RE{JIS_ASC}|$RE{JIS_KANA}/o)
+    {
+      return 'jis';
+    }
+
+  if($str =~ m/(?:$RE{E_JSKY})/o)
+    {
+      return 'sjis-jsky';
+    }
+
+  $str2 = $str;
+  1 while($str2 =~ s/^(?:$RE{ASCII}|$RE{EUC_0212}|$RE{EUC_KANA}|$RE{EUC_C})//o);
+  if($str2 eq '')
+    {
+      return 'euc';
+    }
+
+  $str2 = $str;
+  1 while($str2 =~ s/^(?:$RE{ASCII}|$RE{SJIS_DBCS}|$RE{SJIS_KANA})//o);
+  if($str2 eq '')
+    {
+      return 'sjis';
+    }
+
+  my $str3;
+  $str3 = $str2;
+  1 while($str3 =~ s/^(?:$RE{ASCII}|$RE{SJIS_DBCS}|$RE{SJIS_KANA}|$RE{E_IMODE})//o);
+  if($str3 eq '')
+    {
+      return 'sjis-imode';
+    }
+
+  $str3 = $str2;
+  1 while($str3 =~ s/^(?:$RE{ASCII}|$RE{SJIS_DBCS}|$RE{SJIS_KANA}|$RE{E_DOTI})//o);
+  if($str3 eq '')
+    {
+      return 'sjis-doti';
+    }
+
+  $str2 = $str;
+  1 while($str2 =~ s/^(?:$RE{UTF8})//o);
+  if($str2 eq '')
+    {
+      return 'utf8';
+    }
+
+  return 'unknown';
+}
+sub sjis_imode2
+{
+  my $this = shift;
+  $this->_u2si2($this->{str});
+}
+sub _j2s2 {
+  my $this = shift;
+  my $esc = shift;
+  my $str = shift;
+
+  if($esc eq $RE{JIS_0212})
+    {
+      $str =~ s/../$CHARCODE{UNDEF_SJIS}/g;
+    }
+  elsif($esc !~ m/^$RE{JIS_ASC}/)
+    {
+      $str =~ tr/\x21-\x7e/\xa1-\xfe/;
+      if($esc =~ m/^$RE{JIS_0208}/)
+	{
+	  $str =~ s/($RE{EUC_C})/
+	    $J2S[unpack('n', $1)] or $this->_j2s3($1)
+	      /geo;
+	}
+    }
+  
+  $str;
+}
+sub _validate_utf8
+{
+  my $pkg = shift;
+  my $str = shift;
+
+  $str;
+}
+sub h2zKanaD {
+  my $this = shift;
+
+  if(!defined(%_h2zKanaD))
+    {
+      $this->_loadConvTable;
+    }
+
+  $this->{str} =~ s/(\xef\xbd\xb3\xef\xbe\x9e|\xef\xbd\xb6\xef\xbe\x9e|\xef\xbd\xb7\xef\xbe\x9e|\xef\xbd\xb8\xef\xbe\x9e|\xef\xbd\xb9\xef\xbe\x9e|\xef\xbd\xba\xef\xbe\x9e|\xef\xbd\xbb\xef\xbe\x9e|\xef\xbd\xbc\xef\xbe\x9e|\xef\xbd\xbd\xef\xbe\x9e|\xef\xbd\xbe\xef\xbe\x9e|\xef\xbd\xbf\xef\xbe\x9e|\xef\xbe\x80\xef\xbe\x9e|\xef\xbe\x81\xef\xbe\x9e|\xef\xbe\x82\xef\xbe\x9e|\xef\xbe\x83\xef\xbe\x9e|\xef\xbe\x84\xef\xbe\x9e|\xef\xbe\x8a\xef\xbe\x9e|\xef\xbe\x8a\xef\xbe\x9f|\xef\xbe\x8b\xef\xbe\x9e|\xef\xbe\x8b\xef\xbe\x9f|\xef\xbe\x8c\xef\xbe\x9e|\xef\xbe\x8c\xef\xbe\x9f|\xef\xbe\x8d\xef\xbe\x9e|\xef\xbe\x8d\xef\xbe\x9f|\xef\xbe\x8e\xef\xbe\x9e|\xef\xbe\x8e\xef\xbe\x9f)/$_h2zKanaD{$1}/eg;
+  
+  $this;
+}
+sub z2hKanaK {
+  my $this = shift;
+
+  if(!defined(%_z2hKanaK))
+    {
+      $this->_loadConvTable;
+    }
+
+  $this->{str} =~ s/(\xe3\x80\x81|\xe3\x80\x82|\xe3\x83\xbb|\xe3\x82\x9b|\xe3\x82\x9c|\xe3\x83\xbc|\xe3\x80\x8c|\xe3\x80\x8d|\xe3\x82\xa1|\xe3\x82\xa2|\xe3\x82\xa3|\xe3\x82\xa4|\xe3\x82\xa5|\xe3\x82\xa6|\xe3\x82\xa7|\xe3\x82\xa8|\xe3\x82\xa9|\xe3\x82\xaa|\xe3\x82\xab|\xe3\x82\xad|\xe3\x82\xaf|\xe3\x82\xb1|\xe3\x82\xb3|\xe3\x82\xb5|\xe3\x82\xb7|\xe3\x82\xb9|\xe3\x82\xbb|\xe3\x82\xbd|\xe3\x82\xbf|\xe3\x83\x81|\xe3\x83\x83|\xe3\x83\x84|\xe3\x83\x86|\xe3\x83\x88|\xe3\x83\x8a|\xe3\x83\x8b|\xe3\x83\x8c|\xe3\x83\x8d|\xe3\x83\x8e|\xe3\x83\x8f|\xe3\x83\x92|\xe3\x83\x95|\xe3\x83\x98|\xe3\x83\x9b|\xe3\x83\x9e|\xe3\x83\x9f|\xe3\x83\xa0|\xe3\x83\xa1|\xe3\x83\xa2|\xe3\x83\xa3|\xe3\x83\xa4|\xe3\x83\xa5|\xe3\x83\xa6|\xe3\x83\xa7|\xe3\x83\xa8|\xe3\x83\xa9|\xe3\x83\xaa|\xe3\x83\xab|\xe3\x83\xac|\xe3\x83\xad|\xe3\x83\xaf|\xe3\x83\xb2|\xe3\x83\xb3)/$_z2hKanaK{$1}/eg;
+  
+  $this;
+}
+sub h2zAlpha {
+  my $this = shift;
+
+  if(!defined(%_h2zAlpha))
+    {
+      $this->_loadConvTable;
+    }
+
+  $this->{str} =~ s/(A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)/$_h2zAlpha{$1}/eg;
+  
+  $this;
+}
+sub _utf16_utf16 {
+  my $this = shift;
+  my $str = shift;
+
+  if($str =~ s/^\xfe\xff//)
+    {
+      $str = $this->_utf16be_utf16($str);
+    }
+  elsif($str =~ s/^\xff\xfe//)
+    {
+      $str = $this->_utf16le_utf16($str);
+    }
+  else
+    {
+      $str = $this->_utf16be_utf16($str);
+    }
+  
+  $str;
+}
+# -----------------------------------------------------------------------------
+# Unicode 内 相互変換
+# 
+sub _ucs2_utf8 {
+  my $this = shift;
+  my $str = shift;
+  
+  if(!defined($str))
+    {
+      return '';
+    }
+  
+  my $result = '';
+  for my $uc (unpack("n*", $str))
+    {
+      $result .= $U2T[$uc] ? $U2T[$uc] :
+	($U2T[$uc] = ($uc < 0x80) ? chr($uc) :
+	  ($uc < 0x800) ? chr(0xC0 | ($uc >> 6)) . chr(0x80 | ($uc & 0x3F)) :
+	    chr(0xE0 | ($uc >> 12)) . chr(0x80 | (($uc >> 6) & 0x3F)) .
+	      chr(0x80 | ($uc & 0x3F)));
+    }
+  
+  $result;
+}
+# -----------------------------------------------------------------------------
+# $unijp->set($str,[$icode,[$encode]]);
+# 
+sub set
+{
+  my $this = shift;
+  my $str = shift;
+  my $icode = shift;
+  my $encode = shift;
+
+  if(ref($str))
+    {
+      die "String->set, Param[1] is Ref.\n";
+    }
+  if(ref($icode))
+    {
+      die "String->set, Param[2] is Ref.\n";
+    }
+  if(ref($encode))
+    {
+      die "String->set, Param[3] is Ref.\n";
+    }
+
+  if( $]>=5.008 )
+  {
+    Encode::_utf8_off($str);
+  }
+  
+  if(defined($encode))
+    {
+      if($encode eq 'base64')
+	{
+	  $str = $this->_decodeBase64($str);
+	}
+      else
+	{
+	  die "String->set, Param[3] encode name error.\n";
+	}
+    }
+
+  if(!defined($icode))
+    { # omitted then 'utf8'
+      $this->{str} = $this->_validate_utf8($str);
+      $this->{icode} = 'utf8';
+    }
+  else
+    {
+      $icode = lc($icode);
+      if($icode eq 'auto')
+	{
+	  $icode = $this->getcode($str);
+	  if($icode eq 'unknown')
+	    {
+	      $icode = 'binary';
+	    }
+	}
+
+      if($icode eq 'utf8')
+	{
+	  $this->{str} = $this->_validate_utf8($str);
+	}
+      elsif($icode eq 'ucs2')
+	{
+	  $this->{str} = $this->_ucs2_utf8($str);
+	}
+      elsif($icode eq 'ucs4')
+	{
+	  $this->{str} = $this->_ucs4_utf8($str);
+	}
+      elsif($icode eq 'utf16-be')
+	{
+	  $this->{str} = $this->_utf16_utf8($this->_utf16be_utf16($str));
+	}
+      elsif($icode eq 'utf16-le')
+	{
+	  $this->{str} = $this->_utf16_utf8($this->_utf16le_utf16($str));
+	}
+      elsif($icode eq 'utf16')
+	{
+	  $this->{str} = $this->_utf16_utf8($this->_utf16_utf16($str));
+	}
+      elsif($icode eq 'utf32-be')
+	{
+	  $this->{str} = $this->_ucs4_utf8($this->_utf32be_ucs4($str));
+	}
+      elsif($icode eq 'utf32-le')
+	{
+	  $this->{str} = $this->_ucs4_utf8($this->_utf32le_ucs4($str));
+	}
+      elsif($icode eq 'utf32')
+	{
+	  $this->{str} = $this->_ucs4_utf8($this->_utf32_ucs4($str));
+	}
+      elsif($icode eq 'jis')
+	{
+	  $this->{str} = $this->_s2u($this->_j2s($str));
+	}
+      elsif($icode eq 'euc')
+	{
+	  $this->{str} = $this->_s2u($this->_e2s($str));
+	}
+      elsif($icode eq 'sjis')
+	{
+	  $this->{str} = $this->_s2u($str);
+	}
+      elsif($icode eq 'sjis-imode')
+	{
+	  $this->{str} = $this->_si2u2($str);
+	}
+      elsif($icode eq 'sjis-imode1')
+	{
+	  $this->{str} = $this->_si2u1($str);
+	}
+      elsif($icode eq 'sjis-imode2')
+	{
+	  $this->{str} = $this->_si2u2($str);
+	}
+      elsif($icode eq 'sjis-doti')
+	{
+	  $this->{str} = $this->_sd2u($str);
+	}
+      elsif($icode eq 'sjis-doti1')
+	{
+	  $this->{str} = $this->_sd2u($str);
+	}
+      elsif($icode eq 'sjis-jsky')
+	{
+	  $this->{str} = $this->_sj2u2($str);
+	}
+      elsif($icode eq 'sjis-jsky1')
+	{
+	  $this->{str} = $this->_sj2u1($str);
+	}
+      elsif($icode eq 'sjis-jsky2')
+	{
+	  $this->{str} = $this->_sj2u2($str);
+	}
+      elsif($icode eq 'ascii')
+	{
+	  $this->{str} = $str;
+	}
+      elsif($icode eq 'binary')
+	{
+	  $this->{str} = $str;
+	}
+      else
+	{
+	  use Carp;
+	  croak "icode error [$icode]";
+	}
+      $this->{icode} = $icode;
+    }
+
+  $this;
+}
+sub _sj2u2 {
+  my $this = shift;
+  my $str = shift;
+
+  if(!defined($str))
+    {
+      return '';
+    }
+  
+  if(!defined($s2u_table))
+    {
+      $s2u_table = $this->_getFile('jcode/s2u.dat');
+    }
+
+  if(!defined($ej2u1))
+  {
+    $ej2u1 = $this->_getFile('jcode/emoji2/ej2u.dat');
+  }
+  if(!defined($ej2u2))
+  {
+    $ej2u2 = $this->_getFile('jcode/emoji2/ej2u2.dat');
+  }
+
+  my $l;
+  my $j1;
+  my $uc;
+  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_JSKY}|[\x00-\xff])/
+    (length($1) <= 2) ? 
+      (
+       $l = (unpack('n', $1) or unpack('C', $1)),
+       (
+	($l >= 0xa1 and $l <= 0xdf)     ?
+	(
+	 $uc = substr($s2u_table, ($l - 0xa1) * 3, 3),
+	 $uc =~ tr,\0,,d,
+	 $uc
+	) :
+	($l >= 0x8100 and $l <= 0x9fff) ?
+	(
+	 $uc = substr($s2u_table, ($l - 0x8100 + 0x3f) * 3, 3),
+	 $uc =~ tr,\0,,d,
+	 $uc
+	) :
+	($l >= 0xe000 and $l <= 0xffff) ?
+	(
+	 $uc = substr($s2u_table, ($l - 0xe000 + 0x1f3f) * 3, 3),
+	 $uc =~ tr,\0,,d,
+	 $uc
+	) :
+	($l < 0x80) ?
+	chr($l) :
+	'?'
+       )
+      ) :
+	(
+         $l = $1,
+         ( $l =~ s,^$RE{E_JSKY_START}($RE{E_JSKY1v1}),,o
+	   ?
+	   (
+	    $j1 = $1,
+	    $uc = '',
+	    $l =~ s!($RE{E_JSKY2})!$uc .= substr($ej2u1, (unpack('n', $j1 . $1) - 0x4500) * 4, 4), ''!ego,
+	    $uc =~ tr,\0,,d,
+	    $uc
+	    )
+	   :
+	   (
+	    $l =~ s,^$RE{E_JSKY_START}($RE{E_JSKY1v2}),,o,
+	    $j1 = $1,
+	    $uc = '',
+	    $l =~ s!($RE{E_JSKY2})!$uc .= substr($ej2u2, (unpack('n', $j1 . $1) - 0x4f00) * 4, 4), ''!ego,
+	    $uc =~ tr,\0,,d,
+	    $uc
+	    )
+	   )
+	)
+  /eg;
+  
+  $str;
+  
+}
+sub _utf32_ucs4 {
+  my $this = shift;
+  my $str = shift;
+
+  if($str =~ s/^\x00\x00\xfe\xff//)
+    {
+      $str = $this->_utf32be_ucs4($str);
+    }
+  elsif($str =~ s/^\xff\xfe\x00\x00//)
+    {
+      $str = $this->_utf32le_ucs4($str);
+    }
+  else
+    {
+      $str = $this->_utf32be_ucs4($str);
+    }
+  
+  $str;
+}
+sub sjis_imode1
+{
+  my $this = shift;
+  $this->_u2si1($this->{str});
+}
+# -----------------------------------------------------------------------------
+# $bytes_utf8 = $unijp->utf8();
+# 
+sub utf8
+{
+  my $this = shift;
+  $this->{str};
+}
+sub z2hKana
+{
+  my $this = shift;
+  
+  $this->z2hKanaD;
+  $this->z2hKanaK;
+  
+  $this;
+}
+# -----------------------------------------------------------------------------
+# h2z/z2h Kana
+# 
+sub h2zKana
+{
+  my $this = shift;
+
+  $this->h2zKanaD;
+  $this->h2zKanaK;
+  
+  $this;
+}
+sub _s2e {
+  my $this = shift;
+  my $str = shift;
+  
+  if( $]>=5.008 )
+  {
+    Encode::_utf8_off($str);
+  }
+
+  $str =~ s/($RE{SJIS_DBCS}|$RE{SJIS_KANA})/
+    $S2E[unpack('n', $1) or unpack('C', $1)] or $this->_s2e2($1)
+      /geo;
+  
+  $str;
+}
+sub _u2sj1 {
+  my $this = shift;
+  my $str = shift;
+
+  if(!defined($str))
+    {
+      return '';
+    }
+  
+  if(!defined($u2s_table))
+    {
+      $u2s_table = $this->_getFile('jcode/u2s.dat');
+    }
+
+  if(!defined($eu2j1))
+    {
+      $eu2j1 = $this->_getFile('jcode/emoji2/eu2j.dat');
+    }
+
+  my $c1;
+  my $c2;
+  my $c3;
+  my $c4;
+  my $c5;
+  my $c6;
+  my $c;
+  my $ch;
+  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
+    defined($2) ? '?' :
+    ((length($1) == 1) ? $1 :
+     (length($1) == 2) ? (
+			  ($c1,$c2) = unpack("C2", $1),
+			  $ch = (($c1 & 0x1F)<<6)|($c2 & 0x3F),
+			  $c = substr($u2s_table, $ch * 2, 2),
+			  ($c eq "\0\0") ? '?' : $c
+			 ) :
+     (length($1) == 3) ? (
+			  ($c1,$c2,$c3) = unpack("C3", $1),
+			  $ch = (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F),
+			  (
+			   ($ch <= 0x9fff) ?
+			   $c = substr($u2s_table, $ch * 2, 2) :
+			   ($ch >= 0xf900 and $ch <= 0xffff) ?
+			   (
+			    $c = substr($u2s_table, ($ch - 0xf900 + 0xa000) * 2, 2),
+			    (($c =~ tr,\0,,d)==2 and $c = "\0\0"),
+			   ) :
+			   (
+			    $c = '?'
+			   )
+			  ),
+			  ($c eq "\0\0") ? '?' : $c
+			 ) :
+     (length($1) == 4) ? (
+			  ($c1,$c2,$c3,$c4) = unpack("C4", $1),
+			  $ch = (($c1 & 0x07)<<18)|(($c2 & 0x3F)<<12)|
+			  (($c3 & 0x3f) << 6)|($c4 & 0x3F),
+			  (
+			   ($ch >= 0x0ff000 and $ch <= 0x0fffff) ?
+			   (
+			    $c = substr($eu2j1, ($ch - 0x0ff000) * 5, 5),
+			    $c =~ tr,\0,,d,
+			    ($c eq '') ? '?' : $c
+			   ) :
+			   '?'
+			  )
+			 ) :
+     '?'
+    )
+      /eg;
+
+  1 while($str =~ s/($RE{E_JSKY_START})($RE{E_JSKY1})($RE{E_JSKY2}+)$RE{E_JSKY_END}$RE{E_JSKY_START}\2($RE{E_JSKY2})($RE{E_JSKY_END})/$1$2$3$4$5/o);
+  
+  $str;
+  
+}
+sub _si2u2 {
+  my $this = shift;
+  my $str = shift;
+
+  if(!defined($str))
+    {
+      return '';
+    }
+  
+  if(!defined($s2u_table))
+    {
+      $s2u_table = $this->_getFile('jcode/s2u.dat');
+    }
+
+  if(!defined($ei2u2))
+    {
+      $ei2u2 = $this->_getFile('jcode/emoji2/ei2u2.dat');
+    }
+
+  $str =~ s/(\&\#(\d+);)/
+    ($2 >= 0xf800 and $2 <= 0xf9ff) ? pack('n', $2) : $1
+      /eg;
+  
+  my $l;
+  my $uc;
+  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_IMODE}|[\x00-\xff])/
+    $S2U{$1}
+      or ($S2U{$1} =
+	  (
+	   $l = (unpack('n', $1) or unpack('C', $1)),
+	   (
+	    ($l >= 0xa1 and $l <= 0xdf)     ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0xa1) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0x8100 and $l <= 0x9fff) ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0x8100 + 0x3f) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0xf800 and $l <= 0xf9ff) ?
+	    (
+	     $uc = substr($ei2u2, ($l - 0xf800) * 4, 4),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0xe000 and $l <= 0xffff) ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0xe000 + 0x1f3f) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l < 0x80) ?
+	    chr($l) :
+	    '?'
+	   )
+	  )
+	 )/eg;
+  
+  $str;
+  
+}
+sub _u2sj2 {
+  my $this = shift;
+  my $str = shift;
+
+  if(!defined($str))
+    {
+      return '';
+    }
+  
+  if(!defined($u2s_table))
+    {
+      $u2s_table = $this->_getFile('jcode/u2s.dat');
+    }
+
+  if(!defined($eu2j2))
+    {
+      $eu2j2 = $this->_getFile('jcode/emoji2/eu2j2.dat');
+    }
+
+  my $c1;
+  my $c2;
+  my $c3;
+  my $c4;
+  my $c5;
+  my $c6;
+  my $c;
+  my $ch;
+  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
+    defined($2) ? '?' :
+    ((length($1) == 1) ? $1 :
+     (length($1) == 2) ? (
+			  ($c1,$c2) = unpack("C2", $1),
+			  $ch = (($c1 & 0x1F)<<6)|($c2 & 0x3F),
+			  $c = substr($u2s_table, $ch * 2, 2),
+			  ($c eq "\0\0") ? '?' : $c
+			 ) :
+     (length($1) == 3) ? (
+			  ($c1,$c2,$c3) = unpack("C3", $1),
+			  $ch = (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F),
+			  (
+			   ($ch <= 0x9fff) ?
+			   $c = substr($u2s_table, $ch * 2, 2) :
+			   ($ch >= 0xf900 and $ch <= 0xffff) ?
+			   (
+			    $c = substr($u2s_table, ($ch - 0xf900 + 0xa000) * 2, 2),
+			    (($c =~ tr,\0,,d)==2 and $c = "\0\0"),
+			   ) :
+			   (
+			    $c = '?'
+			   )
+			  ),
+			  ($c eq "\0\0") ? '?' : $c
+			 ) :
+     (length($1) == 4) ? (
+			  ($c1,$c2,$c3,$c4) = unpack("C4", $1),
+			  $ch = (($c1 & 0x07)<<18)|(($c2 & 0x3F)<<12)|
+			  (($c3 & 0x3f) << 6)|($c4 & 0x3F),
+			  (
+			   ($ch >= 0x0ff000 and $ch <= 0x0fffff) ?
+			   (
+			    $c = substr($eu2j2, ($ch - 0x0ff000) * 5, 5),
+			    $c =~ tr,\0,,d,
+			    ($c eq '') ? '?' : $c
+			   ) :
+			   '?'
+			  )
+			 ) :
+     '?'
+    )
+      /eg;
+
+  1 while($str =~ s/($RE{E_JSKY_START})($RE{E_JSKY1})($RE{E_JSKY2}+)$RE{E_JSKY_END}$RE{E_JSKY_START}\2($RE{E_JSKY2})($RE{E_JSKY_END})/$1$2$3$4$5/o);
+  
+  $str;
+  
+}
+# -----------------------------------------------------------------------------
+# $bytes_str = $unijp->conv($ocode,[$encode]);
+# 
+sub conv {
+  my $this = shift;
+  my $ocode = shift;
+  my $encode = shift;
+  my (@option) = @_;
+
+  my $res;
+  if($ocode eq 'utf8')
+    {
+      $res = $this->utf8;
+    }
+  elsif($ocode eq 'euc')
+    {
+      $res = $this->euc;
+    }
+  elsif($ocode eq 'jis')
+    {
+      $res = $this->jis;
+    }
+  elsif($ocode eq 'sjis')
+    {
+      $res = $this->sjis;
+    }
+  elsif($ocode eq 'sjis-imode')
+    {
+      $res = $this->sjis_imode;
+    }
+  elsif($ocode eq 'sjis-imode1')
+    {
+      $res = $this->sjis_imode1;
+    }
+  elsif($ocode eq 'sjis-imode2')
+    {
+      $res = $this->sjis_imode2;
+    }
+  elsif($ocode eq 'sjis-doti')
+    {
+      $res = $this->sjis_doti;
+    }
+  elsif($ocode eq 'sjis-doti1')
+    {
+      $res = $this->sjis_doti;
+    }
+  elsif($ocode eq 'sjis-jsky')
+    {
+      $res = $this->sjis_jsky;
+    }
+  elsif($ocode eq 'sjis-jsky1')
+    {
+      $res = $this->sjis_jsky1;
+    }
+  elsif($ocode eq 'sjis-jsky2')
+    {
+      $res = $this->sjis_jsky2;
+    }
+  elsif($ocode eq 'ucs2')
+    {
+      $res = $this->ucs2;
+    }
+  elsif($ocode eq 'ucs4')
+    {
+      $res = $this->ucs4;
+    }
+  elsif($ocode eq 'utf16')
+    {
+      $res = $this->utf16;
+    }
+  elsif($ocode eq 'binary')
+    {
+      $res = $this->{str};
+    }
+  else
+    {
+      die qq(String->conv, Param[1] "$ocode" is error.\n);
+    }
+
+  if(defined($encode))
+    {
+      if($encode eq 'base64')
+	{
+	  $res = $this->_encodeBase64($res, @option);
+	}
+      else
+	{
+	  die qq(String->conv, Param[2] "$encode" encode name error.\n);
+	}
+    }
+
+  $res;
+}
+# -----------------------------------------------------------------------------
+# $bytes_doti = $unijp->sjis_doti();
+# 
+sub sjis_doti
+{
+  my $this = shift;
+  $this->_u2sd($this->{str});
+}
+sub _e2s {
+  my $this = shift;
+  my $str = shift;
+
+  $str =~ s/($RE{EUC_KANA}|$RE{EUC_0212}|$RE{EUC_C})/
+    $E2S[unpack('n', $1) or unpack('N', "\0" . $1)] or $this->_e2s2($1)
+      /geo;
+  
+  $str;
+}
+sub _utf16be_utf16 {
+  my $this = shift;
+  my $str = shift;
+
+  $str;
+}
+sub hira2kata {
+  my $this = shift;
+
+  if(!defined(%_hira2kata))
+    {
+      $this->_loadConvTable;
+    }
+
+  $this->{str} =~ s/(\xe3\x81\x81|\xe3\x81\x82|\xe3\x81\x83|\xe3\x81\x84|\xe3\x81\x85|\xe3\x81\x86|\xe3\x81\x87|\xe3\x81\x88|\xe3\x81\x89|\xe3\x81\x8a|\xe3\x81\x8b|\xe3\x81\x8c|\xe3\x81\x8d|\xe3\x81\x8e|\xe3\x81\x8f|\xe3\x81\x90|\xe3\x81\x91|\xe3\x81\x92|\xe3\x81\x93|\xe3\x81\x94|\xe3\x81\x95|\xe3\x81\x96|\xe3\x81\x97|\xe3\x81\x98|\xe3\x81\x99|\xe3\x81\x9a|\xe3\x81\x9b|\xe3\x81\x9c|\xe3\x81\x9d|\xe3\x81\x9e|\xe3\x81\x9f|\xe3\x81\xa0|\xe3\x81\xa1|\xe3\x81\xa2|\xe3\x81\xa3|\xe3\x81\xa4|\xe3\x81\xa5|\xe3\x81\xa6|\xe3\x81\xa7|\xe3\x81\xa8|\xe3\x81\xa9|\xe3\x81\xaa|\xe3\x81\xab|\xe3\x81\xac|\xe3\x81\xad|\xe3\x81\xae|\xe3\x81\xaf|\xe3\x81\xb0|\xe3\x81\xb1|\xe3\x81\xb2|\xe3\x81\xb3|\xe3\x81\xb4|\xe3\x81\xb5|\xe3\x81\xb6|\xe3\x81\xb7|\xe3\x81\xb8|\xe3\x81\xb9|\xe3\x81\xba|\xe3\x81\xbb|\xe3\x81\xbc|\xe3\x81\xbd|\xe3\x81\xbe|\xe3\x81\xbf|\xe3\x82\x80|\xe3\x82\x81|\xe3\x82\x82|\xe3\x82\x83|\xe3\x82\x84|\xe3\x82\x85|\xe3\x82\x86|\xe3\x82\x87|\xe3\x82\x88|\xe3\x82\x89|\xe3\x82\x8a|\xe3\x82\x8b|\xe3\x82\x8c|\xe3\x82\x8d|\xe3\x82\x8e|\xe3\x82\x8f|\xe3\x82\x90|\xe3\x82\x91|\xe3\x82\x92|\xe3\x82\x93)/$_hira2kata{$1}/eg;
+  
+  $this;
+}
+# -----------------------------------------------------------------------------
+# $bytes_eucjp = $unijp->euc();
+# 
+sub euc
+{
+  my $this = shift;
+  $this->_s2e($this->sjis);
+}
+sub _j2s3 {
+  my $this = shift;
+  my $c = shift;
+
+  my ($c1, $c2) = unpack('CC', $c);
+  if ($c1 % 2)
+    {
+      $c1 = ($c1>>1) + ($c1 < 0xdf ? 0x31 : 0x71);
+      $c2 -= 0x60 + ($c2 < 0xe0);
+    }
+  else
+    {
+      $c1 = ($c1>>1) + ($c1 < 0xdf ? 0x30 : 0x70);
+      $c2 -= 2;
+    }
+  
+  $J2S[unpack('n', $c)] = pack('CC', $c1, $c2);
+}
+# -----------------------------------------------------------------------------
+# $bytes_ucs4 = $unijp->ucs4();
+# 
+sub ucs4
+{
+  my $this = shift;
+  $this->_utf8_ucs4($this->{str});
+}
+sub _sd2u {
+  my $this = shift;
+  my $str = shift;
+
+  if(!defined($str))
+    {
+      return '';
+    }
+  
+  if(!defined($s2u_table))
+    {
+      $s2u_table = $this->_getFile('jcode/s2u.dat');
+    }
+
+  if(!defined($ed2u))
+    {
+      $ed2u = $this->_getFile('jcode/emoji2/ed2u.dat');
+    }
+
+  $str =~ s/(\&\#(\d+);)/
+    ($2 >= 0xf000 and $2 <= 0xf4ff) ? pack('n', $2) : $1
+      /eg;
+  
+  my $l;
+  my $uc;
+  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_DOTI}|[\x00-\xff])/
+    $S2U{$1}
+      or ($S2U{$1} =
+	  (
+	   $l = (unpack('n', $1) or unpack('C', $1)),
+	   (
+	    ($l >= 0xa1 and $l <= 0xdf)     ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0xa1) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0x8100 and $l <= 0x9fff) ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0x8100 + 0x3f) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0xf000 and $l <= 0xf4ff) ?
+	    (
+	     $uc = substr($ed2u, ($l - 0xf000) * 4, 4),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0xe000 and $l <= 0xffff) ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0xe000 + 0x1f3f) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l < 0x80) ?
+	    chr($l) :
+	    '?'
+	   )
+	  )
+	 )/eg;
+  
+  $str;
+  
+}
+sub sjis_doti1
+{
+  my $this = shift;
+  $this->_u2sd($this->{str});
+}
+# -----------------------------------------------------------------------------
+# conversion methods (private).
+# 
+sub _s2j {
+  my $this = shift;
+  my $str = shift;
+
+  $str =~ s/((?:$RE{SJIS_DBCS}|$RE{SJIS_KANA})+)/
+    $this->_s2j2($1) . $ESC{ASC}
+      /geo;
+
+  $str;
+}
+sub _s2e2 {
+  my $this = shift;
+  my $c = shift;
+  
+  my ($c1, $c2) = unpack('CC', $c);
+  if (0xa1 <= $c1 && $c1 <= 0xdf)
+    {
+      $c2 = $c1;
+      $c1 = 0x8e;
+    }
+  elsif (0x9f <= $c2)
+    {
+      $c1 = $c1 * 2 - ($c1 >= 0xe0 ? 0xe0 : 0x60);
+      $c2 += 2;
+    }
+  else
+    {
+      $c1 = $c1 * 2 - ($c1 >= 0xe0 ? 0xe1 : 0x61);
+      $c2 += 0x60 + ($c2 < 0x7f);
+    }
+  
+  $S2E[unpack('n', $c) or unpack('C', $1)] = pack('CC', $c1, $c2);
+}
+sub z2hKanaD {
+  my $this = shift;
+
+  if(!defined(%_z2hKanaD))
+    {
+      $this->_loadConvTable;
+    }
+
+  $this->{str} =~ s/(\xe3\x82\xac|\xe3\x82\xae|\xe3\x82\xb0|\xe3\x82\xb2|\xe3\x82\xb4|\xe3\x82\xb6|\xe3\x82\xb8|\xe3\x82\xba|\xe3\x82\xbc|\xe3\x82\xbe|\xe3\x83\x80|\xe3\x83\x82|\xe3\x83\x85|\xe3\x83\x87|\xe3\x83\x89|\xe3\x83\x90|\xe3\x83\x91|\xe3\x83\x93|\xe3\x83\x94|\xe3\x83\x96|\xe3\x83\x97|\xe3\x83\x99|\xe3\x83\x9a|\xe3\x83\x9c|\xe3\x83\x9d|\xe3\x83\xb4)/$_z2hKanaD{$1}/eg;
+  
+  $this;
+}
+sub _u2sd {
+  my $this = shift;
+  my $str = shift;
+
+  if(!defined($str))
+    {
+      return '';
+    }
+  
+  if(!defined($u2s_table))
+    {
+      $u2s_table = $this->_getFile('jcode/u2s.dat');
+    }
+
+  if(!defined($eu2d))
+    {
+      $eu2d = $this->_getFile('jcode/emoji2/eu2d.dat');
+    }
+
+  my $c1;
+  my $c2;
+  my $c3;
+  my $c4;
+  my $c5;
+  my $c6;
+  my $c;
+  my $ch;
+  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
+    defined($2) ? '?' :
+    ((length($1) == 1) ? $1 :
+     (length($1) == 2) ? (
+			  ($c1,$c2) = unpack("C2", $1),
+			  $ch = (($c1 & 0x1F)<<6)|($c2 & 0x3F),
+			  $c = substr($u2s_table, $ch * 2, 2),
+			  ($c eq "\0\0") ? '?' : $c
+			 ) :
+     (length($1) == 3) ? (
+			  ($c1,$c2,$c3) = unpack("C3", $1),
+			  $ch = (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F),
+			  (
+			   ($ch <= 0x9fff) ?
+			   $c = substr($u2s_table, $ch * 2, 2) :
+			   ($ch >= 0xf900 and $ch <= 0xffff) ?
+			   (
+			    $c = substr($u2s_table, ($ch - 0xf900 + 0xa000) * 2, 2),
+			    (($c =~ tr,\0,,d)==2 and $c = "\0\0"),
+			   ) :
+			   (
+			    $c = '?'
+			   )
+			  ),
+			  ($c eq "\0\0") ? '?' : $c
+			 ) :
+     (length($1) == 4) ? (
+			  ($c1,$c2,$c3,$c4) = unpack("C4", $1),
+			  $ch = (($c1 & 0x07)<<18)|(($c2 & 0x3F)<<12)|
+			  (($c3 & 0x3f) << 6)|($c4 & 0x3F),
+			  (
+			   ($ch >= 0x0ff000 and $ch <= 0x0fffff) ?
+			   (
+			    $c = substr($eu2d, ($ch - 0x0ff000) * 2, 2),
+			    $c =~ tr,\0,,d,
+			    ($c eq '') ? '?' : $c
+			   ) :
+			   '?'
+			  )
+			 ) :
+     '?'
+    )
+      /eg;
+  $str;
+  
+}
+sub _utf8_ucs2 {
+  my $this = shift;
+  my $str = shift;
+  
+  if(!defined($str))
+    {
+      return '';
+    }
+
+  my $c1;
+  my $c2;
+  my $c3;
+  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5}|(.))/
+    defined($2)?"\0$2":
+    $T2U{$1}
+      or ($T2U{$1}
+	  = ((length($1) == 1) ? pack("n", unpack("C", $1)) :
+	     (length($1) == 2) ? (($c1,$c2) = unpack("C2", $1),
+				  pack("n", (($c1 & 0x1F)<<6)|($c2 & 0x3F))) :
+	     (length($1) == 3) ? (($c1,$c2,$c3) = unpack("C3", $1),
+				  pack("n", (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F))) : "\0?"))
+	/eg;
+  $str;
+}
+sub join_csv {
+  my $sub = \&joinCsv;
+  local($^W) = 0;
+  *join_csv = $sub;
+  goto &$sub;
+}
+# -----------------------------------------------------------------------------
+# sjis/絵文字 => utf8
+# 
+sub _s2u {
+  my $this = shift;
+  my $str = shift;
+
+  if(!defined($str))
+    {
+      return '';
+    }
+  
+  if(!defined($s2u_table))
+    {
+      $s2u_table = $this->_getFile('jcode/s2u.dat');
+    }
+
+  my $l;
+  my $uc;
+  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|[\x00-\xff])/
+    $S2U{$1}
+      or ($S2U{$1} =
+	  (
+	   $l = (unpack('n', $1) or unpack('C', $1)),
+	   (
+	    ($l >= 0xa1 and $l <= 0xdf)     ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0xa1) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0x8100 and $l <= 0x9fff) ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0x8100 + 0x3f) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0xe000 and $l <= 0xfcff) ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0xe000 + 0x1f3f) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l < 0x80) ?
+	    chr($l) :
+	    '?'
+	   )
+	  )
+	 )/eg;
+  
+  $str;
+  
+}
+sub _utf32le_ucs4 {
+  my $this = shift;
+  my $str = shift;
+
+  my $result = '';
+  foreach my $ch (unpack('V*', $str))
+    {
+      $result .= pack('N', $ch);
+    }
+  
+  $result;
+}
+# -----------------------------------------------------------------------------
+# $bytes_jsky = $unijp->sjis_jsky();
+# 
+sub sjis_jsky
+{
+  my $this = shift;
+  $this->_u2sj2($this->{str});
+}
+sub _e2s2 {
+  my $this = shift;
+  my $c = shift;
+
+  my ($c1, $c2) = unpack('CC', $c);
+  if ($c1 == 0x8e)
+    {		# SS2
+      $E2S[unpack('n', $c)] = chr($c2);
+    }
+  elsif ($c1 == 0x8f)
+    {	# SS3
+      $E2S[unpack('N', "\0" . $c)] = $CHARCODE{UNDEF_SJIS};
+    }
+  else
+    {			#SS1 or X0208
+      if ($c1 % 2)
+	{
+	  $c1 = ($c1>>1) + ($c1 < 0xdf ? 0x31 : 0x71);
+	  $c2 -= 0x60 + ($c2 < 0xe0);
+	}
+      else
+	{
+	  $c1 = ($c1>>1) + ($c1 < 0xdf ? 0x30 : 0x70);
+	  $c2 -= 2;
+	}
+      $E2S[unpack('n', $c)] = pack('CC', $c1, $c2);
+    }
+}
+# -----------------------------------------------------------------------------
+# $bytes_imode = $unijp->sjis_imode();
+# 
+sub sjis_imode
+{
+  my $this = shift;
+  $this->_u2si2($this->{str});
+}
+sub _s2j2 {
+  my $this = shift;
+  my $str = shift;
+
+  $str =~ s/((?:$RE{SJIS_DBCS})+|(?:$RE{SJIS_KANA})+)/
+    my $s = $1;
+  if($s =~ m,^$RE{SJIS_KANA},)
+    {
+      $s =~ tr,\xa1-\xdf,\x21-\x5f,;
+      $ESC{KANA} . $s
+    }
+  else
+    {
+      $s =~ s!($RE{SJIS_DBCS})!
+	$S2J[unpack('n', $1)] or $this->_s2j3($1)
+	  !geo;
+      $ESC{JIS_0208} . $s;
+    }
+  /geo;
+  
+  $str;
+}
+# -----------------------------------------------------------------------------
+# $bytes_iso2022jp = $unijp->jis();
+# 
+sub jis
+{
+  my $this = shift;
+  $this->_s2j($this->sjis);
+}
+# -----------------------------------------------------------------------------
+# encode/decode
+sub _encodeBase64
+{
+  my $this = shift;
+  my $str = shift;
+  my $eol = shift;
+  my $res = "";
+  
+  $eol = "\n" unless defined $eol;
+  pos($str) = 0;                          # ensure start at the beginning
+  while ($str =~ /(.{1,45})/gs)
+    {
+      $res .= substr(pack('u', $1), 1);
+      chop($res);
+    }
+  $res =~ tr|` -_|AA-Za-z0-9+/|;               # `# help emacs
+  # fix padding at the end
+  my $padding = (3 - length($str) % 3) % 3;
+  $res =~ s/.{$padding}$/'=' x $padding/e if $padding;
+  # break encoded string into lines of no more than 76 characters each
+  if (length $eol)
+    {
+      $res =~ s/(.{1,76})/$1$eol/g;
+    }
+  $res;
+}
+sub _utf8_ucs4 {
+  my $this = shift;
+  my $str = shift;
+  
+  if(!defined($str))
+    {
+      return '';
+    }
+
+  my $c1;
+  my $c2;
+  my $c3;
+  my $c4;
+  my $c5;
+  my $c6;
+  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5}|(.))/
+    defined($2) ? "\0\0\0$2" : 
+    (length($1) == 1) ? pack("N", unpack("C", $1)) :
+    (length($1) == 2) ? (($c1,$c2) = unpack("C2", $1),
+	                pack("N", (($c1 & 0x1F) << 6)|($c2 & 0x3F))) :
+    (length($1) == 3) ? (($c1,$c2,$c3) = unpack("C3", $1),
+	                pack("N", (($c1 & 0x0F) << 12)|(($c2 & 0x3F) << 6)|
+                           ($c3 & 0x3F))) :
+    (length($1) == 4) ? (($c1,$c2,$c3,$c4) = unpack("C4", $1),
+	                pack("N", (($c1 & 0x07) << 18)|(($c2 & 0x3F) << 12)|
+                           (($c3 & 0x3f) << 6)|($c4 & 0x3F))) :
+    (length($1) == 5) ? (($c1,$c2,$c3,$c4,$c5) = unpack("C5", $1),
+	                pack("N", (($c1 & 0x03) << 24)|(($c2 & 0x3F) << 18)|
+                           (($c3 & 0x3f) << 12)|(($c4 & 0x3f) << 6)|
+                           ($c5 & 0x3F))) :
+    (($c1,$c2,$c3,$c4,$c5,$c6) = unpack("C6", $1),
+	                pack("N", (($c1 & 0x03) << 30)|(($c2 & 0x3F) << 24)|
+                           (($c3 & 0x3f) << 18)|(($c4 & 0x3f) << 12)|
+                           (($c5 & 0x3f) << 6)|($c6 & 0x3F)))
+    /eg;
+
+  $str;
+}
+# -----------------------------------------------------------------------------
+# $bytes_utf8 = $unijp->get();
+# 
+sub get {
+  my $this = shift;
+  $this->{str};
+}
+sub z2h {
+  my $this = shift;
+
+  $this->z2hKana;
+  $this->z2hNum;
+  $this->z2hAlpha;
+  $this->z2hSym;
+
+  $this;
+}
+# -----------------------------------------------------------------------------
+# $chars_utf8 = $unijp->getu();
+# 
+sub getu {
+  my $this = shift;
+  my $str = $this->{str};
+  if( $]>=5.008 && $this->{icode} ne 'binary' )
+  {
+    Encode::_utf8_on($str);
+  }
+  $str;
+}
+# -----------------------------------------------------------------------------
+# split/join Csv
+# 
+sub split_csv {
+  my $sub = \&splitCsv;
+  local($^W) = 0;
+  *split_csv = $sub;
+  goto &$sub;
+}
+sub _loadConvTable {
 
 
 %_h2zNum = (
@@ -1368,724 +3484,6 @@ __DATA__
 
 
 }
-sub h2zNum {
-  my $this = shift;
-
-  if(!defined(%_h2zNum))
-    {
-      $this->_loadConvTable;
-    }
-
-  $this->{str} =~ s/(0|1|2|3|4|5|6|7|8|9)/$_h2zNum{$1}/eg;
-  
-  $this;
-}
-# -----------------------------------------------------------------------------
-# $bytes_eucjp = $unijp->euc();
-# 
-sub euc
-{
-  my $this = shift;
-  $this->_s2e($this->sjis);
-}
-sub z2hKana
-{
-  my $this = shift;
-  
-  $this->z2hKanaD;
-  $this->z2hKanaK;
-  
-  $this;
-}
-sub splitCsv {
-  my $this = shift;
-  my $text = $this->{str};
-  my @field;
-  
-  chomp($text);
-
-  while ($text =~ m/"([^"\\]*(?:(?:\\.|\"\")[^"\\]*)*)",?|([^,]+),?|,/g) {
-    my $field = defined($1) ? $1 : (defined($2) ? $2 : '');
-    $field =~ s/["\\]"/"/g;
-    push(@field, $field);
-  }
-  push(@field, '')        if($text =~ m/,$/);
-
-  if( $]>=5.008 && $this->{icode} ne 'binary' )
-  {
-    foreach(@field)
-    {
-      Encode::_utf8_on($_);
-    }
-  }
-
-  \@field;
-}
-sub strlen {
-  my $this = shift;
-  
-  my $ch_re = '[\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5}';
-  my $length = 0;
-
-  foreach my $c(split(/($ch_re)/,$this->{str})) {
-    next if(length($c) == 0);
-    $length += ((length($c) >= 3) ? 2 : 1);
-  }
-
-  return $length;
-}
-sub join_csv {
-  my $sub = \&joinCsv;
-  local($^W) = 0;
-  *join_csv = $sub;
-  goto &$sub;
-}
-# -----------------------------------------------------------------------------
-# $bytes_utf16 = $unijp->utf16();
-# 
-sub utf16
-{
-  my $this = shift;
-  $this->_utf8_utf16($this->{str});
-}
-sub _utf16_utf8 {
-  my $this = shift;
-  my $str = shift;
-  
-  if(!defined($str))
-    {
-      return '';
-    }
-  
-  my $result = '';
-  my $sa;
-  foreach my $uc (unpack("n*", $str))
-    {
-      ($uc >= 0xd800 and $uc <= 0xdbff and $sa = $uc and next);
-      
-      ($uc >= 0xdc00 and $uc <= 0xdfff and ($uc = ((($sa - 0xd800) << 10)|($uc - 0xdc00))+0x10000));
-      
-      $result .= $U2T[$uc] ? $U2T[$uc] :
-	($U2T[$uc] = ($uc < 0x80) ? chr($uc) :
-	 ($uc < 0x800) ? chr(0xC0 | ($uc >> 6)) . chr(0x80 | ($uc & 0x3F)) :
-	 ($uc < 0x10000) ? chr(0xE0 | ($uc >> 12)) . chr(0x80 | (($uc >> 6) & 0x3F)) . chr(0x80 | ($uc & 0x3F)) :
-	 chr(0xF0 | ($uc >> 18)) . chr(0x80 | (($uc >> 12) & 0x3F)) . chr(0x80 | (($uc >> 6) & 0x3F)) . chr(0x80 | ($uc & 0x3F)));
-    }
-  
-  $result;
-}
-# -----------------------------------------------------------------------------
-# utf8 ==> sjis/絵文字
-#
-sub _u2s {
-  my $this = shift;
-  my $str = shift;
-  
-  if(!defined($str))
-    {
-      return '';
-    }
-
-  if(!defined($u2s_table))
-    {
-      $u2s_table = $this->_getFile('jcode/u2s.dat');
-    }
-
-  my $c1;
-  my $c2;
-  my $c3;
-  my $c4;
-  my $c5;
-  my $c6;
-  my $c;
-  my $ch;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
-    defined($2) ? '?' : (
-    $U2S{$1}
-      or ($U2S{$1}
-	  = ((length($1) == 1) ? $1 :
-	     (length($1) == 2) ? (
-				  ($c1,$c2) = unpack("C2", $1),
-				  $ch = (($c1 & 0x1F)<<6)|($c2 & 0x3F),
-				  $c = substr($u2s_table, $ch * 2, 2),
-				  # UTF-3バイト(U+0x80-U+07FF)からsjis-1バイトへのマッピングはないので\0を削除は必要はない
-				  ($c eq "\0\0") ? '&#' . $ch . ';' : $c
-				 ) :
-	     (length($1) == 3) ? (
-				  ($c1,$c2,$c3) = unpack("C3", $1),
-				  $ch = (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F),
-				  (
-				   ($ch <= 0x9fff) ?
-				   $c = substr($u2s_table, $ch * 2, 2) :
-				   ($ch >= 0xf900 and $ch <= 0xffff) ?
-				   (
-				    $c = substr($u2s_table, ($ch - 0xf900 + 0xa000) * 2, 2),
-				    (($c =~ tr,\0,,d)==2 and $c = "\0\0"),
-				   ) :
-				   (
-				    $c = '&#' . $ch . ';'
-				   )
-				  ),
-				  ($c eq "\0\0") ? '&#' . $ch . ';' : $c
-				 ) :
-	     (length($1) == 4) ? (
-				  ($c1,$c2,$c3,$c4) = unpack("C4", $1),
-				  $ch = (($c1 & 0x07)<<18)|(($c2 & 0x3F)<<12)|
-				  (($c3 & 0x3f) << 6)|($c4 & 0x3F),
-				  (
-				   ($ch >= 0x0ff000 and $ch <= 0x0fffff) ?
-				   '?'
-				   : '&#' . $ch . ';'
-				  )
-				 ) :
-	     (length($1) == 5) ? (($c1,$c2,$c3,$c4,$c5) = unpack("C5", $1),
-				  $ch = (($c1 & 0x03) << 24)|(($c2 & 0x3F) << 18)|
-				  (($c3 & 0x3f) << 12)|(($c4 & 0x3f) << 6)|
-				  ($c5 & 0x3F),
-				  '&#' . $ch . ';'
-				 ) :
-	                         (
-				  ($c1,$c2,$c3,$c4,$c5,$c6) = unpack("C6", $1),
-				  $ch = (($c1 & 0x03) << 30)|(($c2 & 0x3F) << 24)|
-				  (($c3 & 0x3f) << 18)|(($c4 & 0x3f) << 12)|
-				  (($c5 & 0x3f) << 6)|($c6 & 0x3F),
-				  '&#' . $ch . ';'
-				 )
-	    )
-	 )
-			 )
-	/eg;
-  $str;
-  
-}
-sub _j2s2 {
-  my $this = shift;
-  my $esc = shift;
-  my $str = shift;
-
-  if($esc eq $RE{JIS_0212})
-    {
-      $str =~ s/../$CHARCODE{UNDEF_SJIS}/g;
-    }
-  elsif($esc !~ m/^$RE{JIS_ASC}/)
-    {
-      $str =~ tr/\x21-\x7e/\xa1-\xfe/;
-      if($esc =~ m/^$RE{JIS_0208}/)
-	{
-	  $str =~ s/($RE{EUC_C})/
-	    $J2S[unpack('n', $1)] or $this->_j2s3($1)
-	      /geo;
-	}
-    }
-  
-  $str;
-}
-sub z2hKanaD {
-  my $this = shift;
-
-  if(!defined(%_z2hKanaD))
-    {
-      $this->_loadConvTable;
-    }
-
-  $this->{str} =~ s/(\xe3\x82\xac|\xe3\x82\xae|\xe3\x82\xb0|\xe3\x82\xb2|\xe3\x82\xb4|\xe3\x82\xb6|\xe3\x82\xb8|\xe3\x82\xba|\xe3\x82\xbc|\xe3\x82\xbe|\xe3\x83\x80|\xe3\x83\x82|\xe3\x83\x85|\xe3\x83\x87|\xe3\x83\x89|\xe3\x83\x90|\xe3\x83\x91|\xe3\x83\x93|\xe3\x83\x94|\xe3\x83\x96|\xe3\x83\x97|\xe3\x83\x99|\xe3\x83\x9a|\xe3\x83\x9c|\xe3\x83\x9d|\xe3\x83\xb4)/$_z2hKanaD{$1}/eg;
-  
-  $this;
-}
-sub _j2s3 {
-  my $this = shift;
-  my $c = shift;
-
-  my ($c1, $c2) = unpack('CC', $c);
-  if ($c1 % 2)
-    {
-      $c1 = ($c1>>1) + ($c1 < 0xdf ? 0x31 : 0x71);
-      $c2 -= 0x60 + ($c2 < 0xe0);
-    }
-  else
-    {
-      $c1 = ($c1>>1) + ($c1 < 0xdf ? 0x30 : 0x70);
-      $c2 -= 2;
-    }
-  
-  $J2S[unpack('n', $c)] = pack('CC', $c1, $c2);
-}
-sub joinCsv {
-  my $this = shift;
-  my $list;
-  
-  if(ref($_[0]) eq 'ARRAY')
-    {
-      $list = shift;
-      if( $]>=5.008 )
-      {
-	$list = [ @$list ];
-	foreach(@$list)
-	{
-	  Encode::_utf8_off($_);
-	}
-      }
-    }
-  elsif(!ref($_[0]))
-    {
-      $list = [ @_ ];
-      if( $]>=5.008 )
-      {
-	foreach(@$list)
-	{
-	  Encode::_utf8_off($_);
-	}
-      }
-    }
-  else
-    {
-      my $ref = ref($_[0]);
-      die "String->joinCsv, Param[1] is not ARRAY/ARRRAY-ref. [$ref]\n";
-    }
-      
-  my $text;
-  $text = join ',', map {(s/"/""/g or /[\r\n,]/) ? qq("$_") : $_} @$list;
-
-  $this->{str} = $text."\n";
-  $this->{icode} = 'binary';
-
-  $this;
-}
-sub sjis_jsky1
-{
-  my $this = shift;
-  $this->_u2sj1($this->{str});
-}
-sub _sj2u1 {
-  my $this = shift;
-  my $str = shift;
-
-  if(!defined($str))
-    {
-      return '';
-    }
-  
-  if(!defined($s2u_table))
-    {
-      $s2u_table = $this->_getFile('jcode/s2u.dat');
-    }
-
-  if(!defined($ej2u1))
-    {
-      $ej2u1 = $this->_getFile('jcode/emoji2/ej2u.dat');
-    }
-
-  my $l;
-  my $j1;
-  my $uc;
-  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_JSKYv1}|[\x00-\xff])/
-    (length($1) <= 2) ? 
-      (
-       $l = (unpack('n', $1) or unpack('C', $1)),
-       (
-	($l >= 0xa1 and $l <= 0xdf)     ?
-	(
-	 $uc = substr($s2u_table, ($l - 0xa1) * 3, 3),
-	 $uc =~ tr,\0,,d,
-	 $uc
-	) :
-	($l >= 0x8100 and $l <= 0x9fff) ?
-	(
-	 $uc = substr($s2u_table, ($l - 0x8100 + 0x3f) * 3, 3),
-	 $uc =~ tr,\0,,d,
-	 $uc
-	) :
-	($l >= 0xe000 and $l <= 0xffff) ?
-	(
-	 $uc = substr($s2u_table, ($l - 0xe000 + 0x1f3f) * 3, 3),
-	 $uc =~ tr,\0,,d,
-	 $uc
-	) :
-	($l < 0x80) ?
-	chr($l) :
-	'?'
-       )
-      ) :
-	(
-         $l = $1,
-	 $l =~ s,^$RE{E_JSKY_START}($RE{E_JSKY1v1}),,o,
-	 $j1 = $1,
-	 $uc = '',
-	 $l =~ s!($RE{E_JSKY2})!$uc .= substr($ej2u1, (unpack('n', $j1 . $1) - 0x4500) * 4, 4), ''!ego,
-	 $uc =~ tr,\0,,d,
-	 $uc
-	)
-  /eg;
-  
-  $str;
-  
-}
-sub sjis_jsky2
-{
-  my $this = shift;
-  $this->_u2sj2($this->{str});
-}
-sub _sj2u2 {
-  my $this = shift;
-  my $str = shift;
-
-  if(!defined($str))
-    {
-      return '';
-    }
-  
-  if(!defined($s2u_table))
-    {
-      $s2u_table = $this->_getFile('jcode/s2u.dat');
-    }
-
-  if(!defined($ej2u1))
-  {
-    $ej2u1 = $this->_getFile('jcode/emoji2/ej2u.dat');
-  }
-  if(!defined($ej2u2))
-  {
-    $ej2u2 = $this->_getFile('jcode/emoji2/ej2u2.dat');
-  }
-
-  my $l;
-  my $j1;
-  my $uc;
-  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_JSKY}|[\x00-\xff])/
-    (length($1) <= 2) ? 
-      (
-       $l = (unpack('n', $1) or unpack('C', $1)),
-       (
-	($l >= 0xa1 and $l <= 0xdf)     ?
-	(
-	 $uc = substr($s2u_table, ($l - 0xa1) * 3, 3),
-	 $uc =~ tr,\0,,d,
-	 $uc
-	) :
-	($l >= 0x8100 and $l <= 0x9fff) ?
-	(
-	 $uc = substr($s2u_table, ($l - 0x8100 + 0x3f) * 3, 3),
-	 $uc =~ tr,\0,,d,
-	 $uc
-	) :
-	($l >= 0xe000 and $l <= 0xffff) ?
-	(
-	 $uc = substr($s2u_table, ($l - 0xe000 + 0x1f3f) * 3, 3),
-	 $uc =~ tr,\0,,d,
-	 $uc
-	) :
-	($l < 0x80) ?
-	chr($l) :
-	'?'
-       )
-      ) :
-	(
-         $l = $1,
-         ( $l =~ s,^$RE{E_JSKY_START}($RE{E_JSKY1v1}),,o
-	   ?
-	   (
-	    $j1 = $1,
-	    $uc = '',
-	    $l =~ s!($RE{E_JSKY2})!$uc .= substr($ej2u1, (unpack('n', $j1 . $1) - 0x4500) * 4, 4), ''!ego,
-	    $uc =~ tr,\0,,d,
-	    $uc
-	    )
-	   :
-	   (
-	    $l =~ s,^$RE{E_JSKY_START}($RE{E_JSKY1v2}),,o,
-	    $j1 = $1,
-	    $uc = '',
-	    $l =~ s!($RE{E_JSKY2})!$uc .= substr($ej2u2, (unpack('n', $j1 . $1) - 0x4f00) * 4, 4), ''!ego,
-	    $uc =~ tr,\0,,d,
-	    $uc
-	    )
-	   )
-	)
-  /eg;
-  
-  $str;
-  
-}
-sub _utf32be_ucs4 {
-  my $this = shift;
-  my $str = shift;
-
-  $str;
-}
-sub _s2e2 {
-  my $this = shift;
-  my $c = shift;
-  
-  my ($c1, $c2) = unpack('CC', $c);
-  if (0xa1 <= $c1 && $c1 <= 0xdf)
-    {
-      $c2 = $c1;
-      $c1 = 0x8e;
-    }
-  elsif (0x9f <= $c2)
-    {
-      $c1 = $c1 * 2 - ($c1 >= 0xe0 ? 0xe0 : 0x60);
-      $c2 += 2;
-    }
-  else
-    {
-      $c1 = $c1 * 2 - ($c1 >= 0xe0 ? 0xe1 : 0x61);
-      $c2 += 0x60 + ($c2 < 0x7f);
-    }
-  
-  $S2E[unpack('n', $c) or unpack('C', $1)] = pack('CC', $c1, $c2);
-}
-sub z2hKanaK {
-  my $this = shift;
-
-  if(!defined(%_z2hKanaK))
-    {
-      $this->_loadConvTable;
-    }
-
-  $this->{str} =~ s/(\xe3\x80\x81|\xe3\x80\x82|\xe3\x83\xbb|\xe3\x82\x9b|\xe3\x82\x9c|\xe3\x83\xbc|\xe3\x80\x8c|\xe3\x80\x8d|\xe3\x82\xa1|\xe3\x82\xa2|\xe3\x82\xa3|\xe3\x82\xa4|\xe3\x82\xa5|\xe3\x82\xa6|\xe3\x82\xa7|\xe3\x82\xa8|\xe3\x82\xa9|\xe3\x82\xaa|\xe3\x82\xab|\xe3\x82\xad|\xe3\x82\xaf|\xe3\x82\xb1|\xe3\x82\xb3|\xe3\x82\xb5|\xe3\x82\xb7|\xe3\x82\xb9|\xe3\x82\xbb|\xe3\x82\xbd|\xe3\x82\xbf|\xe3\x83\x81|\xe3\x83\x83|\xe3\x83\x84|\xe3\x83\x86|\xe3\x83\x88|\xe3\x83\x8a|\xe3\x83\x8b|\xe3\x83\x8c|\xe3\x83\x8d|\xe3\x83\x8e|\xe3\x83\x8f|\xe3\x83\x92|\xe3\x83\x95|\xe3\x83\x98|\xe3\x83\x9b|\xe3\x83\x9e|\xe3\x83\x9f|\xe3\x83\xa0|\xe3\x83\xa1|\xe3\x83\xa2|\xe3\x83\xa3|\xe3\x83\xa4|\xe3\x83\xa5|\xe3\x83\xa6|\xe3\x83\xa7|\xe3\x83\xa8|\xe3\x83\xa9|\xe3\x83\xaa|\xe3\x83\xab|\xe3\x83\xac|\xe3\x83\xad|\xe3\x83\xaf|\xe3\x83\xb2|\xe3\x83\xb3)/$_z2hKanaK{$1}/eg;
-  
-  $this;
-}
-# -----------------------------------------------------------------------------
-# h2z/z2h Kana
-# 
-sub h2zKana
-{
-  my $this = shift;
-
-  $this->h2zKanaD;
-  $this->h2zKanaK;
-  
-  $this;
-}
-# -----------------------------------------------------------------------------
-# Unicode 内 相互変換
-# 
-sub _ucs2_utf8 {
-  my $this = shift;
-  my $str = shift;
-  
-  if(!defined($str))
-    {
-      return '';
-    }
-  
-  my $result = '';
-  for my $uc (unpack("n*", $str))
-    {
-      $result .= $U2T[$uc] ? $U2T[$uc] :
-	($U2T[$uc] = ($uc < 0x80) ? chr($uc) :
-	  ($uc < 0x800) ? chr(0xC0 | ($uc >> 6)) . chr(0x80 | ($uc & 0x3F)) :
-	    chr(0xE0 | ($uc >> 12)) . chr(0x80 | (($uc >> 6) & 0x3F)) .
-	      chr(0x80 | ($uc & 0x3F)));
-    }
-  
-  $result;
-}
-sub z2hAlpha {
-  my $this = shift;
-
-  if(!defined(%_z2hAlpha))
-    {
-      $this->_loadConvTable;
-    }
-
-  $this->{str} =~ s/(\xef\xbc\xa1|\xef\xbc\xa2|\xef\xbc\xa3|\xef\xbc\xa4|\xef\xbc\xa5|\xef\xbc\xa6|\xef\xbc\xa7|\xef\xbc\xa8|\xef\xbc\xa9|\xef\xbc\xaa|\xef\xbc\xab|\xef\xbc\xac|\xef\xbc\xad|\xef\xbc\xae|\xef\xbc\xaf|\xef\xbc\xb0|\xef\xbc\xb1|\xef\xbc\xb2|\xef\xbc\xb3|\xef\xbc\xb4|\xef\xbc\xb5|\xef\xbc\xb6|\xef\xbc\xb7|\xef\xbc\xb8|\xef\xbc\xb9|\xef\xbc\xba|\xef\xbd\x81|\xef\xbd\x82|\xef\xbd\x83|\xef\xbd\x84|\xef\xbd\x85|\xef\xbd\x86|\xef\xbd\x87|\xef\xbd\x88|\xef\xbd\x89|\xef\xbd\x8a|\xef\xbd\x8b|\xef\xbd\x8c|\xef\xbd\x8d|\xef\xbd\x8e|\xef\xbd\x8f|\xef\xbd\x90|\xef\xbd\x91|\xef\xbd\x92|\xef\xbd\x93|\xef\xbd\x94|\xef\xbd\x95|\xef\xbd\x96|\xef\xbd\x97|\xef\xbd\x98|\xef\xbd\x99|\xef\xbd\x9a)/$_z2hAlpha{$1}/eg;
-  
-  $this;
-}
-sub _utf32le_ucs4 {
-  my $this = shift;
-  my $str = shift;
-
-  my $result = '';
-  foreach my $ch (unpack('V*', $str))
-    {
-      $result .= pack('N', $ch);
-    }
-  
-  $result;
-}
-sub _utf8_utf16 {
-  my $this = shift;
-  my $str = shift;
-  
-  if(!defined($str))
-    {
-      return '';
-    }
-
-  my $c1;
-  my $c2;
-  my $c3;
-  my $c4;
-  my $uc;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})/
-    $T2U{$1}
-      or ($T2U{$1}
-	  = ((length($1) == 1) ? pack("n", unpack("C", $1)) :
-	     (length($1) == 2) ? (($c1,$c2) = unpack("C2", $1),
-				  pack("n", (($c1 & 0x1F)<<6)|($c2 & 0x3F))) :
-	     (length($1) == 3) ? (($c1,$c2,$c3) = unpack("C3", $1),
-				  pack("n", (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F))) :
-	     (length($1) == 4) ? (($c1,$c2,$c3,$c4) = unpack("C4", $1),
-				  ($uc = ((($c1 & 0x07) << 18)|(($c2 & 0x3F) << 12)|
-					  (($c3 & 0x3f) << 6)|($c4 & 0x3F)) - 0x10000),
-				  (($uc < 0x100000) ? pack("nn", (($uc >> 10) | 0xd800), (($uc & 0x3ff) | 0xdc00)) : "\0?")) :
-	     "\0?")
-	 );
-  /eg;
-  $str;
-}
-# -----------------------------------------------------------------------------
-# $code = Unicode::Japanese->getcode($str);
-# 
-sub getcode {
-  my $this = shift;
-  my $str = shift;
-
-  if( $]>=5.008 )
-  {
-    Encode::_utf8_off($str);
-  }
-  
-  my $l = length($str);
-  
-  if((($l % 4) == 0)
-     and ($str =~ m/^(?:$RE{BOM4_BE}|$RE{BOM4_LE})/o))
-    {
-      return 'utf32';
-    }
-  if((($l % 2) == 0)
-     and ($str =~ m/^(?:$RE{BOM2_BE}|$RE{BOM2_LE})/o))
-    {
-      return 'utf16';
-    }
-
-  my $str2;
-  
-  if(($l % 4) == 0)
-    {
-      $str2 = $str;
-      1 while($str2 =~ s/^(?:$RE{UTF32_BE})//o);
-      if($str2 eq '')
-	{
-	  return 'utf32-be';
-	}
-      
-      $str2 = $str;
-      1 while($str2 =~ s/^(?:$RE{UTF32_LE})//o);
-      if($str2 eq '')
-	{
-	  return 'utf32-le';
-	}
-    }
-  
-  if($str !~ m/[\e\x80-\xff]/)
-    {
-      return 'ascii';
-    }
-
-  if($str =~ m/$RE{JIS_0208}|$RE{JIS_0212}|$RE{JIS_ASC}|$RE{JIS_KANA}/o)
-    {
-      return 'jis';
-    }
-
-  if($str =~ m/(?:$RE{E_JSKY})/o)
-    {
-      return 'sjis-jsky';
-    }
-
-  $str2 = $str;
-  1 while($str2 =~ s/^(?:$RE{ASCII}|$RE{EUC_0212}|$RE{EUC_KANA}|$RE{EUC_C})//o);
-  if($str2 eq '')
-    {
-      return 'euc';
-    }
-
-  $str2 = $str;
-  1 while($str2 =~ s/^(?:$RE{ASCII}|$RE{SJIS_DBCS}|$RE{SJIS_KANA})//o);
-  if($str2 eq '')
-    {
-      return 'sjis';
-    }
-
-  my $str3;
-  $str3 = $str2;
-  1 while($str3 =~ s/^(?:$RE{ASCII}|$RE{SJIS_DBCS}|$RE{SJIS_KANA}|$RE{E_IMODE})//o);
-  if($str3 eq '')
-    {
-      return 'sjis-imode';
-    }
-
-  $str3 = $str2;
-  1 while($str3 =~ s/^(?:$RE{ASCII}|$RE{SJIS_DBCS}|$RE{SJIS_KANA}|$RE{E_DOTI})//o);
-  if($str3 eq '')
-    {
-      return 'sjis-doti';
-    }
-
-  $str2 = $str;
-  1 while($str2 =~ s/^(?:$RE{UTF8})//o);
-  if($str2 eq '')
-    {
-      return 'utf8';
-    }
-
-  return 'unknown';
-}
-sub _decodeBase64
-{
-  local($^W) = 0; # unpack("u",...) gives bogus warning in 5.00[123]
-
-  my $this = shift;
-  my $str = shift;
-  my $res = "";
-
-  $str =~ tr|A-Za-z0-9+=/||cd;            # remove non-base64 chars
-  if (length($str) % 4)
-    {
-      warn("Length of base64 data not a multiple of 4");
-    }
-  $str =~ s/=+$//;                        # remove padding
-  $str =~ tr|A-Za-z0-9+/| -_|;            # convert to uuencoded format
-  while ($str =~ /(.{1,60})/gs)
-    {
-      my $len = chr(32 + length($1)*3/4); # compute length byte
-      $res .= unpack("u", $len . $1 );    # uudecode
-    }
-  $res;
-}
-# -----------------------------------------------------------------------------
-# $bytes_doti = $unijp->sjis_doti();
-# 
-sub sjis_doti
-{
-  my $this = shift;
-  $this->_u2sd($this->{str});
-}
-# -----------------------------------------------------------------------------
-# $bytes_jsky = $unijp->sjis_jsky();
-# 
-sub sjis_jsky
-{
-  my $this = shift;
-  $this->_u2sj2($this->{str});
-}
-# -----------------------------------------------------------------------------
-# tag2bin
-#
-sub tag2bin {
-  my $this = shift;
-
-  $this->{str} =~ s/\&(\#\d+|\#x[a-f0-9A-F]+);/
-    (substr($1, 1, 1) eq 'x') ? $this->_ucs4_utf8(pack('N', hex(substr($1, 2)))) :
-      $this->_ucs4_utf8(pack('N', substr($1, 1)))
-	/eg;
-  
-  $this;
-}
 # -----------------------------------------------------------------------------
 # strcut, strlen
 # 
@@ -2133,675 +3531,11 @@ sub strcut
   
   $result;
 }
-sub h2zKanaD {
-  my $this = shift;
-
-  if(!defined(%_h2zKanaD))
-    {
-      $this->_loadConvTable;
-    }
-
-  $this->{str} =~ s/(\xef\xbd\xb3\xef\xbe\x9e|\xef\xbd\xb6\xef\xbe\x9e|\xef\xbd\xb7\xef\xbe\x9e|\xef\xbd\xb8\xef\xbe\x9e|\xef\xbd\xb9\xef\xbe\x9e|\xef\xbd\xba\xef\xbe\x9e|\xef\xbd\xbb\xef\xbe\x9e|\xef\xbd\xbc\xef\xbe\x9e|\xef\xbd\xbd\xef\xbe\x9e|\xef\xbd\xbe\xef\xbe\x9e|\xef\xbd\xbf\xef\xbe\x9e|\xef\xbe\x80\xef\xbe\x9e|\xef\xbe\x81\xef\xbe\x9e|\xef\xbe\x82\xef\xbe\x9e|\xef\xbe\x83\xef\xbe\x9e|\xef\xbe\x84\xef\xbe\x9e|\xef\xbe\x8a\xef\xbe\x9e|\xef\xbe\x8a\xef\xbe\x9f|\xef\xbe\x8b\xef\xbe\x9e|\xef\xbe\x8b\xef\xbe\x9f|\xef\xbe\x8c\xef\xbe\x9e|\xef\xbe\x8c\xef\xbe\x9f|\xef\xbe\x8d\xef\xbe\x9e|\xef\xbe\x8d\xef\xbe\x9f|\xef\xbe\x8e\xef\xbe\x9e|\xef\xbe\x8e\xef\xbe\x9f)/$_h2zKanaD{$1}/eg;
-  
-  $this;
-}
-sub _utf8_ucs2 {
+sub _utf32be_ucs4 {
   my $this = shift;
   my $str = shift;
-  
-  if(!defined($str))
-    {
-      return '';
-    }
-
-  my $c1;
-  my $c2;
-  my $c3;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5}|(.))/
-    defined($2)?"\0$2":
-    $T2U{$1}
-      or ($T2U{$1}
-	  = ((length($1) == 1) ? pack("n", unpack("C", $1)) :
-	     (length($1) == 2) ? (($c1,$c2) = unpack("C2", $1),
-				  pack("n", (($c1 & 0x1F)<<6)|($c2 & 0x3F))) :
-	     (length($1) == 3) ? (($c1,$c2,$c3) = unpack("C3", $1),
-				  pack("n", (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F))) : "\0?"))
-	/eg;
-  $str;
-}
-# -----------------------------------------------------------------------------
-# $bytes_imode = $unijp->sjis_imode();
-# 
-sub sjis_imode
-{
-  my $this = shift;
-  $this->_u2si2($this->{str});
-}
-sub _utf8_ucs4 {
-  my $this = shift;
-  my $str = shift;
-  
-  if(!defined($str))
-    {
-      return '';
-    }
-
-  my $c1;
-  my $c2;
-  my $c3;
-  my $c4;
-  my $c5;
-  my $c6;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5}|(.))/
-    defined($2) ? "\0\0\0$2" : 
-    (length($1) == 1) ? pack("N", unpack("C", $1)) :
-    (length($1) == 2) ? (($c1,$c2) = unpack("C2", $1),
-	                pack("N", (($c1 & 0x1F) << 6)|($c2 & 0x3F))) :
-    (length($1) == 3) ? (($c1,$c2,$c3) = unpack("C3", $1),
-	                pack("N", (($c1 & 0x0F) << 12)|(($c2 & 0x3F) << 6)|
-                           ($c3 & 0x3F))) :
-    (length($1) == 4) ? (($c1,$c2,$c3,$c4) = unpack("C4", $1),
-	                pack("N", (($c1 & 0x07) << 18)|(($c2 & 0x3F) << 12)|
-                           (($c3 & 0x3f) << 6)|($c4 & 0x3F))) :
-    (length($1) == 5) ? (($c1,$c2,$c3,$c4,$c5) = unpack("C5", $1),
-	                pack("N", (($c1 & 0x03) << 24)|(($c2 & 0x3F) << 18)|
-                           (($c3 & 0x3f) << 12)|(($c4 & 0x3f) << 6)|
-                           ($c5 & 0x3F))) :
-    (($c1,$c2,$c3,$c4,$c5,$c6) = unpack("C6", $1),
-	                pack("N", (($c1 & 0x03) << 30)|(($c2 & 0x3F) << 24)|
-                           (($c3 & 0x3f) << 18)|(($c4 & 0x3f) << 12)|
-                           (($c5 & 0x3f) << 6)|($c6 & 0x3F)))
-    /eg;
 
   $str;
-}
-sub _u2sd {
-  my $this = shift;
-  my $str = shift;
-
-  if(!defined($str))
-    {
-      return '';
-    }
-  
-  if(!defined($u2s_table))
-    {
-      $u2s_table = $this->_getFile('jcode/u2s.dat');
-    }
-
-  if(!defined($eu2d))
-    {
-      $eu2d = $this->_getFile('jcode/emoji2/eu2d.dat');
-    }
-
-  my $c1;
-  my $c2;
-  my $c3;
-  my $c4;
-  my $c5;
-  my $c6;
-  my $c;
-  my $ch;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
-    defined($2) ? '?' :
-    ((length($1) == 1) ? $1 :
-     (length($1) == 2) ? (
-			  ($c1,$c2) = unpack("C2", $1),
-			  $ch = (($c1 & 0x1F)<<6)|($c2 & 0x3F),
-			  $c = substr($u2s_table, $ch * 2, 2),
-			  ($c eq "\0\0") ? '?' : $c
-			 ) :
-     (length($1) == 3) ? (
-			  ($c1,$c2,$c3) = unpack("C3", $1),
-			  $ch = (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F),
-			  (
-			   ($ch <= 0x9fff) ?
-			   $c = substr($u2s_table, $ch * 2, 2) :
-			   ($ch >= 0xf900 and $ch <= 0xffff) ?
-			   (
-			    $c = substr($u2s_table, ($ch - 0xf900 + 0xa000) * 2, 2),
-			    (($c =~ tr,\0,,d)==2 and $c = "\0\0"),
-			   ) :
-			   (
-			    $c = '?'
-			   )
-			  ),
-			  ($c eq "\0\0") ? '?' : $c
-			 ) :
-     (length($1) == 4) ? (
-			  ($c1,$c2,$c3,$c4) = unpack("C4", $1),
-			  $ch = (($c1 & 0x07)<<18)|(($c2 & 0x3F)<<12)|
-			  (($c3 & 0x3f) << 6)|($c4 & 0x3F),
-			  (
-			   ($ch >= 0x0ff000 and $ch <= 0x0fffff) ?
-			   (
-			    $c = substr($eu2d, ($ch - 0x0ff000) * 2, 2),
-			    $c =~ tr,\0,,d,
-			    ($c eq '') ? '?' : $c
-			   ) :
-			   '?'
-			  )
-			 ) :
-     '?'
-    )
-      /eg;
-  $str;
-  
-}
-# -----------------------------------------------------------------------------
-# $bytes_utf8 = $unijp->get();
-# 
-sub get {
-  my $this = shift;
-  $this->{str};
-}
-# -----------------------------------------------------------------------------
-# $bytes_utf8 = $unijp->utf8();
-# 
-sub utf8
-{
-  my $this = shift;
-  $this->{str};
-}
-sub hira2kata {
-  my $this = shift;
-
-  if(!defined(%_hira2kata))
-    {
-      $this->_loadConvTable;
-    }
-
-  $this->{str} =~ s/(\xe3\x81\x81|\xe3\x81\x82|\xe3\x81\x83|\xe3\x81\x84|\xe3\x81\x85|\xe3\x81\x86|\xe3\x81\x87|\xe3\x81\x88|\xe3\x81\x89|\xe3\x81\x8a|\xe3\x81\x8b|\xe3\x81\x8c|\xe3\x81\x8d|\xe3\x81\x8e|\xe3\x81\x8f|\xe3\x81\x90|\xe3\x81\x91|\xe3\x81\x92|\xe3\x81\x93|\xe3\x81\x94|\xe3\x81\x95|\xe3\x81\x96|\xe3\x81\x97|\xe3\x81\x98|\xe3\x81\x99|\xe3\x81\x9a|\xe3\x81\x9b|\xe3\x81\x9c|\xe3\x81\x9d|\xe3\x81\x9e|\xe3\x81\x9f|\xe3\x81\xa0|\xe3\x81\xa1|\xe3\x81\xa2|\xe3\x81\xa3|\xe3\x81\xa4|\xe3\x81\xa5|\xe3\x81\xa6|\xe3\x81\xa7|\xe3\x81\xa8|\xe3\x81\xa9|\xe3\x81\xaa|\xe3\x81\xab|\xe3\x81\xac|\xe3\x81\xad|\xe3\x81\xae|\xe3\x81\xaf|\xe3\x81\xb0|\xe3\x81\xb1|\xe3\x81\xb2|\xe3\x81\xb3|\xe3\x81\xb4|\xe3\x81\xb5|\xe3\x81\xb6|\xe3\x81\xb7|\xe3\x81\xb8|\xe3\x81\xb9|\xe3\x81\xba|\xe3\x81\xbb|\xe3\x81\xbc|\xe3\x81\xbd|\xe3\x81\xbe|\xe3\x81\xbf|\xe3\x82\x80|\xe3\x82\x81|\xe3\x82\x82|\xe3\x82\x83|\xe3\x82\x84|\xe3\x82\x85|\xe3\x82\x86|\xe3\x82\x87|\xe3\x82\x88|\xe3\x82\x89|\xe3\x82\x8a|\xe3\x82\x8b|\xe3\x82\x8c|\xe3\x82\x8d|\xe3\x82\x8e|\xe3\x82\x8f|\xe3\x82\x90|\xe3\x82\x91|\xe3\x82\x92|\xe3\x82\x93)/$_hira2kata{$1}/eg;
-  
-  $this;
-}
-sub h2zKanaK {
-  my $this = shift;
-
-  if(!defined(%_h2zKanaK))
-    {
-      $this->_loadConvTable;
-    }
-
-  $this->{str} =~ s/(\xef\xbd\xa1|\xef\xbd\xa2|\xef\xbd\xa3|\xef\xbd\xa4|\xef\xbd\xa5|\xef\xbd\xa6|\xef\xbd\xa7|\xef\xbd\xa8|\xef\xbd\xa9|\xef\xbd\xaa|\xef\xbd\xab|\xef\xbd\xac|\xef\xbd\xad|\xef\xbd\xae|\xef\xbd\xaf|\xef\xbd\xb0|\xef\xbd\xb1|\xef\xbd\xb2|\xef\xbd\xb3|\xef\xbd\xb4|\xef\xbd\xb5|\xef\xbd\xb6|\xef\xbd\xb7|\xef\xbd\xb8|\xef\xbd\xb9|\xef\xbd\xba|\xef\xbd\xbb|\xef\xbd\xbc|\xef\xbd\xbd|\xef\xbd\xbe|\xef\xbd\xbf|\xef\xbe\x80|\xef\xbe\x81|\xef\xbe\x82|\xef\xbe\x83|\xef\xbe\x84|\xef\xbe\x85|\xef\xbe\x86|\xef\xbe\x87|\xef\xbe\x88|\xef\xbe\x89|\xef\xbe\x8a|\xef\xbe\x8b|\xef\xbe\x8c|\xef\xbe\x8d|\xef\xbe\x8e|\xef\xbe\x8f|\xef\xbe\x90|\xef\xbe\x91|\xef\xbe\x92|\xef\xbe\x93|\xef\xbe\x94|\xef\xbe\x95|\xef\xbe\x96|\xef\xbe\x97|\xef\xbe\x98|\xef\xbe\x99|\xef\xbe\x9a|\xef\xbe\x9b|\xef\xbe\x9c|\xef\xbe\x9d|\xef\xbe\x9e|\xef\xbe\x9f)/$_h2zKanaK{$1}/eg;
-  
-  $this;
-}
-sub z2h {
-  my $this = shift;
-
-  $this->z2hKana;
-  $this->z2hNum;
-  $this->z2hAlpha;
-  $this->z2hSym;
-
-  $this;
-}
-# -----------------------------------------------------------------------------
-# encode/decode
-sub _encodeBase64
-{
-  my $this = shift;
-  my $str = shift;
-  my $eol = shift;
-  my $res = "";
-  
-  $eol = "\n" unless defined $eol;
-  pos($str) = 0;                          # ensure start at the beginning
-  while ($str =~ /(.{1,45})/gs)
-    {
-      $res .= substr(pack('u', $1), 1);
-      chop($res);
-    }
-  $res =~ tr|` -_|AA-Za-z0-9+/|;               # `# help emacs
-  # fix padding at the end
-  my $padding = (3 - length($str) % 3) % 3;
-  $res =~ s/.{$padding}$/'=' x $padding/e if $padding;
-  # break encoded string into lines of no more than 76 characters each
-  if (length $eol)
-    {
-      $res =~ s/(.{1,76})/$1$eol/g;
-    }
-  $res;
-}
-sub h2zAlpha {
-  my $this = shift;
-
-  if(!defined(%_h2zAlpha))
-    {
-      $this->_loadConvTable;
-    }
-
-  $this->{str} =~ s/(A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)/$_h2zAlpha{$1}/eg;
-  
-  $this;
-}
-sub _s2e {
-  my $this = shift;
-  my $str = shift;
-  
-  if( $]>=5.008 )
-  {
-    Encode::_utf8_off($str);
-  }
-
-  $str =~ s/($RE{SJIS_DBCS}|$RE{SJIS_KANA})/
-    $S2E[unpack('n', $1) or unpack('C', $1)] or $this->_s2e2($1)
-      /geo;
-  
-  $str;
-}
-sub _e2s2 {
-  my $this = shift;
-  my $c = shift;
-
-  my ($c1, $c2) = unpack('CC', $c);
-  if ($c1 == 0x8e)
-    {		# SS2
-      $E2S[unpack('n', $c)] = chr($c2);
-    }
-  elsif ($c1 == 0x8f)
-    {	# SS3
-      $E2S[unpack('N', "\0" . $c)] = $CHARCODE{UNDEF_SJIS};
-    }
-  else
-    {			#SS1 or X0208
-      if ($c1 % 2)
-	{
-	  $c1 = ($c1>>1) + ($c1 < 0xdf ? 0x31 : 0x71);
-	  $c2 -= 0x60 + ($c2 < 0xe0);
-	}
-      else
-	{
-	  $c1 = ($c1>>1) + ($c1 < 0xdf ? 0x30 : 0x70);
-	  $c2 -= 2;
-	}
-      $E2S[unpack('n', $c)] = pack('CC', $c1, $c2);
-    }
-}
-sub _utf16le_utf16 {
-  my $this = shift;
-  my $str = shift;
-
-  my $result = '';
-  foreach my $ch (unpack('v*', $str))
-    {
-      $result .= pack('n', $ch);
-    }
-  
-  $result;
-}
-sub sjis_doti1
-{
-  my $this = shift;
-  $this->_u2sd($this->{str});
-}
-# -----------------------------------------------------------------------------
-# conversion methods (private).
-# 
-sub _s2j {
-  my $this = shift;
-  my $str = shift;
-
-  $str =~ s/((?:$RE{SJIS_DBCS}|$RE{SJIS_KANA})+)/
-    $this->_s2j2($1) . $ESC{ASC}
-      /geo;
-
-  $str;
-}
-sub _s2j2 {
-  my $this = shift;
-  my $str = shift;
-
-  $str =~ s/((?:$RE{SJIS_DBCS})+|(?:$RE{SJIS_KANA})+)/
-    my $s = $1;
-  if($s =~ m,^$RE{SJIS_KANA},)
-    {
-      $s =~ tr,\xa1-\xdf,\x21-\x5f,;
-      $ESC{KANA} . $s
-    }
-  else
-    {
-      $s =~ s!($RE{SJIS_DBCS})!
-	$S2J[unpack('n', $1)] or $this->_s2j3($1)
-	  !geo;
-      $ESC{JIS_0208} . $s;
-    }
-  /geo;
-  
-  $str;
-}
-sub _s2j3 {
-  my $this = shift;
-  my $c = shift;
-
-  my ($c1, $c2) = unpack('CC', $c);
-  if (0x9f <= $c2)
-    {
-      $c1 = $c1 * 2 - ($c1 >= 0xe0 ? 0xe0 : 0x60);
-      $c2 += 2;
-    }
-  else
-    {
-      $c1 = $c1 * 2 - ($c1 >= 0xe0 ? 0xe1 : 0x61);
-      $c2 += 0x60 + ($c2 < 0x7f);
-    }
-  
-  $S2J[unpack('n', $c)] = pack('CC', $c1 - 0x80, $c2 - 0x80);
-}
-sub sjis_imode1
-{
-  my $this = shift;
-  $this->_u2si1($this->{str});
-}
-sub sjis_imode2
-{
-  my $this = shift;
-  $this->_u2si2($this->{str});
-}
-# -----------------------------------------------------------------------------
-# $chars_utf8 = $unijp->getu();
-# 
-sub getu {
-  my $this = shift;
-  my $str = $this->{str};
-  if( $]>=5.008 && $this->{icode} ne 'binary' )
-  {
-    Encode::_utf8_on($str);
-  }
-  $str;
-}
-sub _u2si1 {
-  my $this = shift;
-  my $str = shift;
-
-  if(!defined($str))
-    {
-      return '';
-    }
-  
-  if(!defined($u2s_table))
-    {
-      $u2s_table = $this->_getFile('jcode/u2s.dat');
-    }
-
-  if(!defined($eu2i1))
-    {
-      $eu2i1 = $this->_getFile('jcode/emoji2/eu2i.dat');
-    }
-
-  my $c1;
-  my $c2;
-  my $c3;
-  my $c4;
-  my $c5;
-  my $c6;
-  my $c;
-  my $ch;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
-    defined($2) ? '?' :
-    ((length($1) == 1) ? $1 :
-     (length($1) == 2) ? (
-			  ($c1,$c2) = unpack("C2", $1),
-			  $ch = (($c1 & 0x1F)<<6)|($c2 & 0x3F),
-			  $c = substr($u2s_table, $ch * 2, 2),
-			  ($c eq "\0\0") ? '?' : $c
-			 ) :
-     (length($1) == 3) ? (
-			  ($c1,$c2,$c3) = unpack("C3", $1),
-			  $ch = (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F),
-			  (
-			   ($ch <= 0x9fff) ?
-			   $c = substr($u2s_table, $ch * 2, 2) :
-			   ($ch >= 0xf900 and $ch <= 0xffff) ?
-			   (
-			    $c = substr($u2s_table, ($ch - 0xf900 + 0xa000) * 2, 2),
-			    (($c =~ tr,\0,,d)==2 and $c = "\0\0"),
-			   ) :
-			   (
-			    $c = '?'
-			   )
-			  ),
-			  ($c eq "\0\0") ? '?' : $c
-			 ) :
-     (length($1) == 4) ? (
-			  ($c1,$c2,$c3,$c4) = unpack("C4", $1),
-			  $ch = (($c1 & 0x07)<<18)|(($c2 & 0x3F)<<12)|
-			  (($c3 & 0x3f) << 6)|($c4 & 0x3F),
-			  (
-			   ($ch >= 0x0ff000 and $ch <= 0x0fffff) ?
-			   (
-			    $c = substr($eu2i1, ($ch - 0x0ff000) * 2, 2),
-			    $c =~ tr,\0,,d,
-			    ($c eq '') ? '?' : $c
-			   ) :
-			   '?'
-			  )
-			 ) :
-     '?'
-    )
-      /eg;
-  $str;
-  
-}
-# -----------------------------------------------------------------------------
-# $bytes_str = $unijp->conv($ocode,[$encode]);
-# 
-sub conv {
-  my $this = shift;
-  my $ocode = shift;
-  my $encode = shift;
-  my (@option) = @_;
-
-  my $res;
-  if($ocode eq 'utf8')
-    {
-      $res = $this->utf8;
-    }
-  elsif($ocode eq 'euc')
-    {
-      $res = $this->euc;
-    }
-  elsif($ocode eq 'jis')
-    {
-      $res = $this->jis;
-    }
-  elsif($ocode eq 'sjis')
-    {
-      $res = $this->sjis;
-    }
-  elsif($ocode eq 'sjis-imode')
-    {
-      $res = $this->sjis_imode;
-    }
-  elsif($ocode eq 'sjis-imode1')
-    {
-      $res = $this->sjis_imode1;
-    }
-  elsif($ocode eq 'sjis-imode2')
-    {
-      $res = $this->sjis_imode2;
-    }
-  elsif($ocode eq 'sjis-doti')
-    {
-      $res = $this->sjis_doti;
-    }
-  elsif($ocode eq 'sjis-doti1')
-    {
-      $res = $this->sjis_doti;
-    }
-  elsif($ocode eq 'sjis-jsky')
-    {
-      $res = $this->sjis_jsky;
-    }
-  elsif($ocode eq 'sjis-jsky1')
-    {
-      $res = $this->sjis_jsky1;
-    }
-  elsif($ocode eq 'sjis-jsky2')
-    {
-      $res = $this->sjis_jsky2;
-    }
-  elsif($ocode eq 'ucs2')
-    {
-      $res = $this->ucs2;
-    }
-  elsif($ocode eq 'ucs4')
-    {
-      $res = $this->ucs4;
-    }
-  elsif($ocode eq 'utf16')
-    {
-      $res = $this->utf16;
-    }
-  elsif($ocode eq 'binary')
-    {
-      $res = $this->{str};
-    }
-  else
-    {
-      die qq(String->conv, Param[1] "$ocode" is error.\n);
-    }
-
-  if(defined($encode))
-    {
-      if($encode eq 'base64')
-	{
-	  $res = $this->_encodeBase64($res, @option);
-	}
-      else
-	{
-	  die qq(String->conv, Param[2] "$encode" encode name error.\n);
-	}
-    }
-
-  $res;
-}
-sub _u2si2 {
-  my $this = shift;
-  my $str = shift;
-
-  if(!defined($str))
-    {
-      return '';
-    }
-  
-  if(!defined($u2s_table))
-    {
-      $u2s_table = $this->_getFile('jcode/u2s.dat');
-    }
-
-  if(!defined($eu2i2))
-    {
-      $eu2i2 = $this->_getFile('jcode/emoji2/eu2i2.dat');
-    }
-
-  my $c1;
-  my $c2;
-  my $c3;
-  my $c4;
-  my $c5;
-  my $c6;
-  my $c;
-  my $ch;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
-    defined($2) ? '?' :
-    ((length($1) == 1) ? $1 :
-     (length($1) == 2) ? (
-			  ($c1,$c2) = unpack("C2", $1),
-			  $ch = (($c1 & 0x1F)<<6)|($c2 & 0x3F),
-			  $c = substr($u2s_table, $ch * 2, 2),
-			  ($c eq "\0\0") ? '?' : $c
-			 ) :
-     (length($1) == 3) ? (
-			  ($c1,$c2,$c3) = unpack("C3", $1),
-			  $ch = (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F),
-			  (
-			   ($ch <= 0x9fff) ?
-			   $c = substr($u2s_table, $ch * 2, 2) :
-			   ($ch >= 0xf900 and $ch <= 0xffff) ?
-			   (
-			    $c = substr($u2s_table, ($ch - 0xf900 + 0xa000) * 2, 2),
-			    (($c =~ tr,\0,,d)==2 and $c = "\0\0"),
-			   ) :
-			   (
-			    $c = '?'
-			   )
-			  ),
-			  ($c eq "\0\0") ? '?' : $c
-			 ) :
-     (length($1) == 4) ? (
-			  ($c1,$c2,$c3,$c4) = unpack("C4", $1),
-			  $ch = (($c1 & 0x07)<<18)|(($c2 & 0x3F)<<12)|
-			  (($c3 & 0x3f) << 6)|($c4 & 0x3F),
-			  (
-			   ($ch >= 0x0ff000 and $ch <= 0x0fffff) ?
-			   (
-			    $c = substr($eu2i2, ($ch - 0x0ff000) * 2, 2),
-			    $c =~ tr,\0,,d,
-			    ($c eq '') ? '?' : $c
-			   ) :
-			   '?'
-			  )
-			 ) :
-     '?'
-    )
-      /eg;
-  $str;
-  
-}
-# -----------------------------------------------------------------------------
-# sjis/絵文字 => utf8
-# 
-sub _s2u {
-  my $this = shift;
-  my $str = shift;
-
-  if(!defined($str))
-    {
-      return '';
-    }
-  
-  if(!defined($s2u_table))
-    {
-      $s2u_table = $this->_getFile('jcode/s2u.dat');
-    }
-
-  my $l;
-  my $uc;
-  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|[\x00-\xff])/
-    $S2U{$1}
-      or ($S2U{$1} =
-	  (
-	   $l = (unpack('n', $1) or unpack('C', $1)),
-	   (
-	    ($l >= 0xa1 and $l <= 0xdf)     ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0xa1) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0x8100 and $l <= 0x9fff) ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0x8100 + 0x3f) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0xe000 and $l <= 0xfcff) ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0xe000 + 0x1f3f) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l < 0x80) ?
-	    chr($l) :
-	    '?'
-	   )
-	  )
-	 )/eg;
-  
-  $str;
-  
 }
 sub _j2s {
   my $this = shift;
@@ -2810,690 +3544,6 @@ sub _j2s {
   $str =~ s/($RE{JIS_0208}|$RE{JIS_0212}|$RE{JIS_ASC}|$RE{JIS_KANA})([^\e]*)/
     $this->_j2s2($1, $2)
       /geo;
-
-  $str;
-}
-sub _si2u1 {
-  my $this = shift;
-  my $str = shift;
-
-  if(!defined($str))
-    {
-      return '';
-    }
-  
-  if(!defined($s2u_table))
-    {
-      $s2u_table = $this->_getFile('jcode/s2u.dat');
-    }
-
-  if(!defined($ei2u1))
-    {
-      $ei2u1 = $this->_getFile('jcode/emoji2/ei2u.dat');
-    }
-
-  $str =~ s/(\&\#(\d+);)/
-    ($2 >= 0xf800 and $2 <= 0xf9ff) ? pack('n', $2) : $1
-      /eg;
-  
-  my $l;
-  my $uc;
-  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_IMODEv1}|[\x00-\xff])/
-    $S2U{$1}
-      or ($S2U{$1} =
-	  (
-	   $l = (unpack('n', $1) or unpack('C', $1)),
-	   (
-	    ($l >= 0xa1 and $l <= 0xdf)     ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0xa1) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0x8100 and $l <= 0x9fff) ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0x8100 + 0x3f) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0xf800 and $l <= 0xf9ff) ?
-	    (
-	     $uc = substr($ei2u1, ($l - 0xf800) * 4, 4),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0xe000 and $l <= 0xffff) ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0xe000 + 0x1f3f) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l < 0x80) ?
-	    chr($l) :
-	    '?'
-	   )
-	  )
-	 )/eg;
-  
-  $str;
-  
-}
-sub h2z {
-  my $this = shift;
-
-  $this->h2zKana;
-  $this->h2zNum;
-  $this->h2zAlpha;
-  $this->h2zSym;
-
-  $this;
-}
-sub _si2u2 {
-  my $this = shift;
-  my $str = shift;
-
-  if(!defined($str))
-    {
-      return '';
-    }
-  
-  if(!defined($s2u_table))
-    {
-      $s2u_table = $this->_getFile('jcode/s2u.dat');
-    }
-
-  if(!defined($ei2u2))
-    {
-      $ei2u2 = $this->_getFile('jcode/emoji2/ei2u2.dat');
-    }
-
-  $str =~ s/(\&\#(\d+);)/
-    ($2 >= 0xf800 and $2 <= 0xf9ff) ? pack('n', $2) : $1
-      /eg;
-  
-  my $l;
-  my $uc;
-  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_IMODE}|[\x00-\xff])/
-    $S2U{$1}
-      or ($S2U{$1} =
-	  (
-	   $l = (unpack('n', $1) or unpack('C', $1)),
-	   (
-	    ($l >= 0xa1 and $l <= 0xdf)     ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0xa1) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0x8100 and $l <= 0x9fff) ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0x8100 + 0x3f) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0xf800 and $l <= 0xf9ff) ?
-	    (
-	     $uc = substr($ei2u2, ($l - 0xf800) * 4, 4),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0xe000 and $l <= 0xffff) ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0xe000 + 0x1f3f) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l < 0x80) ?
-	    chr($l) :
-	    '?'
-	   )
-	  )
-	 )/eg;
-  
-  $str;
-  
-}
-sub z2hSym {
-  my $this = shift;
-
-  if(!defined(%_z2hSym))
-    {
-      $this->_loadConvTable;
-    }
-
-  $this->{str} =~ s/(\xe3\x80\x80|\xef\xbc\x8c|\xef\xbc\x8e|\xef\xbc\x9a|\xef\xbc\x9b|\xef\xbc\x9f|\xef\xbc\x81|\xef\xbd\x80|\xef\xbc\xbe|\xef\xbc\x8f|\xef\xbd\x9e|\xef\xbd\x9c|\xe2\x80\x99|\xe2\x80\x9d|\xef\xbc\x88|\xef\xbc\x89|\xef\xbc\xbb|\xef\xbc\xbd|\xef\xbd\x9b|\xef\xbd\x9d|\xef\xbc\x8b|\xef\xbc\x8d|\xef\xbc\x9d|\xef\xbc\x9c|\xef\xbc\x9e|\xef\xbf\xa5|\xef\xbc\x84|\xef\xbc\x85|\xef\xbc\x83|\xef\xbc\x86|\xef\xbc\x8a|\xef\xbc\xa0)/$_z2hSym{$1}/eg;
-  
-  $this;
-}
-# -----------------------------------------------------------------------------
-# $bytes_ucs2 = $unijp->ucs2();
-# 
-sub ucs2
-{
-  my $this = shift;
-  $this->_utf8_ucs2($this->{str});
-}
-# -----------------------------------------------------------------------------
-# $unijp->set($str,[$icode,[$encode]]);
-# 
-sub set
-{
-  my $this = shift;
-  my $str = shift;
-  my $icode = shift;
-  my $encode = shift;
-
-  if(ref($str))
-    {
-      die "String->set, Param[1] is Ref.\n";
-    }
-  if(ref($icode))
-    {
-      die "String->set, Param[2] is Ref.\n";
-    }
-  if(ref($encode))
-    {
-      die "String->set, Param[3] is Ref.\n";
-    }
-
-  if( $]>=5.008 )
-  {
-    Encode::_utf8_off($str);
-  }
-  
-  if(defined($encode))
-    {
-      if($encode eq 'base64')
-	{
-	  $str = $this->_decodeBase64($str);
-	}
-      else
-	{
-	  die "String->set, Param[3] encode name error.\n";
-	}
-    }
-
-  if(!defined($icode))
-    { # omitted then 'utf8'
-      $this->{str} = $this->_validate_utf8($str);
-      $this->{icode} = 'utf8';
-    }
-  else
-    {
-      $icode = lc($icode);
-      if($icode eq 'auto')
-	{
-	  $icode = $this->getcode($str);
-	  if($icode eq 'unknown')
-	    {
-	      $icode = 'binary';
-	    }
-	}
-
-      if($icode eq 'utf8')
-	{
-	  $this->{str} = $this->_validate_utf8($str);
-	}
-      elsif($icode eq 'ucs2')
-	{
-	  $this->{str} = $this->_ucs2_utf8($str);
-	}
-      elsif($icode eq 'ucs4')
-	{
-	  $this->{str} = $this->_ucs4_utf8($str);
-	}
-      elsif($icode eq 'utf16-be')
-	{
-	  $this->{str} = $this->_utf16_utf8($this->_utf16be_utf16($str));
-	}
-      elsif($icode eq 'utf16-le')
-	{
-	  $this->{str} = $this->_utf16_utf8($this->_utf16le_utf16($str));
-	}
-      elsif($icode eq 'utf16')
-	{
-	  $this->{str} = $this->_utf16_utf8($this->_utf16_utf16($str));
-	}
-      elsif($icode eq 'utf32-be')
-	{
-	  $this->{str} = $this->_ucs4_utf8($this->_utf32be_ucs4($str));
-	}
-      elsif($icode eq 'utf32-le')
-	{
-	  $this->{str} = $this->_ucs4_utf8($this->_utf32le_ucs4($str));
-	}
-      elsif($icode eq 'utf32')
-	{
-	  $this->{str} = $this->_ucs4_utf8($this->_utf32_ucs4($str));
-	}
-      elsif($icode eq 'jis')
-	{
-	  $this->{str} = $this->_s2u($this->_j2s($str));
-	}
-      elsif($icode eq 'euc')
-	{
-	  $this->{str} = $this->_s2u($this->_e2s($str));
-	}
-      elsif($icode eq 'sjis')
-	{
-	  $this->{str} = $this->_s2u($str);
-	}
-      elsif($icode eq 'sjis-imode')
-	{
-	  $this->{str} = $this->_si2u2($str);
-	}
-      elsif($icode eq 'sjis-imode1')
-	{
-	  $this->{str} = $this->_si2u1($str);
-	}
-      elsif($icode eq 'sjis-imode2')
-	{
-	  $this->{str} = $this->_si2u2($str);
-	}
-      elsif($icode eq 'sjis-doti')
-	{
-	  $this->{str} = $this->_sd2u($str);
-	}
-      elsif($icode eq 'sjis-doti1')
-	{
-	  $this->{str} = $this->_sd2u($str);
-	}
-      elsif($icode eq 'sjis-jsky')
-	{
-	  $this->{str} = $this->_sj2u2($str);
-	}
-      elsif($icode eq 'sjis-jsky1')
-	{
-	  $this->{str} = $this->_sj2u1($str);
-	}
-      elsif($icode eq 'sjis-jsky2')
-	{
-	  $this->{str} = $this->_sj2u2($str);
-	}
-      elsif($icode eq 'ascii')
-	{
-	  $this->{str} = $str;
-	}
-      elsif($icode eq 'binary')
-	{
-	  $this->{str} = $str;
-	}
-      else
-	{
-	  use Carp;
-	  croak "icode error [$icode]";
-	}
-      $this->{icode} = $icode;
-    }
-
-  $this;
-}
-# -----------------------------------------------------------------------------
-# $bytes_ucs4 = $unijp->ucs4();
-# 
-sub ucs4
-{
-  my $this = shift;
-  $this->_utf8_ucs4($this->{str});
-}
-sub z2hNum {
-  my $this = shift;
-
-  if(!defined(%_z2hNum))
-    {
-      $this->_loadConvTable;
-    }
-
-  $this->{str} =~ s/(\xef\xbc\x90|\xef\xbc\x91|\xef\xbc\x92|\xef\xbc\x93|\xef\xbc\x94|\xef\xbc\x95|\xef\xbc\x96|\xef\xbc\x97|\xef\xbc\x98|\xef\xbc\x99)/$_z2hNum{$1}/eg;
-  
-  $this;
-}
-sub _validate_utf8
-{
-  my $pkg = shift;
-  my $str = shift;
-
-  $str;
-}
-sub _e2s {
-  my $this = shift;
-  my $str = shift;
-
-  $str =~ s/($RE{EUC_KANA}|$RE{EUC_0212}|$RE{EUC_C})/
-    $E2S[unpack('n', $1) or unpack('N', "\0" . $1)] or $this->_e2s2($1)
-      /geo;
-  
-  $str;
-}
-# -----------------------------------------------------------------------------
-# $bytes_iso2022jp = $unijp->jis();
-# 
-sub jis
-{
-  my $this = shift;
-  $this->_s2j($this->sjis);
-}
-sub _utf32_ucs4 {
-  my $this = shift;
-  my $str = shift;
-
-  if($str =~ s/^\x00\x00\xfe\xff//)
-    {
-      $str = $this->_utf32be_ucs4($str);
-    }
-  elsif($str =~ s/^\xff\xfe\x00\x00//)
-    {
-      $str = $this->_utf32le_ucs4($str);
-    }
-  else
-    {
-      $str = $this->_utf32be_ucs4($str);
-    }
-  
-  $str;
-}
-sub kata2hira {
-  my $this = shift;
-
-  if(!defined(%_kata2hira))
-    {
-      $this->_loadConvTable;
-    }
-
-  $this->{str} =~ s/(\xe3\x82\xa1|\xe3\x82\xa2|\xe3\x82\xa3|\xe3\x82\xa4|\xe3\x82\xa5|\xe3\x82\xa6|\xe3\x82\xa7|\xe3\x82\xa8|\xe3\x82\xa9|\xe3\x82\xaa|\xe3\x82\xab|\xe3\x82\xac|\xe3\x82\xad|\xe3\x82\xae|\xe3\x82\xaf|\xe3\x82\xb0|\xe3\x82\xb1|\xe3\x82\xb2|\xe3\x82\xb3|\xe3\x82\xb4|\xe3\x82\xb5|\xe3\x82\xb6|\xe3\x82\xb7|\xe3\x82\xb8|\xe3\x82\xb9|\xe3\x82\xba|\xe3\x82\xbb|\xe3\x82\xbc|\xe3\x82\xbd|\xe3\x82\xbe|\xe3\x82\xbf|\xe3\x83\x80|\xe3\x83\x81|\xe3\x83\x82|\xe3\x83\x83|\xe3\x83\x84|\xe3\x83\x85|\xe3\x83\x86|\xe3\x83\x87|\xe3\x83\x88|\xe3\x83\x89|\xe3\x83\x8a|\xe3\x83\x8b|\xe3\x83\x8c|\xe3\x83\x8d|\xe3\x83\x8e|\xe3\x83\x8f|\xe3\x83\x90|\xe3\x83\x91|\xe3\x83\x92|\xe3\x83\x93|\xe3\x83\x94|\xe3\x83\x95|\xe3\x83\x96|\xe3\x83\x97|\xe3\x83\x98|\xe3\x83\x99|\xe3\x83\x9a|\xe3\x83\x9b|\xe3\x83\x9c|\xe3\x83\x9d|\xe3\x83\x9e|\xe3\x83\x9f|\xe3\x83\xa0|\xe3\x83\xa1|\xe3\x83\xa2|\xe3\x83\xa3|\xe3\x83\xa4|\xe3\x83\xa5|\xe3\x83\xa6|\xe3\x83\xa7|\xe3\x83\xa8|\xe3\x83\xa9|\xe3\x83\xaa|\xe3\x83\xab|\xe3\x83\xac|\xe3\x83\xad|\xe3\x83\xae|\xe3\x83\xaf|\xe3\x83\xb0|\xe3\x83\xb1|\xe3\x83\xb2|\xe3\x83\xb3)/$_kata2hira{$1}/eg;
-  
-  $this;
-}
-sub _ucs4_utf8 {
-  my $this = shift;
-  my $str = shift;
-  
-  if(!defined($str))
-    {
-      return '';
-    }
-  
-  my $result = '';
-  for my $uc (unpack("N*", $str))
-    {
-      $result .= ($uc < 0x80) ? chr($uc) :
-	($uc < 0x800) ? chr(0xC0 | ($uc >> 6)) . chr(0x80 | ($uc & 0x3F)) :
-	  ($uc < 0x10000) ? chr(0xE0 | ($uc >> 12)) . chr(0x80 | (($uc >> 6) & 0x3F)) . chr(0x80 | ($uc & 0x3F)) :
-	    ($uc < 0x200000) ? chr(0xF0 | ($uc >> 18)) . chr(0x80 | (($uc >> 12) & 0x3F)) . chr(0x80 | (($uc >> 6) & 0x3F)) . chr(0x80 | ($uc & 0x3F)) :
-	      ($uc < 0x4000000) ? chr(0xF8 | ($uc >> 24)) . chr(0x80 | (($uc >> 18) & 0x3F)) . chr(0x80 | (($uc >> 12) & 0x3F)) . chr(0x80 | (($uc >> 6) & 0x3F)) . chr(0x80 | ($uc & 0x3F)) :
-		chr(0xFC | ($uc >> 30)) . chr(0x80 | (($uc >> 24) & 0x3F)) . chr(0x80 | (($uc >> 18) & 0x3F)) . chr(0x80 | (($uc >> 12) & 0x3F)) . chr(0x80 | (($uc >> 6) & 0x3F)) . chr(0x80 | ($uc & 0x3F));
-    }
-  
-  $result;
-}
-# -----------------------------------------------------------------------------
-# split/join Csv
-# 
-sub split_csv {
-  my $sub = \&splitCsv;
-  local($^W) = 0;
-  *split_csv = $sub;
-  goto &$sub;
-}
-sub _u2sj1 {
-  my $this = shift;
-  my $str = shift;
-
-  if(!defined($str))
-    {
-      return '';
-    }
-  
-  if(!defined($u2s_table))
-    {
-      $u2s_table = $this->_getFile('jcode/u2s.dat');
-    }
-
-  if(!defined($eu2j1))
-    {
-      $eu2j1 = $this->_getFile('jcode/emoji2/eu2j.dat');
-    }
-
-  my $c1;
-  my $c2;
-  my $c3;
-  my $c4;
-  my $c5;
-  my $c6;
-  my $c;
-  my $ch;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
-    defined($2) ? '?' :
-    ((length($1) == 1) ? $1 :
-     (length($1) == 2) ? (
-			  ($c1,$c2) = unpack("C2", $1),
-			  $ch = (($c1 & 0x1F)<<6)|($c2 & 0x3F),
-			  $c = substr($u2s_table, $ch * 2, 2),
-			  ($c eq "\0\0") ? '?' : $c
-			 ) :
-     (length($1) == 3) ? (
-			  ($c1,$c2,$c3) = unpack("C3", $1),
-			  $ch = (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F),
-			  (
-			   ($ch <= 0x9fff) ?
-			   $c = substr($u2s_table, $ch * 2, 2) :
-			   ($ch >= 0xf900 and $ch <= 0xffff) ?
-			   (
-			    $c = substr($u2s_table, ($ch - 0xf900 + 0xa000) * 2, 2),
-			    (($c =~ tr,\0,,d)==2 and $c = "\0\0"),
-			   ) :
-			   (
-			    $c = '?'
-			   )
-			  ),
-			  ($c eq "\0\0") ? '?' : $c
-			 ) :
-     (length($1) == 4) ? (
-			  ($c1,$c2,$c3,$c4) = unpack("C4", $1),
-			  $ch = (($c1 & 0x07)<<18)|(($c2 & 0x3F)<<12)|
-			  (($c3 & 0x3f) << 6)|($c4 & 0x3F),
-			  (
-			   ($ch >= 0x0ff000 and $ch <= 0x0fffff) ?
-			   (
-			    $c = substr($eu2j1, ($ch - 0x0ff000) * 5, 5),
-			    $c =~ tr,\0,,d,
-			    ($c eq '') ? '?' : $c
-			   ) :
-			   '?'
-			  )
-			 ) :
-     '?'
-    )
-      /eg;
-
-  1 while($str =~ s/($RE{E_JSKY_START})($RE{E_JSKY1})($RE{E_JSKY2}+)$RE{E_JSKY_END}$RE{E_JSKY_START}\2($RE{E_JSKY2})($RE{E_JSKY_END})/$1$2$3$4$5/o);
-  
-  $str;
-  
-}
-sub _utf16_utf16 {
-  my $this = shift;
-  my $str = shift;
-
-  if($str =~ s/^\xfe\xff//)
-    {
-      $str = $this->_utf16be_utf16($str);
-    }
-  elsif($str =~ s/^\xff\xfe//)
-    {
-      $str = $this->_utf16le_utf16($str);
-    }
-  else
-    {
-      $str = $this->_utf16be_utf16($str);
-    }
-  
-  $str;
-}
-sub _sd2u {
-  my $this = shift;
-  my $str = shift;
-
-  if(!defined($str))
-    {
-      return '';
-    }
-  
-  if(!defined($s2u_table))
-    {
-      $s2u_table = $this->_getFile('jcode/s2u.dat');
-    }
-
-  if(!defined($ed2u))
-    {
-      $ed2u = $this->_getFile('jcode/emoji2/ed2u.dat');
-    }
-
-  $str =~ s/(\&\#(\d+);)/
-    ($2 >= 0xf000 and $2 <= 0xf4ff) ? pack('n', $2) : $1
-      /eg;
-  
-  my $l;
-  my $uc;
-  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_DOTI}|[\x00-\xff])/
-    $S2U{$1}
-      or ($S2U{$1} =
-	  (
-	   $l = (unpack('n', $1) or unpack('C', $1)),
-	   (
-	    ($l >= 0xa1 and $l <= 0xdf)     ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0xa1) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0x8100 and $l <= 0x9fff) ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0x8100 + 0x3f) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0xf000 and $l <= 0xf4ff) ?
-	    (
-	     $uc = substr($ed2u, ($l - 0xf000) * 4, 4),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0xe000 and $l <= 0xffff) ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0xe000 + 0x1f3f) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l < 0x80) ?
-	    chr($l) :
-	    '?'
-	   )
-	  )
-	 )/eg;
-  
-  $str;
-  
-}
-sub _u2sj2 {
-  my $this = shift;
-  my $str = shift;
-
-  if(!defined($str))
-    {
-      return '';
-    }
-  
-  if(!defined($u2s_table))
-    {
-      $u2s_table = $this->_getFile('jcode/u2s.dat');
-    }
-
-  if(!defined($eu2j2))
-    {
-      $eu2j2 = $this->_getFile('jcode/emoji2/eu2j2.dat');
-    }
-
-  my $c1;
-  my $c2;
-  my $c3;
-  my $c4;
-  my $c5;
-  my $c6;
-  my $c;
-  my $ch;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
-    defined($2) ? '?' :
-    ((length($1) == 1) ? $1 :
-     (length($1) == 2) ? (
-			  ($c1,$c2) = unpack("C2", $1),
-			  $ch = (($c1 & 0x1F)<<6)|($c2 & 0x3F),
-			  $c = substr($u2s_table, $ch * 2, 2),
-			  ($c eq "\0\0") ? '?' : $c
-			 ) :
-     (length($1) == 3) ? (
-			  ($c1,$c2,$c3) = unpack("C3", $1),
-			  $ch = (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F),
-			  (
-			   ($ch <= 0x9fff) ?
-			   $c = substr($u2s_table, $ch * 2, 2) :
-			   ($ch >= 0xf900 and $ch <= 0xffff) ?
-			   (
-			    $c = substr($u2s_table, ($ch - 0xf900 + 0xa000) * 2, 2),
-			    (($c =~ tr,\0,,d)==2 and $c = "\0\0"),
-			   ) :
-			   (
-			    $c = '?'
-			   )
-			  ),
-			  ($c eq "\0\0") ? '?' : $c
-			 ) :
-     (length($1) == 4) ? (
-			  ($c1,$c2,$c3,$c4) = unpack("C4", $1),
-			  $ch = (($c1 & 0x07)<<18)|(($c2 & 0x3F)<<12)|
-			  (($c3 & 0x3f) << 6)|($c4 & 0x3F),
-			  (
-			   ($ch >= 0x0ff000 and $ch <= 0x0fffff) ?
-			   (
-			    $c = substr($eu2j2, ($ch - 0x0ff000) * 5, 5),
-			    $c =~ tr,\0,,d,
-			    ($c eq '') ? '?' : $c
-			   ) :
-			   '?'
-			  )
-			 ) :
-     '?'
-    )
-      /eg;
-
-  1 while($str =~ s/($RE{E_JSKY_START})($RE{E_JSKY1})($RE{E_JSKY2}+)$RE{E_JSKY_END}$RE{E_JSKY_START}\2($RE{E_JSKY2})($RE{E_JSKY_END})/$1$2$3$4$5/o);
-  
-  $str;
-  
-}
-sub h2zSym {
-  my $this = shift;
-
-  if(!defined(%_h2zSym))
-    {
-      $this->_loadConvTable;
-    }
-
-  $this->{str} =~ s/(\x20|\x21|\x22|\x23|\x24|\x25|\x26|\x27|\x28|\x29|\x2a|\x2b|\x2c|\x2d|\x2e|\x2f|\x3a|\x3b|\x3c|\x3d|\x3e|\x3f|\x40|\x5b|\x5c|\x5d|\x5e|\x60|\x7b|\x7c|\x7d|\x7e)/$_h2zSym{$1}/eg;
-  
-  $this;
-}
-# -----------------------------------------------------------------------------
-# $bytes_sjis = $unijp->sjis();
-# 
-sub sjis
-{
-  my $this = shift;
-  $this->_u2s($this->{str});
-}
-sub _utf16be_utf16 {
-  my $this = shift;
-  my $str = shift;
 
   $str;
 }

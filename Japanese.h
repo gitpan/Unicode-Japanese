@@ -2,7 +2,13 @@
 #ifndef UNICODE__JAPANESE_H__
 #define UNICODE__JAPANESE_H__
 
-/* $Id: Japanese.h,v 1.19 2002/10/31 11:08:50 hio Exp $ */
+/* $Id: Japanese.h,v 1.20 2002/11/05 07:51:14 hio Exp $ */
+
+#if !defined(__cplusplus) && !defined(bool)
+#define bool char
+#define true 1
+#define false 0
+#endif
 
 #include "EXTERN.h"
 #include "perl.h"
@@ -13,9 +19,6 @@
 #include <assert.h>
 #endif
 
-//#ifdef __cplusplus
-//#include "str.h"
-//#endif
 #include "str.h"
 
 #ifdef TEST

@@ -2,7 +2,7 @@
 #ifndef GETCODE_H
 #define GETCODE_H
 
-// $Id: getcode.h,v 1.1 2001/11/30 13:46:26 hio Exp $
+/* $Id: getcode.h,v 1.2 2002/11/05 07:51:14 hio Exp $ */
 
 #ifdef TEST
 #define DECL_MAP_MODE(name,num) \

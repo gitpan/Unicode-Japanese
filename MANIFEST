@@ -17,7 +17,8 @@ getcode_map.c         getcode用状態遷移テーブル
 hints/MSWin32.pl      hints ファイル (MSWin32)
 hints/freebsd.pl      hints ファイル (FreeBSD)
 hints/linux.pl        hints ファイル (Linux)
-hints/sunos.pl        hints ファイル (Solaris)
+hints/solaris.pl      hitns ファイル (Solaris 8 以降)
+hints/sunos.pl        hints ファイル (SunOS 及び Solaris 2.6 以前)
 jis.c                 sjis<=>jis 変換コード
 memmap.c              データファイルのメモリマップコード
 memmap_win32.c        

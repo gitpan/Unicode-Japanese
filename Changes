@@ -1,5 +1,8 @@
 Revision history for Perl extension Unicode::Japanese.
 
+0.18 Wed Nov  6 18:54:32 JST 2002
+        - Bug Fix, Bus Error on sparc.
+
 0.17 Thu Oct 31 20:46:45 JST 2002
 	- Bug Fix, compile failure on perl-5.6.0 prior.
         - support MSWin32 XS.

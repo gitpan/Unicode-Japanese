@@ -1,5 +1,5 @@
 
-/* $Id: sjis_imode.c,v 1.4 2002/10/31 11:08:50 hio Exp $ */
+/* $Id: sjis_imode.c,v 1.5 2002/11/05 07:51:14 hio Exp $ */
 
 #include "Japanese.h"
 #include <stdio.h>
@@ -38,6 +38,7 @@ xs_sjis_imode1_utf8(SV* sv_str)
   while( src<src_end )
   {
     const unsigned char* ptr;
+    /* warn("test : %02x\n",src[0]); */
     if( src[0]<0x80 )
     { /* ASCII */
       /*fprintf(stderr,"ascii: %02x\n",src[0]); */
@@ -75,7 +76,7 @@ xs_sjis_imode1_utf8(SV* sv_str)
       ++src;
     }else if( src+1<src_end && ( src[0]==0xf8 || src[0]==0xf9 ) )
     { /* i-mode³¨Ê¸»ú */
-      /*fprintf(stderr,"code: %02x %02x\n", src[0],src[1]); */
+      /* warn("code: %02x %02x\n", src[0],src[1]); */
       ptr = (unsigned char*)&g_ei2u1_table[((src[0]&1)<<8)|src[1]];
       if( *(unsigned long*)ptr==0 )
       {
@@ -83,7 +84,7 @@ xs_sjis_imode1_utf8(SV* sv_str)
 	/*fprintf(stderr,"sjis: %04x\n",sjis); */
 	ptr = (unsigned char*)&g_s2u_table[sjis];
       }
-      /*fprintf(stderr,"out : %02x %02x %02x %02x\n",ptr[0],ptr[1],ptr[2],ptr[3]); */
+      /* warn("out : %02x %02x %02x %02x\n",ptr[0],ptr[1],ptr[2],ptr[3]); */
       src += 2;
     }else if( ((0x81<=src[0] && src[0]<=0x9f) || (0xe0<=src[0] && src[0]<=0xfc) )
 	      && src+1<src_end

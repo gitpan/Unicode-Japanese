@@ -63,7 +63,8 @@ xs_sjis_eucjp(SV* sv_str)
       }
     case CHK_SJIS_KANA:
       {
-	unsigned char tmp[2] = { 0x8e, src[0], };
+	unsigned char tmp[2] = { 0x8e, 0x00, };
+	tmp[1] = src[0];
 	SV_Buf_append_ch2(&result,*(unsigned short*)tmp);
 	++src;
 	continue;

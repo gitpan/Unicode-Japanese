@@ -11,25 +11,35 @@
 use strict;
 use Test;
 use Carp;
-use Unicode::Japanese qw(PurePerl);
+use Unicode::Japanese qw(no_I18N_Japanese);
+require 'esc.pl';
 
-BEGIN { plan tests => 2 }
+BEGIN { plan tests => 2*2 }
 
 my $string;
 
-$]>=5.008 and eval 'use bytes', $@ && die $@;
+$]>=5.008 and eval('use bytes'), $@ && die $@;
 
 my $kata_AIU = "\xe3\x82\xa2\xe3\x82\xa4\xe3\x82\xa6";
 my $hira_AIU = "\xe3\x81\x82\xe3\x81\x84\xe3\x81\x86";
 
 
 # hiragana(A I U) -> katakana(A I U)
-# 
+# (xs)
 $string = Unicode::Japanese->new($hira_AIU);
 $string->hira2kata();
-ok($string->utf8(), $kata_AIU);
+ok(escfull($string->utf8()), escfull($kata_AIU));
+# (pp)
+$string = Unicode::Japanese::PurePerl->new($hira_AIU);
+$string->hira2kata();
+ok(escfull($string->utf8()), escfull($kata_AIU));
 
 # katakana(A I U) -> hiragana(A I U)
+# (xs)
 $string = Unicode::Japanese->new($kata_AIU);
 $string->kata2hira();
-ok($string->utf8(), $hira_AIU);
+ok(escfull($string->utf8()), escfull($hira_AIU));
+# (pp)
+$string = Unicode::Japanese::PurePerl->new($kata_AIU);
+$string->kata2hira();
+ok(escfull($string->utf8()), escfull($hira_AIU));
