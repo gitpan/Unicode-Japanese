@@ -2,7 +2,7 @@
 # Unicode::Japanese
 # Unicode::Japanese::PurePerl
 # -----------------------------------------------------------------------------
-# $Id: Japanese.pm,v 1.79 2005/02/15 04:00:58 hio Exp $
+# $Id: Japanese.pm,v 1.81 2005/02/15 04:26:47 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::PurePerl;
 
@@ -16,7 +16,7 @@ package Unicode::Japanese;
 
 use strict;
 use vars qw($VERSION $PurePerl $xs_loaderror);
-$VERSION = '0.25';
+$VERSION = '0.25_01';
 
 # `use bytes' and `use Encode' if on perl-5.8.0 or later.
 if( $] >= 5.008 )
