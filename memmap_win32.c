@@ -1,5 +1,5 @@
 
-/* $Id: memmap_win32.c,v 1.4 2003/05/26 16:04:38 hio Exp $ */
+/* $Id: memmap_win32.c,v 1.6 2004/03/07 10:54:37 hio Exp $ */
 
 #include "Japanese.h"
 #include <windows.h>
@@ -7,8 +7,13 @@
 #include <tchar.h>
 #include <stdio.h>
 
-static HMODULE hModule;
-LPTSTR getLastErrorMessage(void);
+static LPTSTR getLastErrorMessage(void);
+
+#ifdef UNIJP_NO_DLLMAIN
+extern HMODULE getDllHandle();
+#else
+static HMODULE Unicode_Japanese_hModule;
+#define getDllHandle() Unicode_Japanese_hModule
 
 /* ----------------------------------------------------------------------------
  * DllMain
@@ -22,7 +27,7 @@ BOOL APIENTRY DllMain( HANDLE hDll,
   {
   case DLL_PROCESS_ATTACH:
     {
-      hModule = hDll;
+      Unicode_Japanese_hModule = hDll;
       break;
     }
   case DLL_THREAD_ATTACH:
@@ -37,6 +42,8 @@ BOOL APIENTRY DllMain( HANDLE hDll,
   }
   return TRUE;
 }
+#endif
+
   /* SJIS <=> UTF8 変換テーブル */
   unsigned short const* g_u2s_table;
   unsigned long  const* g_s2u_table;
@@ -82,7 +89,8 @@ do_memmap(void)
   HGLOBAL hResourceChunk;
   LPVOID data_u2s, data_emj;
   DWORD siz_u2s, siz_emj;
-
+  const HANDLE hModule = getDllHandle();
+  
   /*fprintf(stderr,"* Unicode::Japanese::(xs)do_memmap *\n"); */
   
   hResource = FindResourceEx(hModule,RT_RCDATA,MAKEINTRESOURCE(RC_U2STABLE),LOCALE_INVARIANT);
@@ -225,12 +233,12 @@ do_memunmap(void)
  *   エラーメッセージの取得 
  *   取得したメッセージは LocalFree で解放してね☆ 
  */
-LPTSTR getErrorMessage(DWORD errcode);
-LPTSTR getLastErrorMessage(void)
+static LPTSTR getErrorMessage(DWORD errcode);
+static LPTSTR getLastErrorMessage(void)
 {
   return getErrorMessage(GetLastError());
 }
-LPTSTR getErrorMessage(DWORD errcode)
+static LPTSTR getErrorMessage(DWORD errcode)
 {
   LPVOID lpMessage;
   DWORD msglen;

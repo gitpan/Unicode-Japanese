@@ -1,0 +1,39 @@
+Unicode/Japanese version 0.20
+=============================
+
+Unicode::Japanese supports inter-convertion between sjis(CP932),
+euc-jp, jis, unicode(utf8,etc) and "EMOJI" of the mobile phones.
+
+DoCoMo i-mode, ASTEL dot-i, Vodafone Vodafone-live!(was J-PHONE
+J-Sky).
+
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+If you have no C-Compiler or no need XS modules:
+
+   perl Makefile.PL PurePerl
+   make
+   make test
+   make install
+
+DEPENDENCIES
+
+no dependencies, exclude default modules.
+
+COPYRIGHT AND LICENCE
+
+Copyright 2001-2004
+SANO Taku (SAWATARI Mikage) and YAMASHINA Hio.
+All right reserved.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself. 
+

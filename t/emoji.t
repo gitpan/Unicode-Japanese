@@ -1,7 +1,7 @@
 ## ----------------------------------------------------------------------------
 # t/emoji.t
 # -----------------------------------------------------------------------------
-# $Id: emoji.t,v 1.7 2002/11/06 09:27:41 hio Exp $
+# $Id: emoji.t,v 1.9 2004/03/07 10:10:44 hio Exp $
 # -----------------------------------------------------------------------------
 
 use strict;
@@ -13,7 +13,7 @@ BEGIN { plan tests => 20 *14 +6*2; }
 
 use Unicode::Japanese qw(no_I18N_Japanese);
 
-require 'esc.pl';
+require './esc.pl';
 
 # -----------------------------------------------------------------------------
 # test(type, ucs4, sjis
@@ -37,7 +37,7 @@ sub je
 
 my $STR = Unicode::Japanese->new();
 my $PPSTR = Unicode::Japanese::PurePerl->new();
-if( $Unicode::Japanese::xs_loaderror )
+if( !-e 't/pureperl.flag' && $Unicode::Japanese::xs_loaderror )
 {
   print STDERR "xs load error : [$Unicode::Japanese::xs_loaderror]\n";
 }

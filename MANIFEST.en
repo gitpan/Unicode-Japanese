@@ -8,6 +8,7 @@ Makefile.PL
 MANIFEST              MANIFEST in Japanese
 MANIFEST.en           MANIFEST in English
 MANIFEST.noxs
+README
 conv.c                sjis<=>utf8 conversion
 esc.pl                method that escapes controll char (like a quotemeta)
 eucjp.c               sjis<=>eucjp conversion

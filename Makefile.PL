@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Makefile.PL for Unicode-Japanese.
 # -----------------------------------------------------------------------------
-# $Id: Makefile.PL,v 1.39 2004/01/16 11:16:42 hio Exp $
+# $Id: Makefile.PL,v 1.41 2004/03/07 10:54:37 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::MakeMaker;
 
@@ -32,6 +32,9 @@ my %param = (
     'PL_FILES'          => {},
 
     'CONFIGURE'         => \&configure,	 
+    'PM'=>{'Japanese.pm'=>'$(INST_LIBDIR)/Japanese.pm',
+	  },
+    'clean'    => { FILES => 't/pureperl.flag mediate.c mediate.h' },
   );
 my %param_xs = (
     'PM'=>{'Japanese/u2s-s2u.dat'=>'$(INST_LIBDIR)/Japanese/u2s-s2u.dat',
@@ -50,8 +53,6 @@ my %param_xs = (
     'LIBS'		=> [''], # e.g., '-lm'
     'DEFINE'		=> '', # e.g., '-DHAVE_SOMETHING'
     'INC'		=> '', # e.g., '-I/usr/include/other'
-
-    'clean'    => { FILES => 'mediate.{c,h}' },
   );
 my @CCFLAGS;
 
@@ -180,7 +181,18 @@ sub disableXS
   $useXS = 0;  
   $ExtUtils::Manifest::MANIFEST = 'MANIFEST.noxs';
   $param{linkext} = { 'LINKTYPE'=>'' };
-  %param_xs = ('linkext'=>{'LINKTYPE'=>''});
+  %param_xs = ('linkext'=>{'LINKTYPE'=>''},
+              );
+  if( !-e "t/pureperl.flag" )
+  {
+    if( open(FILE,">t/pureperl.flag") )
+    {
+      close(FILE);
+    }else
+    {
+      print "could not create file [t/pureperl.flag] : $!\n";
+    }
+  }
   \%param_xs;
 }
 
@@ -194,7 +206,7 @@ sub enableXS
   {
     $param_xs{'OBJECT'} =~ s/\bmemmap.o\b/memmap_win32.o/;
     $param_xs{'OBJECT'} .= ' win32\Japanese.res';
-    delete @{$param_xs{'PM'}}{qw(Japanese/u2s-s2u.dat Japanese/emoji.dat)};
+    $param_xs{'PM'} and delete @{$param_xs{'PM'}}{qw(Japanese/u2s-s2u.dat Japanese/emoji.dat)};
   }
 
   !defined($useXS) and $useXS = 1;
@@ -234,6 +246,10 @@ EOF
   $fh_hdr->close();
   $fh_cpp->close();
   
+  if( $useXS && -e "t/pureperl.flag" )
+  {
+    unlink("t/pureperl.flag") or print "could not unlink file [t/pureperl.flag] : $!\n";
+  }
   \%param_xs;
 }
 

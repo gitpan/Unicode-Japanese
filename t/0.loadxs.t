@@ -1,7 +1,7 @@
 ## ----------------------------------------------------------------------------
 # t/0.loadxs.t
 # -----------------------------------------------------------------------------
-# $Id: 0.loadxs.t,v 1.4 2002/10/31 11:08:50 hio Exp $
+# $Id: 0.loadxs.t,v 1.5 2004/03/07 10:10:44 hio Exp $
 # -----------------------------------------------------------------------------
 
 use strict;
@@ -22,7 +22,15 @@ ok(1,1,'import');
 
 # xs is loaded in first invocation of `new'.
 Unicode::Japanese->new();
-my $dummy = $Unicode::Japanese::xs_loaderror;
-#skip($^O eq 'MSWin32'&&"XS is disabled on $^O",$Unicode::Japanese::xs_loaderror,'');
-ok($Unicode::Japanese::xs_loaderror,'');
+# to avoid used-only-once warning, read twice.
+my $err = ($Unicode::Japanese::xs_loaderror,$Unicode::Japanese::xs_loaderror)[0];
+if( !-e 't/pureperl.flag' )
+{
+  print "# load xs\n";
+  ok($err,'');
+}else
+{
+  print "# pure perl\n";
+  ok($err,qr/Can't locate loadable object/);
+}
 

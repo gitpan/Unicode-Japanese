@@ -1,5 +1,9 @@
 Revision history for Perl extension Unicode::Japanese.
 
+0.20 Sun Mar  7 19:08:55 JST 2004
+        - Bug Fix, when pure-perl, make test had failed.
+	- untaint.
+
 0.19 Fri Jan 16 19:48:46 JST 2004
 	- Bug Fix, decoding empty string from jis becomes "\0".
 

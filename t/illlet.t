@@ -2,7 +2,7 @@
 use Test;
 
 use Unicode::Japanese;
-require 'esc.pl';
+require './esc.pl';
 
 BEGIN { plan tests => 6 }
 

@@ -8,6 +8,7 @@ Makefile.PL
 MANIFEST              MANIFEST in Japanese
 MANIFEST.en           MANIFEST in English
 MANIFEST.noxs
+README
 conv.c                sjis<=>utf8 変換コード
 esc.pl                制御文字をエスケープする関数.
 eucjp.c               sjis<=>eucjp 変換コード
