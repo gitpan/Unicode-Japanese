@@ -1,13 +1,13 @@
 
-/* $Id: sjis_jsky.c,v 1.4 2002/10/31 11:08:50 hio Exp $ */
+/* $Id: sjis_jsky.c,v 1.5 2005/01/24 11:23:05 hio Exp $ */
 
 #include "Japanese.h"
 #include <stdio.h>
 
 #define ECHO_EJ2U(arg) /*fprintf arg */
 #define ON_EJ2U(cmd) /*cmd */
-#define ECHO_U2EJ(arg) /*fprintf arg */
-#define ON_U2EJ(cmd) /*cmd */
+#define ECHO_U2EJ(arg) /* fprintf arg */
+#define ON_U2EJ(cmd) /* cmd */
 
 #ifndef __cplusplus
 #undef bool
@@ -303,7 +303,7 @@ xs_utf8_sjis_jsky1(SV* sv_str)
   src = (unsigned char*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
 
-  ECHO_U2EJ((stderr,"Unicode::Japanese::(xs)utf8_sjis\n"));
+  ECHO_U2EJ((stderr,"Unicode::Japanese::(xs)utf8_sjis jsky(1)\n"));
   ON_U2EJ( bin_dump("in ",src,len) );
 
   SV_Buf_init(&result,len+4);
@@ -467,7 +467,7 @@ xs_utf8_sjis_jsky1(SV* sv_str)
     /* ucs => sjis */
     ECHO_U2EJ((stderr,"ucs2 [%04x]\n",ucs));
     /*const unsigned short sjis = g_u2s_table[ucs]; */
-    ECHO_U2EJ((stderr,"sjis [%04x]\n",ntohs(sjis) ));
+    /*ECHO_U2EJ((stderr,"sjis [%04x]\n",ntohs(sjis) ));*/
     
     if( g_u2s_table[ucs] || !ucs )
     { /* 対応文字がある時とucs=='\0'の時 */
@@ -489,7 +489,7 @@ xs_utf8_sjis_jsky1(SV* sv_str)
     /*bin_dump("now",dst_begin,dst-dst_begin); */
   } /* for */
 
-  ON_U2EJ( bin_dump("out",result.getBegin(),result.getLength()) );
+  ON_U2EJ( bin_dump("out",SV_Buf_getBegin(&result),SV_Buf_getLength(&result)) );
   SV_Buf_setLength(&result);
   sv_2mortal(SV_Buf_getSv(&result));
 
@@ -548,7 +548,7 @@ xs_utf8_sjis_jsky1(SV* sv_str)
     SV_Buf_append_str(&pack,ptr,src_end-ptr);
   }
 
-  ON_U2EJ( bin_dump("out",pack.getBegin(),pack.getLength()) );
+  ON_U2EJ( bin_dump("out",SV_Buf_getBegin(&pack),SV_Buf_getLength(&pack)) );
   SV_Buf_setLength(&pack);
   
   return SV_Buf_getSv(&pack);
@@ -575,7 +575,7 @@ xs_utf8_sjis_jsky2(SV* sv_str)
   src = (unsigned char*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
 
-  ECHO_U2EJ((stderr,"Unicode::Japanese::(xs)utf8_sjis\n"));
+  ECHO_U2EJ((stderr,"Unicode::Japanese::(xs)utf8_sjis jsky(2)\n"));
   ON_U2EJ( bin_dump("in ",src,len) );
 
   SV_Buf_init(&result,len+4);
@@ -626,7 +626,7 @@ xs_utf8_sjis_jsky2(SV* sv_str)
     /* 長さ足りてるかチェック */
     if( src+utf8_len-1>=src_end )
     {
-      ECHO_U2EJ((stderr,"  no enough buffer, here is %d, need %d\n",src_end-src,utf8_len));
+      ECHO_U2EJ((stderr,"  no enough input, here is %d, need %d\n",src_end-src,utf8_len));
       SV_Buf_append_ch(&result,'?');
       ++src;
       continue;
@@ -689,6 +689,7 @@ xs_utf8_sjis_jsky2(SV* sv_str)
 	ucs = '?';
       }
     }
+    ECHO_U2EJ((stderr,"  ucs:%06x\n",ucs));
 
     if( 0x0f0000<=ucs && ucs<=0x0fffff )
     { /* 私用領域 */
@@ -702,8 +703,8 @@ xs_utf8_sjis_jsky2(SV* sv_str)
       }
       /* 絵文字判定(j-sky) */
       sjis = &g_eu2j2_table[(ucs - 0x0ff000)*5];
-      /*fprintf(stderr,"  emoji: %02x %02x %02x %02x %02x\n", */
-      /*	  sjis[0],sjis[1],sjis[2],sjis[3],sjis[4]); */
+      ECHO_U2EJ((stderr,"  emoji: %02x %02x %02x %02x %02x\n",
+        	  sjis[0],sjis[1],sjis[2],sjis[3],sjis[4]));
       if( sjis[4]!=0 )
       { /* ５バイト文字に. */
 	SV_Buf_append_ch5(&result,sjis);
@@ -739,7 +740,7 @@ xs_utf8_sjis_jsky2(SV* sv_str)
     /* ucs => sjis */
     ECHO_U2EJ((stderr,"ucs2 [%04x]\n",ucs));
     /*const unsigned short sjis = g_u2s_table[ucs]; */
-    ECHO_U2EJ((stderr,"sjis [%04x]\n",ntohs(sjis) ));
+    /*ECHO_U2EJ((stderr,"sjis [%04x]\n",ntohs(sjis) ));*/
     
     if( g_u2s_table[ucs] || !ucs )
     { /* 対応文字がある時とucs=='\0'の時 */
@@ -761,7 +762,7 @@ xs_utf8_sjis_jsky2(SV* sv_str)
     /*bin_dump("now",dst_begin,dst-dst_begin); */
   } /* for */
 
-  ON_U2EJ( bin_dump("out",result.getBegin(),result.getLength()) );
+  ON_U2EJ( bin_dump("out",SV_Buf_getBegin(&result),SV_Buf_getLength(&result)) );
   SV_Buf_setLength(&result);
   sv_2mortal(SV_Buf_getSv(&result));
 
@@ -821,7 +822,7 @@ xs_utf8_sjis_jsky2(SV* sv_str)
     SV_Buf_append_str(&pack,ptr,src_end-ptr);
   }
 
-  ON_U2EJ( bin_dump("out",pack.getBegin(),pack.getLength()) );
+  ON_U2EJ( bin_dump("out",SV_Buf_getBegin(&pack),SV_Buf_getLength(&pack)) );
   SV_Buf_setLength(&pack);
 
   return SV_Buf_getSv(&pack);

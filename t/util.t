@@ -15,13 +15,7 @@ ok($string->strlen, 6);
 
 # strcut (KATAKANA-AIU)
 $string = new Unicode::Japanese "\xe3\x82\xa2\xe3\x82\xa4\xe3\x82\xa6";
-if( $]>=5.008 )
-{
-  ok($string->strcut(5)->[0], eval '"\x{30a2}\x{30a4}"');
-}else
-{
-  ok($string->strcut(5)->[0], "\xe3\x82\xa2\xe3\x82\xa4");
-}
+ok($string->strcut(5)->[0], "\xe3\x82\xa2\xe3\x82\xa4");
 
 # join_csv
 $string = new Unicode::Japanese;

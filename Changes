@@ -2,7 +2,7 @@ Revision history for Perl extension Unicode::Japanese.
 
 0.23 Thu Nov  4 16:16:48 JST 2004
         - avoid illegal utf-8 sequence
-        - add mapping, U+301C (WAVE TILDE) into CP912:8160
+        - add mapping, U+301C (WAVE TILDE) into CP932:8160
 
 0.22 Mon May 31 18:48:42 JST 2004
         - Bug Fix, on 5.8.4, join_csv/split_csv raise SEGV.

@@ -2,30 +2,32 @@
 #ifndef GETCODE_H
 #define GETCODE_H
 
-/* $Id: getcode.h,v 1.2 2002/11/05 07:51:14 hio Exp $ */
+/* $Id: getcode.h,v 1.3 2005/01/24 11:23:05 hio Exp $ */
 
 #ifdef TEST
-#define DECL_MAP_MODE(name,num) \
-  extern const char* mode_##name[num]
+#define DECL_MAP_MODE(name,num) const char* mode_##name[num]
+#define EXTERN_DECL_MAP_MODE(name,num) extern DECL_MAP_MODE(name,num)
 #else
 #define DECL_MAP_MODE(name,num)
+#define EXTERN_DECL_MAP_MODE(name,num)
 #endif
 
 #define DECL_MAP_TABLE(name,num) \
   extern const unsigned char map_##name[num][256]
 
 #define DECL_MAP(name,num) DECL_MAP_MODE(name,num); DECL_MAP_TABLE(name,num)
+#define EXTERN_DECL_MAP(name,num) EXTERN_DECL_MAP_MODE(name,num); DECL_MAP_TABLE(name,num)
 
-DECL_MAP(ascii,1);
-DECL_MAP(eucjp,5);
-DECL_MAP(sjis,2);
-DECL_MAP(utf8,6);
-DECL_MAP(jis,10);
-DECL_MAP(utf32_be,4);
-DECL_MAP(utf32_le,4);
-DECL_MAP(sjis_jsky,5);
-DECL_MAP(sjis_imode,4);
-DECL_MAP(sjis_doti,7);
+EXTERN_DECL_MAP(ascii,1);
+EXTERN_DECL_MAP(eucjp,5);
+EXTERN_DECL_MAP(sjis,2);
+EXTERN_DECL_MAP(utf8,6);
+EXTERN_DECL_MAP(jis,10);
+EXTERN_DECL_MAP(utf32_be,4);
+EXTERN_DECL_MAP(utf32_le,4);
+EXTERN_DECL_MAP(sjis_jsky,5);
+EXTERN_DECL_MAP(sjis_imode,4);
+EXTERN_DECL_MAP(sjis_doti,7);
 
 #define map_invalid 0x7f
 

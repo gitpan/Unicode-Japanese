@@ -1,5 +1,5 @@
 
-/* $Id: sjis_imode.c,v 1.5 2002/11/05 07:51:14 hio Exp $ */
+/* $Id: sjis_imode.c,v 1.6 2005/01/24 11:23:05 hio Exp $ */
 
 #include "Japanese.h"
 #include <stdio.h>
@@ -269,7 +269,7 @@ xs_utf8_sjis_imode1(SV* sv_str)
   src = (unsigned char*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
 
-  /*fprintf(stderr,"Unicode::Japanese::(xs)utf8_sjis_imode\n"); */
+  /*fprintf(stderr,"Unicode::Japanese::(xs)utf8_sjis_imode1\n"); */
   /*ON_U2S( bin_dump("in ",src,len) ); */
 
   SV_Buf_init(&result,len+4);
@@ -467,7 +467,7 @@ xs_utf8_sjis_imode2(SV* sv_str)
   
   src = (unsigned char*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
-  /*fprintf(stderr,"Unicode::Japanese::(xs)utf8_sjis_imode\n"); */
+  /*fprintf(stderr,"Unicode::Japanese::(xs)utf8_sjis_imode2\n"); */
   /*ON_U2S( bin_dump("in ",src,len) ); */
   SV_Buf_init(&result,len+4);
   src_end = src+len;
