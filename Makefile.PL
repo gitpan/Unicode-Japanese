@@ -6,9 +6,15 @@ my $MANIFEST_bak = $ExtUtils::Manifest::MANIFEST;
 
 my (%param, %param_xs);
 
+# --------------------------------------------------------------------
+# create default parameter
 init_param();
-add_ccflags('-Werror');
-#add_ccflags('-DNDEBUG'); # uncomment for release, 
+
+# --------------------------------------------------------------------
+# add CCFLAGS
+#add_ccflags('-Werror');
+add_ccflags('-DNDEBUG'); # uncomment for release
+
 #include_test();
 do_mediate();
 

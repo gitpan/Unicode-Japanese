@@ -1,6 +1,6 @@
 Revision history for Perl extension Unicode::Japanese.
 
-0.11  Mon Jul 15 14:54:06 JST 2002
+0.12  Mon Jul 15 15:29:16 JST 2002
 	- Fix problem which fails in compile in some environments.
 
 0.10  Tue Jul  9 18:00:52 JST 2002
