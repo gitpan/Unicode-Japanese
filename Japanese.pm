@@ -1,9 +1,9 @@
 package Unicode::Japanese;
-# $Id: Japanese_stub.pm,v 1.25 2002/06/30 23:20:17 hio Exp $
+# $Id: Japanese_stub.pm,v 1.26 2002/07/09 09:05:30 mikage Exp $
 
 use strict;
 use vars qw($VERSION $PurePerl $xs_loaderror);
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 sub import
 {

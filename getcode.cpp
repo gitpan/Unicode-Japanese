@@ -1,5 +1,5 @@
 
-// $Id: getcode.cpp,v 1.4 2002/07/01 00:17:02 hio Exp $
+// $Id: getcode.cpp,v 1.6 2002/07/10 20:20:29 hio Exp $
 
 #include "Japanese.h"
 #include "getcode.h"
@@ -45,7 +45,7 @@ enum charcode_t
 #define RE_BOM4_BE  "\x00\x00\xfe\xff"
 #define RE_BOM4_LE  "\xff\xfe\x00\x00"
 
-#if defined(TEST) || 1
+#if defined(TEST)
 // 文字コード定数を文字コード名に
 static const char* charcodeToStr(charcode_t code)
 {
@@ -63,8 +63,8 @@ static const char* charcodeToStr(charcode_t code)
   case cc_sjis_jsky:  return "sjis-jsky";
   case cc_sjis_imode: return "sjis-imode";
   case cc_sjis_doti:  return "sjis-doti";
+  default: return NULL;
   }
-  return NULL;
 }
 #endif
 #ifdef TEST

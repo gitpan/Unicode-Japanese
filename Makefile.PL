@@ -1,6 +1,10 @@
 
-use vars qw(%param %param_xs $ostype);
-my @argv_back = @ARGV;
+use strict;
+use ExtUtils::Manifest;
+
+my $MANIFEST_bak = $ExtUtils::Manifest::MANIFEST;
+
+my (%param, %param_xs);
 
 init_param();
 add_ccflags('-Werror');
@@ -11,7 +15,7 @@ do_mediate();
 use ExtUtils::MakeMaker;
 WriteMakefile(%param,%param_xs);
 
-@ARGV = @argv_bak;
+$ExtUtils::Manifest::MANIFEST = $MANIFEST_bak;
 
 # --------------------------------------------------------------------
 # follows are subroutins only.
@@ -67,7 +71,7 @@ sub include_test
 # generate mediate.h/mediate.cpp
 sub do_mediate
 {
-  # check 'PurePerl' from @ARGV
+  # check 'PurePerl' from @ARGV, and remove if exists.
   my @arg;
   @ARGV = grep{ !(@arg-push(@arg,/^(PurePerl|NoXS)(=(0|1|yes|no|y|n))?$/i)) } @ARGV;
   if( @arg )
@@ -83,7 +87,9 @@ sub do_mediate
 
   # check os type
 
-  $ostype = `uname -s` || '';
+  my ($hdr,$cpp);
+  
+  my $ostype = `uname -s` || '';
   if( $ostype =~ /(Linux)/ )
   {
     $ostype = $1;
@@ -191,7 +197,6 @@ EOF
 
 sub disable_xs
 {
-  use ExtUtils::Manifest;
   $ExtUtils::Manifest::MANIFEST = 'MANIFEST.noxs';
   %param_xs = ('linkext'=>{'LINKTYPE'=>''});
   #rename('Japanese','Japanese-notused');
@@ -199,5 +204,5 @@ sub disable_xs
 
 sub add_ccflags
 {
-  $param_xs{'CCFLAGS'} = join(' ',$param_xs{'CC_FLAGS'},@_);  
+  $param_xs{'CCFLAGS'} = join(' ',$param_xs{'CCFLAGS'},@_);  
 }

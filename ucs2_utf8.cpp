@@ -1,5 +1,5 @@
 
-// $Id: ucs2_utf8.cpp,v 1.5 2002/07/01 00:09:54 hio Exp $
+// $Id: ucs2_utf8.cpp,v 1.7 2002/07/10 20:11:57 hio Exp $
 
 #include "Japanese.h"
 
@@ -87,7 +87,7 @@ xs_utf8_ucs2(SV* sv_str)
       result.append_ch2(htons(*src++));
       continue;
     }
-    int utf8_len,ucs2;
+    int utf8_len,ucs;
     if( 0xc0<=*src && *src<=0xdf )
     { // length [2]
       utf8_len = 2;
@@ -97,7 +97,7 @@ xs_utf8_ucs2(SV* sv_str)
 	result.append_ch2(htons(*src++));
 	continue;
       }
-      ucs2 = ((src[0] & 0x1F)<<6)|(src[1] & 0x3F);
+      ucs = ((src[0] & 0x1F)<<6)|(src[1] & 0x3F);
     }else if( 0xe0<=*src && *src<=0xef )
     { // length [3]
       utf8_len = 3;
@@ -108,7 +108,7 @@ xs_utf8_ucs2(SV* sv_str)
 	result.append_ch2(htons(*src++));
 	continue;
       }
-      ucs2 = ((src[0] & 0x0F)<<12)|((src[1] & 0x3F)<<6)|(src[2] & 0x3F);
+      ucs = ((src[0] & 0x0F)<<12)|((src[1] & 0x3F)<<6)|(src[2] & 0x3F);
     }else if( 0xf0<=*src && *src<=0xf7 )
     { // length [4]
       utf8_len = 4;
@@ -120,8 +120,8 @@ xs_utf8_ucs2(SV* sv_str)
 	result.append_ch2(htons(*src++));
 	continue;
       }
-      ucs2 = ((src[0] & 0x07)<<18)|((src[1] & 0x3F)<<12)|
-	((src[2] & 0x3f) << 6)|(src[3] & 0x3F);
+      ucs = ((src[0] & 0x07)<<18)|((src[1] & 0x3F)<<12)|
+ 	    ((src[2] & 0x3f) << 6)|(src[3] & 0x3F);
     }else if( 0xf8<=*src && *src<=0xfb )
     { // length [5]
       utf8_len = 5;
@@ -134,6 +134,9 @@ xs_utf8_ucs2(SV* sv_str)
 	result.append_ch2(htons(*src++));
 	continue;
       }
+      ucs = ((src[0] & 0x03) << 24)|((src[1] & 0x3F) << 18)|
+	    ((src[2] & 0x3f) << 12)|((src[3] & 0x3f) << 6)|
+             (src[4] & 0x3F);
     }else if( 0xfc<=*src && *src<=0xfd )
     { // length [6]
       utf8_len = 6;
@@ -147,19 +150,22 @@ xs_utf8_ucs2(SV* sv_str)
 	result.append_ch2(htons(*src++));
 	continue;
       }
+      ucs = ((src[0] & 0x03) << 30)|((src[1] & 0x3F) << 24)|
+	    ((src[2] & 0x3f) << 18)|((src[3] & 0x3f) << 12)|
+	    ((src[4] & 0x3f) <<  6)| (src[5] & 0x3F);
     }else
     { // invalid
       result.append_ch2(htons(*src++));
       continue;
     }
 
-    if( ucs2 & ~0xFFFF )
+    if( ucs & ~0xFFFF )
     { // ucs2¤ÎÈÏ°Ï³° (ucs4¤ÎÈÏ°Ï)
       result.append_ch2(htons('?'));
       src += utf8_len;
       continue;
     }
-    result.append_ch2(htons(ucs2));
+    result.append_ch2(htons(ucs));
     src += utf8_len;
     //bin_dump("now",dst_begin,dst-dst_begin);
   }

@@ -2,13 +2,15 @@
 #ifndef UNICODE__JAPANESE
 #define UNICODE__JAPANESE
 
-/* $Id: Japanese.h,v 1.11 2002/06/30 23:12:58 hio Exp $ */
+/* $Id: Japanese.h,v 1.12 2002/07/10 20:14:24 hio Exp $ */
 
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
 #include "mediate.h"
+#ifndef assert
 #include <assert.h>
+#endif
 
 #ifdef __cplusplus
 #include "str.h"
