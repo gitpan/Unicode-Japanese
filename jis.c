@@ -1,5 +1,5 @@
 
-/* $Id: jis.c,v 1.3 2002/10/31 11:08:50 hio Exp $ */
+/* $Id: jis.c,v 1.4 2004/01/16 11:16:42 hio Exp $ */
 
 #include "Japanese.h"
 #include "sjis.h"
@@ -182,7 +182,7 @@ xs_jis_sjis(SV* sv_str)
   SV_Buf_init(&result,len);
   src_end = src+len;
   
-  if( *src!='\x1b' )
+  if( len!=0 && *src!='\x1b' )
   {
     const unsigned char* begin = src;
     while( ++src<src_end && *src!='\x1b')

@@ -46,4 +46,6 @@ t/utf8flag.t
 t/util.t
 t/verify_sjis_ucs2.pl
 t/z2h.t
+win32/Japanese.rc
+win32/resource.h
 xs_test.c             xsコンパイルテスト用コード

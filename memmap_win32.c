@@ -1,9 +1,42 @@
 
-/* $Id: memmap_win32.c,v 1.3 2002/10/31 11:08:50 hio Exp $ */
+/* $Id: memmap_win32.c,v 1.4 2003/05/26 16:04:38 hio Exp $ */
 
 #include "Japanese.h"
 #include <windows.h>
+#include "win32/resource.h"
+#include <tchar.h>
+#include <stdio.h>
 
+static HMODULE hModule;
+LPTSTR getLastErrorMessage(void);
+
+/* ----------------------------------------------------------------------------
+ * DllMain
+ */
+BOOL APIENTRY DllMain( HANDLE hDll, 
+                       DWORD  ul_reason_for_call, 
+                       LPVOID lpReserved
+		       )
+{
+  switch (ul_reason_for_call)
+  {
+  case DLL_PROCESS_ATTACH:
+    {
+      hModule = hDll;
+      break;
+    }
+  case DLL_THREAD_ATTACH:
+  case DLL_THREAD_DETACH:
+    {
+      break;
+    }
+  case DLL_PROCESS_DETACH:
+    {
+      break;
+    }
+  }
+  return TRUE;
+}
   /* SJIS <=> UTF8 変換テーブル */
   unsigned short const* g_u2s_table;
   unsigned long  const* g_s2u_table;
@@ -39,129 +72,86 @@
   static int   g_mmap_emj_length;
   static char* g_mmap_emj_start;
 
-static HANDLE fd_u2s = INVALID_HANDLE_VALUE;
-static HANDLE fd_emj = INVALID_HANDLE_VALUE;
-static HANDLE hmap_u2s = INVALID_HANDLE_VALUE;
-static HANDLE hmap_emj = INVALID_HANDLE_VALUE;
-
-/* ----------------------------------------------------------------------------
- * 指定のファイルを @INC から探す.
- * オープンしてファイルハンドルを返す.
- */
-static HANDLE
-findfile(AV* INC, const char* filename)
-{
-  /*fprintf(stderr,"findfile [%s]\n",filename); */
-  int i;
-  char  path[MAX_PATH];
-  int addlen = strlen(filename);
-  for( i=0; i<av_len(INC); ++i )
-  {
-    SV** dir = av_fetch(INC,i,0);
-    int len = sv_len(*dir);
-    HANDLE fd;
-    
-    if( len==0 ) continue;
-    if( len+addlen+2>=MAX_PATH ) continue;
-    memcpy(path,SvPV(*dir,PL_na),len);
-    if( path[len-1]!='\\' ) path[len++] = '\\';
-    memcpy(path+len,filename,addlen);
-    path[len+addlen] = '\0';
-    /*fprintf(stderr,"  trying [%s] ...\n",path); */
-    fd = CreateFile(path,GENERIC_READ,FILE_SHARE_READ,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL|FILE_FLAG_RANDOM_ACCESS,NULL);
-    if( fd!=INVALID_HANDLE_VALUE )
-    {
-      /*fprintf(stderr,"findfile [%s] found\n",filename); */
-      return fd;
-    }
-  }
-  /*fprintf(stderr,"findfile [%s] failed\n",filename); */
-  return INVALID_HANDLE_VALUE;
-}
-
 /* ----------------------------------------------------------------------------
  * 必要なファイルをメモリにマッピング
  */
 void
 do_memmap(void)
 {
-  AV* INC;
-  DWORD siz_u2s,siz_emj;
+  HRSRC hResource;
+  HGLOBAL hResourceChunk;
+  LPVOID data_u2s, data_emj;
+  DWORD siz_u2s, siz_emj;
 
   /*fprintf(stderr,"* Unicode::Japanese::(xs)do_memmap *\n"); */
-
-  INC = get_av("INC",0);
-  if( INC==NULL )
+  
+  hResource = FindResourceEx(hModule,RT_RCDATA,MAKEINTRESOURCE(RC_U2STABLE),LOCALE_INVARIANT);
+  if( hResource==NULL )
   {
-    Perl_croak(aTHX_ "do_memmap, cannot get @INC.");
-    return;
+    LPTSTR msg = getLastErrorMessage();
+    sv_setpv(ERRSV,"do_memmap(win32), FindResource(u2stable) failed : ");
+    sv_catpv(ERRSV,msg);
+    LocalFree(msg);
+    croak(Nullch);
   }
-  fd_u2s = findfile(INC,"Unicode/Japanese/u2s-s2u.dat");
-  fd_emj = findfile(INC,"Unicode/Japanese/emoji.dat");
-
-  if( fd_u2s==INVALID_HANDLE_VALUE || fd_emj==INVALID_HANDLE_VALUE )
+  hResourceChunk = LoadResource(hModule,hResource);
+  if( hResourceChunk==NULL )
   {
-    if( fd_u2s!=INVALID_HANDLE_VALUE )
-    {
-      CloseHandle(fd_u2s);
-      fd_u2s = INVALID_HANDLE_VALUE;
-      Perl_croak(aTHX_ "do_memmap, emoji table not found or could not  open.");
-    }else if( fd_emj!=INVALID_HANDLE_VALUE )
-    {
-      CloseHandle(fd_emj);
-      fd_emj = INVALID_HANDLE_VALUE;
-      Perl_croak(aTHX_ "do_memmap, u2s table not found or could not open.");
-    }else
-    {
-      Perl_croak(aTHX_ "do_memmap, u2s table and emoji table not found or could not open.");
-    }
-    return;
+    Perl_croak(aTHX_ "do_memmap(win32), LoadResource(u2stable) failed.");
   }
-  siz_u2s = GetFileSize(fd_u2s,NULL);
-  siz_emj = GetFileSize(fd_emj,NULL);
-  if( siz_u2s==-1 && siz_emj==-1 )
+  data_u2s = LockResource(hResourceChunk);
+  if( data_u2s==NULL )
   {
-    CloseHandle(fd_u2s);
-    CloseHandle(fd_emj);
-    fd_u2s = fd_emj = INVALID_HANDLE_VALUE;
-    if( siz_u2s!=-1 )
-    {
-      Perl_croak(aTHX_ "do_memmap, GetFileSize emoji table (for mmap) failed.");
-    }else if( siz_emj!=-1 )
-    {
-      Perl_croak(aTHX_ "do_memmap, GetFileSize u2s table (for mmap) failed.");
-    }else
-    {
-      Perl_croak(aTHX_ "do_memmap, GetFileSize u2s and emoji tables (for mmap) failed.");
-    }
-    return;
+    Perl_croak(aTHX_ "do_memmap(win32), LockResource(u2stable) failed.");
   }
-
+  siz_u2s = SizeofResource(hModule,hResource);
+  if( siz_u2s==0 )
+  {
+    LPTSTR msg = getLastErrorMessage();
+    sv_setpv(ERRSV,"do_memmap(win32), SizeofResource(u2stable) failed : ");
+    sv_catpv(ERRSV,msg);
+    LocalFree(msg);
+    croak(Nullch);
+  }
+  
+  hResource = FindResourceEx(hModule,RT_RCDATA,MAKEINTRESOURCE(RC_EMJTABLE),LOCALE_INVARIANT);
+  if( hResource==NULL )
+  {
+    Perl_croak(aTHX_ "do_memmap(win32), FindResource(emjtable) failed.");
+  }
+  hResourceChunk = LoadResource(hModule,hResource);
+  if( hResourceChunk==NULL )
+  {
+    Perl_croak(aTHX_ "do_memmap(win32), LoadResource(emjtable) failed.");
+  }
+  data_emj = LockResource(hResourceChunk);
+  if( data_emj==NULL )
+  {
+    Perl_croak(aTHX_ "do_memmap(win32), LockResource(emjtable) failed.");
+  }
+  siz_emj = SizeofResource(hModule,hResource);
+  if( siz_emj==0 )
+  {
+    Perl_croak(aTHX_ "do_memmap(win32), SizeofResource(emjtable) failed.");
+  }
+  
   /* サイズチェック */
   if( siz_u2s!=0x60000 )
   {
-    CloseHandle(fd_u2s);
-    CloseHandle(fd_emj);
-    fd_u2s = fd_emj = INVALID_HANDLE_VALUE;
     Perl_croak(aTHX_ "do_memmap, u2s-s2u size != 0x60000, [got %#x].",siz_u2s);
     return;
   }
   if( siz_emj!=0x13c00 )
   {
-    CloseHandle(fd_u2s);
-    CloseHandle(fd_emj);
-    fd_u2s = fd_emj = INVALID_HANDLE_VALUE;
     Perl_croak(aTHX_ "do_memmap, emoji.dat size != 0x13c00, [got %#x].",siz_emj);
     return;
   }
   
   /* マッピングの作成 */
-  hmap_u2s = CreateFileMapping(fd_u2s,NULL,PAGE_READONLY,0,siz_u2s,"Unicode-Japanese-u2s");
-  hmap_emj = CreateFileMapping(fd_emj,NULL,PAGE_READONLY,0,siz_emj,"Unicode-Japanese-emj");
   g_mmap_u2s_length  = siz_u2s;
-  g_mmap_u2s_start = (char*)MapViewOfFile(hmap_u2s,FILE_MAP_READ,0,0,siz_u2s);
+  g_mmap_u2s_start = (char*)data_u2s;
   g_mmap_emj_length  = siz_emj;
-  g_mmap_emj_start = (char*)MapViewOfFile(hmap_emj,FILE_MAP_READ,0,0,siz_emj);
+  g_mmap_emj_start = (char*)data_emj;
   
   if( g_mmap_u2s_start==NULL || g_mmap_emj_start==NULL )
   {
@@ -226,49 +216,52 @@ do_memunmap(void)
 {
   /* printf("* do_memunmap() *\n"); */
 
-  /* u2s table */
-  if( g_mmap_u2s_start!=NULL )
-  {
-    BOOL res = UnmapViewOfFile(g_mmap_u2s_start);
-    if( !res )
-    {
-      Perl_warn(aTHX_ "do_memunmap, UnmapViewOfFile u2s table failed.");
-    }
-    g_mmap_u2s_start = NULL;
-  }
-  /* emoji table */
-  if( g_mmap_emj_start!=NULL )
-  {
-    BOOL res = UnmapViewOfFile(g_mmap_emj_start);
-    if( !res )
-    {
-      Perl_warn(aTHX_ "do_memunmap, UnmapViewOfFile emoji table failed.");
-    }
-    g_mmap_emj_start = NULL;
-  }
-
-  if( hmap_u2s!=INVALID_HANDLE_VALUE )
-  {
-     CloseHandle(hmap_u2s);
-     hmap_u2s = NULL;
-  }
-  if( hmap_emj!=INVALID_HANDLE_VALUE )
-  {
-     CloseHandle(hmap_emj);
-     hmap_emj = NULL;
-  }
-
-  if( fd_u2s!=INVALID_HANDLE_VALUE )
-  {
-    CloseHandle(fd_u2s);
-    fd_u2s = NULL;
-  }
-  
-  if( fd_emj!=INVALID_HANDLE_VALUE )
-  {
-    CloseHandle(fd_emj);
-    fd_emj = NULL;
-  }
-
   return;
 }
+
+/* ----------------------------------------------------------------------------
+ * LPTSTR message = getLastErrorMessage();
+ * LPTSTR message = getErrorMessage(DWORD errorCode);
+ *   エラーメッセージの取得 
+ *   取得したメッセージは LocalFree で解放してね☆ 
+ */
+LPTSTR getErrorMessage(DWORD errcode);
+LPTSTR getLastErrorMessage(void)
+{
+  return getErrorMessage(GetLastError());
+}
+LPTSTR getErrorMessage(DWORD errcode)
+{
+  LPVOID lpMessage;
+  DWORD msglen;
+  lpMessage = NULL;
+  msglen = FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER
+			  | FORMAT_MESSAGE_FROM_SYSTEM
+			  | FORMAT_MESSAGE_IGNORE_INSERTS,
+			  NULL,
+			  errcode,
+			  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), /* 既定の言語 */
+			  (LPTSTR)&lpMessage,
+			  0,
+			  NULL
+			  );
+  if( msglen==0 )
+  {
+    if( lpMessage )
+    {
+      lpMessage = LocalReAlloc(lpMessage,64,0);
+    }else
+    {
+      lpMessage = LocalAlloc(LMEM_FIXED,64);
+    }
+    if( lpMessage )
+    {
+      _sntprintf((LPTSTR)lpMessage,64,
+		 TEXT("Unknown Error (%lu,0x%08x)\n"),
+		 errcode, errcode
+		 );
+    }
+  }
+  return lpMessage;
+}
+

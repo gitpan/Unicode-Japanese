@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Makefile.PL for Unicode-Japanese.
 # -----------------------------------------------------------------------------
-# $Id: Makefile.PL,v 1.37 2002/11/06 09:27:41 hio Exp $
+# $Id: Makefile.PL,v 1.39 2004/01/16 11:16:42 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::MakeMaker;
 
@@ -122,7 +122,7 @@ sub configure
 
   if( !defined($useXS) )
   {
-    print " >> no hints ran ? (maybe not tested on this platform)\n";
+    print " >> no hints ran (maybe no info on this platform [$^O])\n";
     enableXS('(no hints)',undef,undef);
   }
   
@@ -193,6 +193,8 @@ sub enableXS
   if( $type eq 'MSWin32' )
   {
     $param_xs{'OBJECT'} =~ s/\bmemmap.o\b/memmap_win32.o/;
+    $param_xs{'OBJECT'} .= ' win32\Japanese.res';
+    delete @{$param_xs{'PM'}}{qw(Japanese/u2s-s2u.dat Japanese/emoji.dat)};
   }
 
   !defined($useXS) and $useXS = 1;

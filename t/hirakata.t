@@ -11,9 +11,11 @@
 use strict;
 use Test;
 use Carp;
+#no I18N::Japanese;
 use Unicode::Japanese qw(no_I18N_Japanese);
 require 'esc.pl';
-
+Unicode::Japanese->new();
+print "[$Unicode::Japanese::xs_loaderror]\n";
 BEGIN { plan tests => 2*2 }
 
 my $string;

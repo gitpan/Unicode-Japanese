@@ -42,4 +42,6 @@ t/random.pl
 t/random_redo.pl
 t/ucs2_utf8.pl
 t/verify_sjis_ucs2.pl
+win32/Japanese.rc
+win32/resource.h
 xs_test.c             compile test code for xs.
