@@ -4,6 +4,7 @@ package Unicode::Japanese::MakeMaker;
 use strict;
 use ExtUtils::Manifest;
 use ExtUtils::MakeMaker;
+use ExtUtils::Embed;
 
 my $MANIFEST_bak = $ExtUtils::Manifest::MANIFEST;
 
@@ -31,7 +32,7 @@ my %param_xs = (
 	   'Japanese/emoji.dat'=>'$(INST_LIBDIR)/Japanese/emoji.dat',
 	   'Japanese.pm'=>'$(INST_LIBDIR)/Japanese.pm',
 	  },
-    'CCFLAGS' => '-Wall',
+    'CCFLAGS' => ccopts().' -Wall',
     'OBJECT' => join(' ',qw( Japanese.o memmap.o conv.o ucs2_utf8.o
 			     getcode.o getcode_map.o sjis.o eucjp.o jis.o
 			     sjis_imode.o sjis_jsky.o sjis_doti.o
@@ -120,7 +121,7 @@ sub configure
     use Config;
     use ExtUtils::Embed;
     my $cc = exists $argv{CC} ? $argv{CC} : $Config{cc};
-    my $ccopts = ExtUtils::Embed::ccopts();
+    my $ccopts = ExtUtils::Embed::ccopts() .' '.$param_xs{'CCFLAGS'};
     my $xstest_src = $^O eq 'MSWin32' ? 'memmap_win32.c' : 'memmap.c';
     my $xstest_out = $^O eq 'MSWin32' ? 'memmap_win32.obj' : 'memmap.o';
     my $cmd = "$cc $ccopts -c $xstest_src -o $xstest_out";
@@ -228,10 +229,11 @@ EOF
 sub add_ccflags
 {
   $param_xs{'CCFLAGS'} = join(' ',$param_xs{'CCFLAGS'},@_);  
+  print "new : $param_xs{'CCFLAGS'}\n";
 }
 
 sub include_test
 {
-  $param_xs{'CCFLAGS'} .= '-g -DTEST=1';
+  add_ccflags('-g -DTEST=1');
   $param_xs{'OBJECT'}  .= ' test.o';
 }

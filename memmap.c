@@ -1,5 +1,5 @@
 
-/* $Id: memmap.c,v 1.1 2002/10/24 14:33:32 hio Exp $ */
+/* $Id: memmap.c,v 1.2 2002/10/31 11:08:50 hio Exp $ */
 
 #include "Japanese.h"
 #include <unistd.h>   /* memmap */
@@ -11,10 +11,6 @@
 #define MAP_FAILED ((void*)-1)
 #endif
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
   /* SJIS <=> UTF8 変換テーブル */
   unsigned short const* g_u2s_table;
   unsigned long  const* g_s2u_table;
@@ -50,14 +46,14 @@ extern "C"
   static int   g_mmap_emj_length;
   static char* g_mmap_emj_start;
 
-#ifdef __cplusplus
-}
-#endif
-
+/* ----------------------------------------------------------------------------
+ * 指定のファイルを @INC から探す.
+ * オープンしてファイル識別子を返す.
+ */
 static int
 findfile(AV* INC, const char* filename)
 {
-  //fprintf(stderr,"findfile [%s]\n",filename);
+  /*fprintf(stderr,"findfile [%s]\n",filename); */
   int i;
   char  path[PATH_MAX];
   int addlen = strlen(filename);
@@ -72,27 +68,30 @@ findfile(AV* INC, const char* filename)
     if( path[len-1]!='/' ) path[len++] = '/';
     memcpy(path+len,filename,addlen);
     path[len+addlen] = '\0';
-    //fprintf(stderr,"  trying [%s] ...\n",path);
+    /*fprintf(stderr,"  trying [%s] ...\n",path); */
     fd = open(path,O_RDONLY|O_NONBLOCK);
     if( fd!=-1 )
     {
-      //fprintf(stderr,"findfile [%s] found\n",filename);
+      /*fprintf(stderr,"findfile [%s] found\n",filename); */
       return fd;
     }
   }
-  //fprintf(stderr,"findfile [%s] failed\n",filename);
+  /*fprintf(stderr,"findfile [%s] failed\n",filename); */
   return -1;
 }
 
+/* ----------------------------------------------------------------------------
+ * 必要なファイルをメモリにマッピング
+ */
 void
-do_memmap()
+do_memmap(void)
 {
   AV* INC;
   int fd_u2s, fd_emj;
   struct stat st_u2s,st_emj;
   int res_u2s, res_emj;
   
-  //fprintf(stderr,"* Unicode::Japanese::(xs)do_memmap *\n");
+  /*fprintf(stderr,"* Unicode::Japanese::(xs)do_memmap *\n"); */
   INC = get_av("INC",0);
   if( INC==NULL )
   {
@@ -136,7 +135,8 @@ do_memmap()
     }
     return;
   }
-
+  
+  /* サイズチェック */
   if( st_u2s.st_size!=0x60000 )
   {
     close(fd_u2s);
@@ -151,7 +151,8 @@ do_memmap()
     Perl_croak(aTHX_ "do_memmap, emoji.dat size != 0x13c00, [got %#x].",st_emj.st_size);
     return;
   }
-
+  
+  /* マッピングの作成 */
   g_mmap_u2s_length  = st_u2s.st_size;
   g_mmap_u2s_start = (char*)mmap(NULL,g_mmap_u2s_length,PROT_READ,MAP_PRIVATE,fd_u2s,0);
   g_mmap_emj_length  = st_emj.st_size;
@@ -215,12 +216,15 @@ do_memmap()
   return;
 }
 
+/* ----------------------------------------------------------------------------
+ * メモリマップの解除
+ */
 void
-do_memunmap()
+do_memunmap(void)
 {
-  // printf("* do_memunmap() *\n");
+  /* printf("* do_memunmap() *\n"); */
 
-  // u2s table
+  /* u2s table */
   if( g_mmap_u2s_start!=NULL )
   {
     int res = munmap(g_mmap_u2s_start,g_mmap_u2s_length);
@@ -230,7 +234,7 @@ do_memunmap()
     }
     g_mmap_u2s_start = NULL;
   }
-  // emoji table
+  /* emoji table */
   if( g_mmap_emj_start!=NULL )
   {
     int res = munmap(g_mmap_emj_start,g_mmap_emj_length);

@@ -7,8 +7,8 @@
 #define DISP_S2E 0
 #endif
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// sjis=>eucjp変換
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* sjis=>eucjp変換 */
 EXTERN_C
 SV*
 xs_sjis_eucjp(SV* sv_str)
@@ -25,8 +25,8 @@ xs_sjis_eucjp(SV* sv_str)
   
   src = (unsigned char*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
-  //fprintf(stderr,"Unicode::Japanese::(xs)sjis_eucjp\n",len);
-  //bin_dump("in ",src,len);
+  /*fprintf(stderr,"Unicode::Japanese::(xs)sjis_eucjp\n",len); */
+  /*bin_dump("in ",src,len); */
   SV_Buf_init(&result,len);
   src_end = src+len;
 
@@ -76,49 +76,49 @@ xs_sjis_eucjp(SV* sv_str)
 	SV_Buf_append_ch(&result,*src);
 	++src;
       }
-    } //switch
+    } /*switch */
 
-    // invalid char
+    /* invalid char */
     SV_Buf_append_ch(&result,*src);
     ++src;
 
-  } //while
+  } /*while */
 
-  //bin_dump("out",result.getBegin(),result.getLength());
+  /*bin_dump("out",result.getBegin(),result.getLength()); */
   SV_Buf_setLength(&result);
 
   return SV_Buf_getSv(&result);
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// eucjp=>sjis変換文字判定
-// 1:EUCJP:0212, 3:EUCJP:C 4:EUCJP:KANA
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* eucjp=>sjis変換文字判定 */
+/* 1:EUCJP:0212, 3:EUCJP:C 4:EUCJP:KANA */
 #define CHK_EUCJP_THROUGH 0
 #define CHK_EUCJP_0212    1
 #define CHK_EUCJP_C       3
 #define CHK_EUCJP_KANA    4
 static const unsigned char chk_eucjp[256] =
 {
-     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 0
-     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 1
-     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 2
-     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 3
-     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 4
-     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 5
-     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 6
-     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 7
-     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  4,  1, // 8
-     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, // 9
-     0,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, // a
-     3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, // b
-     3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, // c
-     3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, // d
-     3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, // e
-     3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  0, // f
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 0 */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 1 */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 2 */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 3 */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 4 */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 5 */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 6 */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 7 */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  4,  1, /* 8 */
+     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, /* 9 */
+     0,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, /* a */
+     3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, /* b */
+     3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, /* c */
+     3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, /* d */
+     3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3, /* e */
+     3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  0, /* f */
 };
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// eucjp=>sjis変換
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* eucjp=>sjis変換 */
 EXTERN_C
 SV*
 xs_eucjp_sjis(SV* sv_str)
@@ -199,12 +199,12 @@ xs_eucjp_sjis(SV* sv_str)
 	fprintf(stderr,"xs_eucjp_sjis, unknown check-code[%02x] on char-code[%05x]\n",chk_sjis[*src],*src);
 #endif
       }
-    } //switch
+    } /*switch */
 
-    // invalid char
+    /* invalid char */
     SV_Buf_append_ch(&result,*src);
     ++src;
-  } //while
+  } /*while */
 
 #if DISP_E2S
   bin_dump("out",result.getBegin(),result.getLength());

@@ -2,7 +2,7 @@
 # Unicode::Japanese
 # Unicode::Japanese::PurePerl
 # -----------------------------------------------------------------------------
-# $Id: Japanese_stub.pm,v 1.35 2002/10/29 07:41:40 hio Exp $
+# $Id: Japanese.pm,v 1.60 2002/10/31 11:54:28 hio Exp $
 # -----------------------------------------------------------------------------
 
 package Unicode::Japanese::PurePerl;
@@ -17,7 +17,7 @@ package Unicode::Japanese;
 
 use strict;
 use vars qw($VERSION $PurePerl $xs_loaderror);
-$VERSION = '0.16';
+$VERSION = '0.17';
 
 # `use bytes' and `use Encode' if on perl-5.8.0 or later.
 my $evalerr_bak = $@;

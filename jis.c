@@ -1,5 +1,5 @@
 
-// $Id: jis.c,v 1.2 2002/10/30 01:12:20 hio Exp $
+/* $Id: jis.c,v 1.3 2002/10/31 11:08:50 hio Exp $ */
 
 #include "Japanese.h"
 #include "sjis.h"
@@ -16,8 +16,8 @@
 #define JIS_ASC_LEN  3
 #define JIS_KANA_LEN 3
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// sjis=>jis変換
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* sjis=>jis変換 */
 EXTERN_C
 SV*
 xs_sjis_jis(SV* sv_str)
@@ -35,8 +35,8 @@ xs_sjis_jis(SV* sv_str)
   
   src = (unsigned char*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
-  //fprintf(stderr,"Unicode::Japanese::(xs)sjis_jis\n",len);
-  //bin_dump("in ",src,len);
+  /*fprintf(stderr,"Unicode::Japanese::(xs)sjis_jis\n",len); */
+  /*bin_dump("in ",src,len); */
   SV_Buf_init(&result,len+8);
   esc_asc = 1;
   src_end = src+len;
@@ -46,7 +46,7 @@ xs_sjis_jis(SV* sv_str)
     switch(chk_sjis[*src])
     {
     case CHK_SJIS_THROUGH:
-      { // SJIS:THROUGH => JIS:ASCII
+      { /* SJIS:THROUGH => JIS:ASCII */
 	const unsigned char* begin;
 	if( !esc_asc )
 	{
@@ -117,7 +117,7 @@ xs_sjis_jis(SV* sv_str)
 	break;
       }
     case CHK_SJIS_KANA:
-      { // SJIS:KANA => JIS:KANA
+      { /* SJIS:KANA => JIS:KANA */
 	SV_Buf_append_str(&result,JIS_KANA,JIS_KANA_LEN);
 	esc_asc = 0;
 #if TEST && S2J_DISP
@@ -146,21 +146,21 @@ xs_sjis_jis(SV* sv_str)
 	SV_Buf_append_ch(&result,*src);
 	++src;
       }
-    } //switch
-  } //while
+    } /*switch */
+  } /*while */
 
   if( !esc_asc )
   {
     SV_Buf_append_str(&result,JIS_ASC,JIS_ASC_LEN);
   }
-  //bin_dump("out",result.getBegin(),result.getLength());
+  /*bin_dump("out",result.getBegin(),result.getLength()); */
   SV_Buf_setLength(&result);
 
   return SV_Buf_getSv(&result);
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// jis=>sjis変換
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* jis=>sjis変換 */
 EXTERN_C
 SV*
 xs_jis_sjis(SV* sv_str)
@@ -177,8 +177,8 @@ xs_jis_sjis(SV* sv_str)
   
   src = (unsigned char*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
-  //fprintf(stderr,"Unicode::Japanese::(xs)jis_sjis\n",len);
-  //bin_dump("in ",src,len);
+  /*fprintf(stderr,"Unicode::Japanese::(xs)jis_sjis\n",len); */
+  /*bin_dump("in ",src,len); */
   SV_Buf_init(&result,len);
   src_end = src+len;
   
@@ -196,9 +196,9 @@ xs_jis_sjis(SV* sv_str)
     fprintf(stderr,"  len: %d\n",src_end-src);
 #endif
     if( src_end-src>=JIS_ASC_LEN && memcmp(src,JIS_ASC,JIS_ASC_LEN)==0 )
-    { // <<jis.asc>>
+    { /* <<jis.asc>> */
       const unsigned char* begin;
-      //fprintf(stderr,"  <jis.asc>\n");
+      /*fprintf(stderr,"  <jis.asc>\n"); */
       src += JIS_ASC_LEN;
       begin = src;
       while( src<src_end && *src!='\x1b')
@@ -210,10 +210,10 @@ xs_jis_sjis(SV* sv_str)
 	SV_Buf_append_str(&result,begin,src-begin);
       }
     }else if( src_end-src>=JIS_0212_LEN && memcmp(src,JIS_0212,JIS_0212_LEN)==0 )
-    { // <<jis.0212>>
+    { /* <<jis.0212>> */
       const unsigned char* begin;
       int i;
-      //fprintf(stderr,"  <jis.0212>\n");
+      /*fprintf(stderr,"  <jis.0212>\n"); */
       src += JIS_0212_LEN;
       begin = src;
       while( src<src_end && *src!='\x1b')
@@ -225,8 +225,8 @@ xs_jis_sjis(SV* sv_str)
 	SV_Buf_append_str(&result,UNDEF_SJIS,UNDEF_SJIS_LEN);
       }
     }else if( src_end-src>=JIS_KANA_LEN && memcmp(src,JIS_KANA,JIS_KANA_LEN)==0 )
-    { // <<jis.kana>>
-      //fprintf(stderr,"  <jis.kana>\n");
+    { /* <<jis.kana>> */
+      /*fprintf(stderr,"  <jis.kana>\n"); */
       src += JIS_KANA_LEN;
       while( src<src_end && *src!='\x1b')
       {
@@ -234,7 +234,7 @@ xs_jis_sjis(SV* sv_str)
 	++src;
       }
     }else if( src_end-src>=JIS_0208_LEN && memcmp(src,JIS_0208,JIS_0208_LEN)==0 )
-    { // <<jis.0208>>
+    { /* <<jis.0208>> */
 #if TEST && J2S_DISP
       fprintf(stderr,"  <jis.c>"),fflush(stderr);
 #endif
@@ -276,7 +276,7 @@ xs_jis_sjis(SV* sv_str)
       fprintf(stderr,"\n");
 #endif
     }else
-    { // <<jis.???>>
+    { /* <<jis.???>> */
 #ifdef TEST
       fprintf(stderr,"xs_jis_sjis, unknown escape found\n");
 #if J2S_DISP
@@ -286,9 +286,9 @@ xs_jis_sjis(SV* sv_str)
       SV_Buf_append_ch(&result,*src);
       ++src;
     }
-  } //while
+  } /*while */
 
-  //bin_dump("out",result.getBegin(),result.getLength());
+  /*bin_dump("out",result.getBegin(),result.getLength()); */
   SV_Buf_setLength(&result);
 
   return SV_Buf_getSv(&result);

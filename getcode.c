@@ -1,12 +1,12 @@
 
-// $Id: getcode.c,v 1.1 2002/10/29 06:23:56 hio Exp $
+/* $Id: getcode.c,v 1.2 2002/10/31 11:08:50 hio Exp $ */
 
 #include "Japanese.h"
 #include "getcode.h"
 
 #define GC_DISP 0
 
-// 文字コード定数
+/* 文字コード定数 */
 enum charcode_t
 {
   cc_unknown,
@@ -25,7 +25,7 @@ enum charcode_t
 };
 typedef enum charcode_t charcode_t;
 
-// 文字コード名文字列(SV*)
+/* 文字コード名文字列(SV*) */
 #define new_CC_UNKNOWN()  newSVpvn("unknown",7)
 #define new_CC_ASCII()    newSVpvn("ascii",  5)
 #define new_CC_SJIS()     newSVpvn("sjis",   4)
@@ -40,14 +40,14 @@ typedef enum charcode_t charcode_t;
 #define new_CC_SJIS_IMODE() newSVpvn("sjis-imode",10)
 #define new_CC_SJIS_DOTI()  newSVpvn("sjis-doti",9)
 
-// 
+/* */
 #define RE_BOM2_BE  "\xfe\xff"
 #define RE_BOM2_LE  "\xff\xfe"
 #define RE_BOM4_BE  "\x00\x00\xfe\xff"
 #define RE_BOM4_LE  "\xff\xfe\x00\x00"
 
 #if defined(TEST)
-// 文字コード定数を文字コード名に
+/* 文字コード定数を文字コード名に. */
 static const char* charcodeToStr(charcode_t code)
 {
   switch(code)
@@ -108,7 +108,7 @@ DECL_MAP_MODE(sjis_doti,7) =
 };
 #endif
 
-// 文字コード判定時に使用する構造体
+/* 文字コード判定時に使用する構造体. */
 struct CodeCheck
 {
   charcode_t code;
@@ -120,7 +120,7 @@ struct CodeCheck
 };
 typedef struct CodeCheck CodeCheck;
 
-// 文字コード判定の初期状態
+/* 文字コード判定の初期状態. */
 #ifndef TEST
 #define GEN_CODE(name) \
   { cc_##name, (const unsigned char*)map_##name, (const unsigned char*)map_##name, }
@@ -143,7 +143,7 @@ const CodeCheck cc_tmpl[] =
   GEN_CODE(sjis_doti),
 };
 
-// 判定結果の構造体
+/* 判定結果の構造体. */
 struct CodeResult
 {
   charcode_t code;
@@ -152,7 +152,7 @@ struct CodeResult
 };
 typedef struct CodeResult CodeResult;
 
-// 複数候補から１つを選択
+/* 複数候補から１つを選択. */
 int choice_one(CodeCheck* check, int cc_max)
 {
   charcode_t order[cc_tmpl_max] = 
@@ -183,7 +183,7 @@ int choice_one(CodeCheck* check, int cc_max)
   return 0;
 }
 
-// getcode関数
+/* getcode関数 */
 SV* xs_getcode(SV* sv_str)
 {
   unsigned char* src;
@@ -238,7 +238,7 @@ SV* xs_getcode(SV* sv_str)
 #if TEST && GC_DISP
     fprintf(stderr,"[%d] %d (0x%02x)\n",len-(src_end-src),*src,*src);
 #endif
-    // 遷移を１つ進める〜
+    /* 遷移を１つ進める〜 */
     invalids = 0;
     for( i=0; i<cc_max; ++i )
     {
@@ -256,10 +256,10 @@ SV* xs_getcode(SV* sv_str)
       }
     }
     if( invalids==0 )
-    { // 全部継続
+    { /* 全部継続 */
       continue;
     }else if( cc_max-invalids>0 )
-    { // まだあり〜
+    { /* まだあり〜 */
       int rd = 0;
       int wr = 0;
       for( ;rd<cc_max; ++rd )
@@ -275,7 +275,7 @@ SV* xs_getcode(SV* sv_str)
       }
       cc_max = wr;
     }else
-    { // 全部だめ〜
+    { /* 全部だめ〜 */
       return new_CC_UNKNOWN();
       break;
     }
@@ -320,7 +320,7 @@ SV* xs_getcode(SV* sv_str)
   case cc_eucjp:    return new_CC_EUCJP();
   case cc_jis:      return new_CC_JIS();
   case cc_utf8:     return new_CC_UTF8();
-  //case cc_utf32:  return new_CC_UTF32();
+  /*case cc_utf32:  return new_CC_UTF32(); */
   case cc_utf32_be: return new_CC_UTF32_BE();
   case cc_utf32_le: return new_CC_UTF32_LE();
   case cc_sjis_jsky: return new_CC_SJIS_JSKY();

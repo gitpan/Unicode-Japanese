@@ -2,7 +2,7 @@
 #ifndef UNICODE__JAPANESE_H__
 #define UNICODE__JAPANESE_H__
 
-/* $Id: Japanese.h,v 1.17 2002/10/29 06:23:56 hio Exp $ */
+/* $Id: Japanese.h,v 1.19 2002/10/31 11:08:50 hio Exp $ */
 
 #include "EXTERN.h"
 #include "perl.h"
@@ -84,8 +84,8 @@ extern "C"
   
   /* for memory mapped file.        */
   /* (ja:) メモリマップファイル関連 */
-  void do_memmap();
-  void do_memunmap();
+  void do_memmap(void);
+  void do_memunmap(void);
 
   /* SJIS <=> UTF8 mapping table      */
   /* (ja:) SJIS <=> UTF8 変換テーブル */
@@ -122,7 +122,7 @@ extern "C"
 }
 #endif
 
-#ifdef UNIJP__PERL_OLDER_THEN_5_006
+#ifdef UNIJP__PERL_OLDER_THAN_5_006
 /* above symbol is defined by Makefile.PL:sub configure. */
 
 #define aTHX_
@@ -134,13 +134,13 @@ extern "C"
 #define newSVpvn(str,len) newSVpv(str,len)
 #endif
 
-#endif /* UNIJP__PERL_OLDER_THEN_5_006 */
+#endif /* UNIJP__PERL_OLDER_THAN_5_006 */
 
-#ifdef UNIJP__PERL_OLDER_THEN_5_005
+#ifdef UNIJP__PERL_OLDER_THAN_5_005
 /* above symbol is defined by Makefile.PL:sub configure. */
 #ifndef PL_sv_undef
 #define PL_sv_undef sv_undef
 #endif
-#endif /* UNIJP__PERL_OLDER_THEN_5_005 */
+#endif /* UNIJP__PERL_OLDER_THAN_5_005 */
 
 #endif /* UNICODE__JAPANESE_H__ */
