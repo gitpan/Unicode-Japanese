@@ -1,0 +1,143 @@
+#!/usr/local/ymir/perl/bin/perl -w
+## ----------------------------------------------------------------------------
+#  ujconv
+# -----------------------------------------------------------------------------
+# Mastering programmed by YAMASHINA Hio
+#
+# Copyright 2005 YAMASHINA Hio
+# -----------------------------------------------------------------------------
+# $Id: ujconv,v 1.1 2005/02/14 04:33:18 hio Exp $
+# -----------------------------------------------------------------------------
+package Unicode::Japanese::UJConv;
+use strict;
+use Unicode::Japanese;
+our $VERSION = '0.01';
+
+if( !caller )
+{
+  __PACKAGE__->do_work(@ARGV);
+}
+
+# -----------------------------------------------------------------------------
+# main.
+#
+sub do_work
+{
+  my $pkg = shift;
+  
+  my $from = 'auto';
+  my $to = 'auto';
+  my $string;
+  my @files;
+  
+  while(@_)
+  {
+    my $key = shift;
+    if( $key !~ /^-/ )
+    {
+      push(@files,$key);
+      next;
+    }elsif( $key eq '--' )
+    {
+      push(@files,@_);
+      last;
+    }
+    if( $key eq '-f' )
+    {
+      $from = shift;
+      next;
+    }elsif( $key eq '-t' )
+    {
+      $to = shift;
+      next;
+    }elsif( $key eq '-s' )
+    {
+      my $value = shift;
+      push(@files,[$key,$value]);
+      next;
+    }elsif( $key =~ /^(-h|--help)$/ )
+    {
+      print_usage();
+      return 1;
+    }elsif( $key =~ /^(-V|--version)$/ )
+    {
+      print_version();
+      return 1;
+    }else
+    {
+      die "unkown argument [$key]";
+    }
+  }
+  
+  if( $to eq 'auto' )
+  {
+    my $lang = $ENV{LANG};
+    if( $lang && $lang=~/\.(.*)/ )
+    {
+      my $code = $1;
+      if( $code=~/^(ujis|jis|iso-2022-jp)$/i )
+      {
+        $to = 'jis';
+      }elsif( $code=~/^(ujis|eucJP)$/i )
+      {
+        $to = 'euc';
+      }elsif( $code=~/^(sjis|shift_?jis)$/i )
+      {
+        $to = 'sjis';
+      }elsif( $code=~/^(utf-?8)$/i )
+      {
+        $to = 'utf8';
+      }
+    }
+    if( $to eq 'auto' )
+    {
+      $to = $^O eq 'MSWin32' ? 'sjis' : 'euc';
+    }
+  }
+  
+  local($/) = undef;
+  if( !@files )
+  {
+    my $text = <STDIN>;
+    print Unicode::Japanese->new($text,$from)->conv($to);
+  }
+  foreach my $file (@files)
+  {
+    my $text;
+    if( ref($file) )
+    {
+      $text = $file->[1];
+    }elsif( $file eq '-' )
+    {
+      $text = <STDIN>;
+    }else
+    {
+      open(FILE,$file) or die "could not open file [$file] : $!";
+      $text = <FILE>;
+      close(FILE);
+    }
+    print Unicode::Japanese->new($text,$from)->conv($to);
+  }
+  1;
+}
+
+# -----------------------------------------------------------------------------
+# print_usage();
+#
+sub print_usage
+{
+  print "usage: ujconv [-f from_encode] [-t to_encode] [-s string] [files...]\n";
+}
+
+# -----------------------------------------------------------------------------
+# print_version();
+#
+sub print_version
+{
+  print "ujconv $VERSION\n";
+  print "Unicode::Janaese $Unicode::Japanese::VERSION\n";
+}
+
+# -----------------------------------------------------------------------------
+# End of File.
+# -----------------------------------------------------------------------------

@@ -1,5 +1,12 @@
 Revision history for Perl extension Unicode::Japanese.
 
+0.25 Tue Feb 15 13:00:16 JST 2005
+        - bin/ujconv and bin/ujguess added.
+	- unicode char converted into smaller CP932 code.
+
+0.24 Mon Jan 24 11:23:05 JST 2005
+        - avoid unexpected upgrade to imode2/jsky2 from imode1/jsky1.
+
 0.23 Thu Nov  4 16:16:48 JST 2004
         - avoid illegal utf-8 sequence
         - add mapping, U+301C (WAVE TILDE) into CP932:8160

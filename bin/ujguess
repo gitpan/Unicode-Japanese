@@ -1,0 +1,125 @@
+#!/usr/local/ymir/perl/bin/perl -w
+## ----------------------------------------------------------------------------
+#  ujguess
+# -----------------------------------------------------------------------------
+# Mastering programmed by YAMASHINA Hio
+#
+# Copyright 2005 YAMASHINA Hio
+# -----------------------------------------------------------------------------
+# $Id: ujguess,v 1.2 2005/02/14 04:47:48 hio Exp $
+# -----------------------------------------------------------------------------
+package Unicode::Japanese::UJGuess;
+use strict;
+use Unicode::Japanese;
+our $VERSION = '0.01';
+
+if( !caller )
+{
+  __PACKAGE__->do_work(@ARGV);
+}
+
+# -----------------------------------------------------------------------------
+# main.
+#
+sub do_work
+{
+  my $pkg = shift;
+  
+  my $string;
+  my @files;
+  my $no_filename;
+  
+  while(@_)
+  {
+    my $key = shift;
+    if( $key !~ /^-/ )
+    {
+      push(@files,$key);
+      next;
+    }elsif( $key eq '--' )
+    {
+      push(@files,@_);
+      last;
+    }
+    if( $key eq '--no-filename' )
+    {
+      $no_filename = 1;
+      next;
+    }elsif( $key eq '--show-filename' )
+    {
+      $no_filename = 0;
+      next;
+    }elsif( $key eq '-s' )
+    {
+      my $value = shift;
+      push(@files,[$key,$value]);
+      next;
+    }elsif( $key =~ /^(-h|--help)$/ )
+    {
+      print_usage();
+      return 1;
+    }elsif( $key =~ /^(-V|--version)$/ )
+    {
+      print_version();
+      return 1;
+    }else
+    {
+      die "unkown argument [$key]";
+    }
+  }
+  
+  !defined($no_filename) and $no_filename = @files<=1;
+  
+  Unicode::Japanese->new(); # load stub.
+  local($/) = undef;
+  if( !@files )
+  {
+    my $text = <STDIN>;
+    $no_filename or print "-:";
+    print Unicode::Japanese->getcode($text)."\n";
+  }
+  foreach my $file (@files)
+  {
+    my $filename;
+    my $text;
+    if( ref($file) )
+    {
+      $filename = join(' ',@$file);
+      $text = $file->[1];
+    }elsif( $file eq '-' )
+    {
+      $filename = '-';
+      $text = <STDIN>;
+    }else
+    {
+      $filename = $file;
+      open(FILE,$file) or die "could not open file [$file] : $!";
+      $text = <FILE>;
+      close(FILE);
+    }
+    $no_filename or print "$filename:";
+    print Unicode::Japanese->getcode($text)."\n";
+  }
+  1;
+}
+
+# -----------------------------------------------------------------------------
+# print_usage();
+#
+sub print_usage
+{
+  print "usage: ujguess [-f from_encode] [-t to_encode] [-s string] [files...]\n";
+}
+
+# -----------------------------------------------------------------------------
+# print_version();
+#
+sub print_version
+{
+  print "ujguess $VERSION\n";
+  print "Unicode::Janaese $Unicode::Japanese::VERSION\n";
+}
+
+# -----------------------------------------------------------------------------
+# End of File.
+# -----------------------------------------------------------------------------

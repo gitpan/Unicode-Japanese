@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Makefile.PL for Unicode-Japanese.
 # -----------------------------------------------------------------------------
-# $Id: Makefile.PL,v 1.42 2004/11/02 13:06:43 hio Exp $
+# $Id: Makefile.PL,v 1.43 2005/02/14 04:58:56 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::MakeMaker;
 
@@ -30,6 +30,7 @@ my %param = (
 
     'PREREQ_PM'		=> {}, # e.g., Module::Name => 1.1
     'PL_FILES'          => {},
+    'EXE_FILES'         => ['bin/ujconv','bin/ujguess',],
 
     'CONFIGURE'         => \&configure,	 
     'PM'=>{'Japanese.pm'=>'$(INST_LIBDIR)/Japanese.pm',

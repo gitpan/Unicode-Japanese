@@ -4,6 +4,8 @@ Makefile.PL
 MANIFEST
 MANIFEST.noxs
 README
+bin/ujconv            iconv like tool with Unicode::Japanese
+bin/ujguess           charset detection tool
 t/allchar_utf8.pl
 t/base.t
 t/emoji.t
