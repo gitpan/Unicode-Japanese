@@ -1,5 +1,5 @@
 
-// $Id: jis.cpp,v 1.3 2002/01/09 09:13:58 hio Exp $
+// $Id: jis.c,v 1.2 2002/10/30 01:12:20 hio Exp $
 
 #include "Japanese.h"
 #include "sjis.h"
@@ -22,19 +22,24 @@ EXTERN_C
 SV*
 xs_sjis_jis(SV* sv_str)
 {
+  unsigned char* src;
+  int len;
+  SV_Buf result;
+  int esc_asc;
+  const unsigned char* src_end;
+
   if( sv_str==&PL_sv_undef )
   {
     return newSVsv(&PL_sv_undef);
   }
-  unsigned char* src = (unsigned char*)SvPV(sv_str,PL_na);
-  int len = sv_len(sv_str);
-
+  
+  src = (unsigned char*)SvPV(sv_str,PL_na);
+  len = sv_len(sv_str);
   //fprintf(stderr,"Unicode::Japanese::(xs)sjis_jis\n",len);
   //bin_dump("in ",src,len);
-
-  SV_Buf result(len+8);
-  int esc_asc = 1;
-  const unsigned char* src_end = src+len;
+  SV_Buf_init(&result,len+8);
+  esc_asc = 1;
+  src_end = src+len;
 
   while( src<src_end )
   {
@@ -42,16 +47,17 @@ xs_sjis_jis(SV* sv_str)
     {
     case CHK_SJIS_THROUGH:
       { // SJIS:THROUGH => JIS:ASCII
+	const unsigned char* begin;
 	if( !esc_asc )
 	{
-	  result.append(JIS_ASC,JIS_ASC_LEN);
+	  SV_Buf_append_str(&result,JIS_ASC,JIS_ASC_LEN);
 	  esc_asc = 1;
 	}
 #if TEST && S2J_DISP
 	fprintf(stderr,"  (throuh) %c[%02x]",*src,*src);
 	fflush(stderr);
 #endif
-	const unsigned char* begin = src;
+	begin = src;
 	while( ++src<src_end && chk_sjis[*src]==CHK_SJIS_THROUGH )
 	{
 #if TEST && S2J_DISP
@@ -63,12 +69,12 @@ xs_sjis_jis(SV* sv_str)
 	fprintf(stderr,"\n");
 	fflush(stderr);
 #endif
-	result.append(begin,src-begin);
+	SV_Buf_append_str(&result,begin,src-begin);
 	break;
       }
     case CHK_SJIS_C:
       {
-	result.append(JIS_0208,JIS_0208_LEN);
+	SV_Buf_append_str(&result,JIS_0208,JIS_0208_LEN);
 	esc_asc = 0;
 #if TEST && S2J_DISP
 	fprintf(stderr,"  (sjis:c)");
@@ -76,9 +82,10 @@ xs_sjis_jis(SV* sv_str)
 #endif
 	do
 	{
+	  unsigned char tmp[2];
 #if TEST && S2J_DISP
-	fprintf(stderr, "%c%c[%02x.%02x]",src[0],src[1],src[0],src[1]);
-	fflush(stderr);
+	  fprintf(stderr, "%c%c[%02x.%02x]",src[0],src[1],src[0],src[1]);
+	  fflush(stderr);
 #endif
 	  if( src[1]<0x40 || 0xfc<src[1] || src[1]==0x7f )
 	  {
@@ -86,11 +93,10 @@ xs_sjis_jis(SV* sv_str)
 	    fprintf(stderr, "*");
 	    fflush(stderr);
 #endif
-	    result.append(UNDEF_JIS,UNDEF_JIS_LEN);
+	    SV_Buf_append_str(&result,UNDEF_JIS,UNDEF_JIS_LEN);
 	    ++src;
 	    break;
 	  }
-	  unsigned char tmp[2];
 	  if( 0x9f <= src[1] )
 	  {
 	    tmp[0] = src[0]*2 - (src[0]>=0xe0 ? 0xe0 : 0x60);
@@ -102,7 +108,7 @@ xs_sjis_jis(SV* sv_str)
 	  }
 	  tmp[0] &= 0x7f;
 	  tmp[1] &= 0x7f;
-	  result.append(tmp,2);
+	  SV_Buf_append_ch2(&result,*(unsigned short*)tmp);
 	  src += 2;
 	}while( src<src_end && chk_sjis[*src]==CHK_SJIS_C );
 #if TEST && S2J_DISP
@@ -112,7 +118,7 @@ xs_sjis_jis(SV* sv_str)
       }
     case CHK_SJIS_KANA:
       { // SJIS:KANA => JIS:KANA
-	result.append(JIS_KANA,JIS_KANA_LEN);
+	SV_Buf_append_str(&result,JIS_KANA,JIS_KANA_LEN);
 	esc_asc = 0;
 #if TEST && S2J_DISP
 	fprintf(stderr,"  (sjis:kana)");
@@ -125,7 +131,7 @@ xs_sjis_jis(SV* sv_str)
 	  fprintf(stderr," %02x",*src);
 	  fflush(stderr);
 #endif
-	  result.append(*src&0x7f);
+	  SV_Buf_append_ch(&result,*src&0x7f);
 	}while( ++src<src_end && chk_sjis[*src]==CHK_SJIS_KANA );
 #if TEST && S2J_DISP
 	fprintf(stderr,"\n");
@@ -137,19 +143,20 @@ xs_sjis_jis(SV* sv_str)
 #ifdef TEST
 	fprintf(stderr,"xs_sjis_eucjp, unknown check-code[%02x] on char-code[%05x]\n",chk_sjis[*src],*src);
 #endif
-	result.append(*src++);
+	SV_Buf_append_ch(&result,*src);
+	++src;
       }
     } //switch
   } //while
 
   if( !esc_asc )
   {
-    result.append(JIS_ASC,JIS_ASC_LEN);
+    SV_Buf_append_str(&result,JIS_ASC,JIS_ASC_LEN);
   }
   //bin_dump("out",result.getBegin(),result.getLength());
-  result.setLength();
+  SV_Buf_setLength(&result);
 
-  return result.getSv();
+  return SV_Buf_getSv(&result);
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -158,26 +165,30 @@ EXTERN_C
 SV*
 xs_jis_sjis(SV* sv_str)
 {
+  unsigned char* src;
+  int len;
+  SV_Buf result;
+  const unsigned char* src_end;
+
   if( sv_str==&PL_sv_undef )
   {
     return newSVsv(&PL_sv_undef);
   }
-  unsigned char* src = (unsigned char*)SvPV(sv_str,PL_na);
-  int len = sv_len(sv_str);
-
+  
+  src = (unsigned char*)SvPV(sv_str,PL_na);
+  len = sv_len(sv_str);
   //fprintf(stderr,"Unicode::Japanese::(xs)jis_sjis\n",len);
   //bin_dump("in ",src,len);
-
-  SV_Buf result(len);
-  const unsigned char* src_end = src+len;
-
+  SV_Buf_init(&result,len);
+  src_end = src+len;
+  
   if( *src!='\x1b' )
   {
     const unsigned char* begin = src;
     while( ++src<src_end && *src!='\x1b')
     {
     }
-    result.append(begin,src-begin);
+    SV_Buf_append_str(&result,begin,src-begin);
   }
   while( src<src_end )
   {
@@ -186,29 +197,32 @@ xs_jis_sjis(SV* sv_str)
 #endif
     if( src_end-src>=JIS_ASC_LEN && memcmp(src,JIS_ASC,JIS_ASC_LEN)==0 )
     { // <<jis.asc>>
+      const unsigned char* begin;
       //fprintf(stderr,"  <jis.asc>\n");
       src += JIS_ASC_LEN;
-      const unsigned char* begin = src;
+      begin = src;
       while( src<src_end && *src!='\x1b')
       {
 	++src;
       }
       if( src!=begin )
       {
-	result.append(begin,src-begin);
+	SV_Buf_append_str(&result,begin,src-begin);
       }
     }else if( src_end-src>=JIS_0212_LEN && memcmp(src,JIS_0212,JIS_0212_LEN)==0 )
     { // <<jis.0212>>
+      const unsigned char* begin;
+      int i;
       //fprintf(stderr,"  <jis.0212>\n");
       src += JIS_0212_LEN;
-      const unsigned char* begin = src;
+      begin = src;
       while( src<src_end && *src!='\x1b')
       {
 	++src;
       }
-      for(int i=0; i<(src-begin)/2; ++i )
+      for( i=0; i<(src-begin)/2; ++i )
       {
-	result.append(UNDEF_SJIS,UNDEF_SJIS_LEN);
+	SV_Buf_append_str(&result,UNDEF_SJIS,UNDEF_SJIS_LEN);
       }
     }else if( src_end-src>=JIS_KANA_LEN && memcmp(src,JIS_KANA,JIS_KANA_LEN)==0 )
     { // <<jis.kana>>
@@ -216,7 +230,7 @@ xs_jis_sjis(SV* sv_str)
       src += JIS_KANA_LEN;
       while( src<src_end && *src!='\x1b')
       {
-	result.append(*src|0x80);
+	SV_Buf_append_ch(&result,*src|0x80);
 	++src;
       }
     }else if( src_end-src>=JIS_0208_LEN && memcmp(src,JIS_0208,JIS_0208_LEN)==0 )
@@ -227,6 +241,7 @@ xs_jis_sjis(SV* sv_str)
       src += JIS_0208_LEN;
       while( src<src_end )
       {
+	unsigned char tmp[2];
 	if( *src=='\x1b' ) break;
 #if TEST && J2S_DISP
 	fprintf(stderr," %02x",src[0]),fflush(stderr);
@@ -237,13 +252,12 @@ xs_jis_sjis(SV* sv_str)
 	  fprintf(stderr,"*"),fflush(stderr);
 #endif
 	  ++src;
-	  result.append(UNDEF_SJIS,UNDEF_SJIS_LEN);
+	  SV_Buf_append_str(&result,UNDEF_SJIS,UNDEF_SJIS_LEN);
 	  break;
 	}
 #if TEST && J2S_DISP
 	fprintf(stderr," %02x",src[0]),fflush(stderr);
 #endif
-	unsigned char tmp[2];
 	tmp[0] = src[0] | 0x80;
 	tmp[1] = src[1] | 0x80;
 	if( src[0]%2 )
@@ -255,7 +269,7 @@ xs_jis_sjis(SV* sv_str)
 	  tmp[0] = (tmp[0]>>1) + (tmp[0] < 0xdf ? 0x30 : 0x70);
 	  tmp[1] = tmp[1] - 2;
 	}
-	result.append(tmp,2);
+	SV_Buf_append_ch2(&result,*(unsigned short*)tmp);
 	src += 2;
       }
 #if TEST && J2S_DISP
@@ -269,12 +283,13 @@ xs_jis_sjis(SV* sv_str)
       fprintf(stderr,"  len: %d\n  src: %02x %02x %02x\n",src_end-src,src[0],src[1],src[2]);
 #endif
 #endif
-      result.append(*src++);
+      SV_Buf_append_ch(&result,*src);
+      ++src;
     }
   } //while
 
   //bin_dump("out",result.getBegin(),result.getLength());
-  result.setLength();
+  SV_Buf_setLength(&result);
 
-  return result.getSv();
+  return SV_Buf_getSv(&result);
 }

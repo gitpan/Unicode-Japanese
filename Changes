@@ -1,5 +1,18 @@
 Revision history for Perl extension Unicode::Japanese.
 
+0.16 Tue Oct 29 16:25:11 JST 2002
+        - excludes c++ code, now XS is written only c.
+        
+0.15  Mon Oct 28 00:00:32 JST 2002
+        - new emoji characters. imode2(imode extended chars), jsky2(jsky
+          page 3 to 6).
+        - fix warning at used in -w environment.
+        - new method, getu().
+
+0.14  Sat Aug 31 15:30:20 JST 2002
+        - Supports in `use utf8' scope.
+        - Fix h2z's miss-conversion for "'".
+
 0.13  Wed Jul 24 01:26:53 JST 2002
 	- Fix problem which fails in compile in some environments.
 

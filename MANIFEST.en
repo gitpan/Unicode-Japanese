@@ -8,23 +8,24 @@ Makefile.PL
 MANIFEST              MANIFEST in Japanese
 MANIFEST.en           MANIFEST in English
 MANIFEST.noxs
-conv.cpp              sjis<=>utf8 conversion
-eucjp.cpp             sjis<=>eucjp conversion
-getcode.cpp           getcode method
+conv.c                sjis<=>utf8 conversion
+esc.pl                method that escapes controll char (like a quotemeta)
+eucjp.c               sjis<=>eucjp conversion
+getcode.c             getcode method
 getcode.h
-getcode_map.cpp       state transition disgram table for getcode
+getcode_map.c         state transition disgram table for getcode
 hints/freebsd.pl      hints file (FreeBSD)
 hints/linux.pl        hints file (Linux)
 hints/sunos.pl        hints file (Solaris)
-jis.cpp               sjis<=>jis conversion
-memmap.cpp            mmapping of mapping table
-sjis.cpp              validate table for sjis
+jis.c                 sjis<=>jis conversion
+memmap.c              mmapping of mapping table
+sjis.c                validate table for sjis
 sjis.h                forward decls for sjis validator
-sjis_doti.cpp         sjis(dot-i)<=>utf8 conversion
-sjis_imode.cpp        sjis(i-mode)<=>utf8 conversion
-sjis_jsky.cpp         sjis(j-sky)<=>utf8 conversion
+sjis_doti.c           sjis(dot-i)<=>utf8 conversion
+sjis_imode.c          sjis(i-mode)<=>utf8 conversion
+sjis_jsky.c           sjis(j-sky)<=>utf8 conversion
 str.h                 SV* manipulate class
-ucs2_utf8.cpp
+ucs2_utf8.c
 t/allchar_utf8.pl
 t/base.t
 t/emoji.t

@@ -13,18 +13,22 @@ EXTERN_C
 SV*
 xs_sjis_eucjp(SV* sv_str)
 {
+  unsigned char* src;
+  int len;
+  SV_Buf result;
+  const unsigned char* src_end;
+
   if( sv_str==&PL_sv_undef )
   {
     return newSVsv(&PL_sv_undef);
   }
-  unsigned char* src = (unsigned char*)SvPV(sv_str,PL_na);
-  int len = sv_len(sv_str);
-
+  
+  src = (unsigned char*)SvPV(sv_str,PL_na);
+  len = sv_len(sv_str);
   //fprintf(stderr,"Unicode::Japanese::(xs)sjis_eucjp\n",len);
   //bin_dump("in ",src,len);
-
-  SV_Buf result(len);
-  const unsigned char* src_end = src+len;
+  SV_Buf_init(&result,len);
+  src_end = src+len;
 
   while( src<src_end )
   {
@@ -34,7 +38,7 @@ xs_sjis_eucjp(SV* sv_str)
       {
 	const unsigned char* start = src;
 	while( ++src<src_end && chk_sjis[*src]==CHK_SJIS_THROUGH );
-	result.append(start,src-start);
+	SV_Buf_append_str(&result,start,src-start);
 	continue;
       }
     case CHK_SJIS_C:
@@ -51,7 +55,7 @@ xs_sjis_eucjp(SV* sv_str)
 	    tmp[0] = src[0]*2 - (src[0]>=0xe0 ? 0xe1 : 0x61);
 	    tmp[1] = src[1] + 0x60 + (src[1] < 0x7f);
 	  }
-	  result.append(tmp,2);
+	  SV_Buf_append_ch2(&result,*(unsigned short*)tmp);
 	  src += 2;
 	  continue;
 	}
@@ -60,7 +64,7 @@ xs_sjis_eucjp(SV* sv_str)
     case CHK_SJIS_KANA:
       {
 	unsigned char tmp[2] = { 0x8e, src[0], };
-	result.append(tmp,2);
+	SV_Buf_append_ch2(&result,*(unsigned short*)tmp);
 	++src;
 	continue;
       }
@@ -69,19 +73,21 @@ xs_sjis_eucjp(SV* sv_str)
 #ifdef TEST
 	fprintf(stderr,"xs_sjis_eucjp, unknown check-code[%02x] on char-code[%05x]\n",chk_sjis[*src],*src);
 #endif
-	result.append(*src++);
+	SV_Buf_append_ch(&result,*src);
+	++src;
       }
     } //switch
 
     // invalid char
-    result.append(*src++);
+    SV_Buf_append_ch(&result,*src);
+    ++src;
 
   } //while
 
   //bin_dump("out",result.getBegin(),result.getLength());
-  result.setLength();
+  SV_Buf_setLength(&result);
 
-  return result.getSv();
+  return SV_Buf_getSv(&result);
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -117,20 +123,24 @@ EXTERN_C
 SV*
 xs_eucjp_sjis(SV* sv_str)
 {
+  unsigned char* src;
+  int len;
+  SV_Buf result;
+  const unsigned char* src_end;
+
   if( sv_str==&PL_sv_undef )
   {
     return newSVsv(&PL_sv_undef);
   }
-  unsigned char* src = (unsigned char*)SvPV(sv_str,PL_na);
-  int len = sv_len(sv_str);
-
+  
+  src = (unsigned char*)SvPV(sv_str,PL_na);
+  len = sv_len(sv_str);
 #if DISP_E2S
   fprintf(stderr,"Unicode::Japanese::(xs)eucjp_sjis\n",len);
   bin_dump("in ",src,len);
 #endif
-
-  SV_Buf result(len);
-  const unsigned char* src_end = src+len;
+  SV_Buf_init(&result,len);
+  src_end = src+len;
 
   while( src<src_end )
   {
@@ -140,14 +150,14 @@ xs_eucjp_sjis(SV* sv_str)
       {
 	const unsigned char* start = src;
 	while( ++src<src_end && chk_eucjp[*src]==CHK_EUCJP_THROUGH );
-	result.append(start,src-start);
+	SV_Buf_append_str(&result,start,src-start);
 	continue;
       }
     case CHK_EUCJP_0212:
       {
 	if( src+3-1<src_end )
 	{
-	  result.append(UNDEF_SJIS,UNDEF_SJIS_LEN);
+	  SV_Buf_append_str(&result,UNDEF_SJIS,UNDEF_SJIS_LEN);
 	  src += 3;
 	  continue;
 	}
@@ -167,7 +177,7 @@ xs_eucjp_sjis(SV* sv_str)
 	    tmp[0] = (src[0]>>1) + (src[0] < 0xdf ? 0x30 : 0x70);
 	    tmp[1] = src[1] - 2;
 	  }
-	  result.append(tmp,2);
+	  SV_Buf_append_ch2(&result,*(unsigned short*)tmp);
 	  src += 2;
 	  continue;
 	}
@@ -177,7 +187,7 @@ xs_eucjp_sjis(SV* sv_str)
       {
 	if( src+2-1<src_end && 0xa1<=src[1] && src[1]<=0xdf )
 	{
-	  result.append(src[1]);
+	  SV_Buf_append_ch(&result,src[1]);
 	  src += 2;
 	  continue;
 	}
@@ -192,15 +202,15 @@ xs_eucjp_sjis(SV* sv_str)
     } //switch
 
     // invalid char
-    result.append(*src++);
-
+    SV_Buf_append_ch(&result,*src);
+    ++src;
   } //while
 
 #if DISP_E2S
   bin_dump("out",result.getBegin(),result.getLength());
 #endif
 
-  result.setLength();
+  SV_Buf_setLength(&result);
 
-  return result.getSv();
+  return SV_Buf_getSv(&result);
 }

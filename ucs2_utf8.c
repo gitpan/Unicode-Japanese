@@ -1,5 +1,5 @@
 
-// $Id: ucs2_utf8.cpp,v 1.8 2002/07/17 16:34:53 hio Exp $
+// $Id: ucs2_utf8.c,v 1.2 2002/10/30 01:12:21 hio Exp $
 
 #include "Japanese.h"
 
@@ -10,51 +10,53 @@ EXTERN_C
 SV*
 xs_ucs2_utf8(SV* sv_str)
 {
+  unsigned char* src;
+  int len;
+  SV_Buf result;
+  const unsigned char* src_end;
+  unsigned char buf[4];
+
   if( sv_str==&PL_sv_undef )
   {
     return newSVpvn("",0);
   }
-  unsigned char* src = (unsigned char*)SvPV(sv_str,PL_na);
-  const int len = sv_len(sv_str);
-
-  //fprintf(stderr,"Unicode::Japanese::(xs)ucs2_utf8\n",len);
-  //bin_dump("in ",src,len);
-
-  SV_Buf result(len*3/2+4);
+  
+  src = (unsigned char*)SvPV(sv_str,PL_na);
+  len = sv_len(sv_str);
+  src_end = src+(len&~1);
+  /*fprintf(stderr,"Unicode::Japanese::(xs)ucs2_utf8\n",len);*/
+  /*bin_dump("in ",src,len);*/
+  SV_Buf_init(&result,len*3/2+4);
 
   if( len&1 )
   {
     Perl_croak(aTHX_ "Unicode::Japanese::ucs2_utf8, invalid length (not 2*n)");
   }
 
-  const unsigned char* src_end = src+(len&~1);
-
-  unsigned char buf[4];
   for(; src<src_end; src+=2 )
   {
     const unsigned short ucs2 = ntohs(*(unsigned short*)src);
     if( ucs2<0x80 )
     {
-      buf[0] = (unsigned char)ucs2;
-      result.append(buf,1);
+      SV_Buf_append_ch(&result,(unsigned char)ucs2);
     }else if( ucs2<0x800 )
     {
       buf[0] = 0xC0 | (ucs2 >> 6);
       buf[1] = 0x80 | (ucs2 & 0x3F);
-      result.append(buf,2);
+      SV_Buf_append_ch2(&result,*(unsigned short*)buf);
     }else
     {
       buf[0] = 0xE0 | (ucs2 >> 12);
       buf[1] = 0x80 | ((ucs2 >> 6) & 0x3F);
       buf[2] = 0x80 | (ucs2 & 0x3F);
-      result.append(buf,3);
+      SV_Buf_append_ch3(&result,*(unsigned int*)buf);
     }
   }
 
   //bin_dump("out",result.getBegin(),result.getLength());
-  result.setLength();
+  SV_Buf_setLength(&result);
 
-  return result.getSv();
+  return SV_Buf_getSv(&result);
 }
 
 /*
@@ -64,35 +66,40 @@ EXTERN_C
 SV*
 xs_utf8_ucs2(SV* sv_str)
 {
+  unsigned char* src;
+  int len;
+  SV_Buf result;
+  const unsigned char* src_end;
+
   if( sv_str==&PL_sv_undef )
   {
     return newSVpvn("",0);
   }
-  unsigned char* src = (unsigned char*)SvPV(sv_str,PL_na);
-  const int len = sv_len(sv_str);
-
+  
+  src = (unsigned char*)SvPV(sv_str,PL_na);
+  len = sv_len(sv_str);
+  src_end = src+len;
   //fprintf(stderr,"Unicode::Japanese::(xs)utf8_ucs2\n",len);
   //bin_dump("in ",src,len);
-
-  SV_Buf result(len);
-
-  const unsigned char* src_end = src+len;
+  SV_Buf_init(&result,len);
 
   while( src<src_end )
   {
+    int utf8_len,ucs;
     if( *src<=0x7f )
     {
-      result.append_ch2(htons(*src++));
+      SV_Buf_append_ch2(&result,htons(*src));
+      ++src;
       continue;
     }
-    int utf8_len,ucs;
     if( 0xc0<=*src && *src<=0xdf )
     { // length [2]
       utf8_len = 2;
       if( src+1>=src_end ||
 	  src[1]<0x80 || 0xbf<src[1] )
       {
-	result.append_ch2(htons(*src++));
+	SV_Buf_append_ch2(&result,htons(*src));
+	++src;
 	continue;
       }
       ucs = ((src[0] & 0x1F)<<6)|(src[1] & 0x3F);
@@ -103,7 +110,8 @@ xs_utf8_ucs2(SV* sv_str)
 	  src[1]<0x80 || 0xbf<src[1] ||
 	  src[2]<0x80 || 0xbf<src[2] )
       {
-	result.append_ch2(htons(*src++));
+	SV_Buf_append_ch2(&result,htons(*src));
+	++src;
 	continue;
       }
       ucs = ((src[0] & 0x0F)<<12)|((src[1] & 0x3F)<<6)|(src[2] & 0x3F);
@@ -115,7 +123,8 @@ xs_utf8_ucs2(SV* sv_str)
 	  src[2]<0x80 || 0xbf<src[2] ||
 	  src[3]<0x80 || 0xbf<src[3] )
       {
-	result.append_ch2(htons(*src++));
+	SV_Buf_append_ch2(&result,htons(*src));
+	++src;
 	continue;
       }
       ucs = ((src[0] & 0x07)<<18)|((src[1] & 0x3F)<<12)|
@@ -129,7 +138,8 @@ xs_utf8_ucs2(SV* sv_str)
 	  src[3]<0x80 || 0xbf<src[3] ||
 	  src[4]<0x80 || 0xbf<src[4] )
       {
-	result.append_ch2(htons(*src++));
+	SV_Buf_append_ch2(&result,htons(*src));
+	++src;
 	continue;
       }
       ucs = ((src[0] & 0x03) << 24)|((src[1] & 0x3F) << 18)|
@@ -145,7 +155,8 @@ xs_utf8_ucs2(SV* sv_str)
 	  src[4]<0x80 || 0xbf<src[4] ||
 	  src[5]<0x80 || 0xbf<src[5] )
       {
-	result.append_ch2(htons(*src++));
+	SV_Buf_append_ch2(&result,htons(*src));
+	++src;
 	continue;
       }
       ucs = ((src[0] & 0x03) << 30)|((src[1] & 0x3F) << 24)|
@@ -153,23 +164,24 @@ xs_utf8_ucs2(SV* sv_str)
 	    ((src[4] & 0x3f) <<  6)| (src[5] & 0x3F);
     }else
     { // invalid
-      result.append_ch2(htons(*src++));
+      SV_Buf_append_ch2(&result,htons(*src));
+      ++src;
       continue;
     }
 
     if( ucs & ~0xFFFF )
     { // ucs2¤ÎÈÏ°Ï³° (ucs4¤ÎÈÏ°Ï)
-      result.append_ch2(htons('?'));
+      SV_Buf_append_ch2(&result,htons('?'));
       src += utf8_len;
       continue;
     }
-    result.append_ch2(htons(ucs));
+    SV_Buf_append_ch2(&result,htons(ucs));
     src += utf8_len;
     //bin_dump("now",dst_begin,dst-dst_begin);
   }
 
   //bin_dump("out",result.getBegin(),result.getLength());
-  result.setLength();
+  SV_Buf_setLength(&result);
 
-  return result.getSv();
+  return SV_Buf_getSv(&result);
 }

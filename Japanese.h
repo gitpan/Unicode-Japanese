@@ -1,8 +1,8 @@
 
-#ifndef UNICODE__JAPANESE
-#define UNICODE__JAPANESE
+#ifndef UNICODE__JAPANESE_H__
+#define UNICODE__JAPANESE_H__
 
-/* $Id: Japanese.h,v 1.15 2002/07/20 06:41:52 hio Exp $ */
+/* $Id: Japanese.h,v 1.17 2002/10/29 06:23:56 hio Exp $ */
 
 #include "EXTERN.h"
 #include "perl.h"
@@ -13,11 +13,13 @@
 #include <assert.h>
 #endif
 
-#ifdef __cplusplus
+//#ifdef __cplusplus
+//#include "str.h"
+//#endif
 #include "str.h"
-#endif
 
 #ifdef TEST
+/* ``TEST'' is defined by devel.PL */
 #include "test.h"
 #define ONTEST(cmd) cmd
 #else
@@ -33,11 +35,11 @@
 #endif
 
 #ifndef u_char
-/*typedef unsigned char u_char;*/
+/* typedef unsigned char u_char; */
 #define u_char unsigned char
 #endif
 
-/* util */
+/* misc. */
 #define new_SV_UNDEF() newSVsv(&PL_sv_undef)
 
 /* -------------------------------------------------------------------
@@ -61,12 +63,16 @@ extern "C"
   SV* xs_jis_sjis(SV* sv_str);
 
   /* sjis(i-mode)<=>utf8 */
-  SV* xs_sjis_imode_utf8(SV* sv_str);
-  SV* xs_utf8_sjis_imode(SV* sv_str);
+  SV* xs_sjis_imode1_utf8(SV* sv_str);
+  SV* xs_sjis_imode2_utf8(SV* sv_str);
+  SV* xs_utf8_sjis_imode1(SV* sv_str);
+  SV* xs_utf8_sjis_imode2(SV* sv_str);
 
   /* sjis(j-sky)<=>utf8 */
-  SV* xs_sjis_jsky_utf8(SV* sv_str);
-  SV* xs_utf8_sjis_jsky(SV* sv_str);
+  SV* xs_sjis_jsky1_utf8(SV* sv_str);
+  SV* xs_sjis_jsky2_utf8(SV* sv_str);
+  SV* xs_utf8_sjis_jsky1(SV* sv_str);
+  SV* xs_utf8_sjis_jsky2(SV* sv_str);
 
   /* sjis(dot-i)<=>utf8 */
   SV* xs_sjis_doti_utf8(SV* sv_str);
@@ -75,30 +81,41 @@ extern "C"
   /* ucs_utf8 */
   SV* xs_ucs2_utf8(SV* sv_str);
   SV* xs_utf8_ucs2(SV* sv_str);
-
-  /* メモリマップファイル関連 */
+  
+  /* for memory mapped file.        */
+  /* (ja:) メモリマップファイル関連 */
   void do_memmap();
   void do_memunmap();
 
-  /* SJIS <=> UTF8 変換テーブル */
-  /* indexは0..0xffff           */
+  /* SJIS <=> UTF8 mapping table      */
+  /* (ja:) SJIS <=> UTF8 変換テーブル */
+  /* index is in 0..0xffff            */
   extern unsigned short const* g_u2s_table;
   extern unsigned long  const* g_s2u_table;
 
-  /* i-mode/j-sky/dot-i絵文字 <=> UTF8 変換テーブル */
-  extern unsigned long  const* g_ei2u_table;
-  extern unsigned short const* g_eu2i_table;
-  extern unsigned long  const* g_ej2u_table;
-  extern unsigned char  const* g_eu2j_table; // char [][5]
+  /* i-mode/j-sky/dot-i emoji <=> UTF8 mapping table */
+  /* (ja:) i-mode/j-sky/dot-i 絵文字 <=> UTF8 変換テーブル */
+  extern unsigned long  const* g_ei2u1_table;
+  extern unsigned long  const* g_ei2u2_table;
+  extern unsigned short const* g_eu2i1_table;
+  extern unsigned short const* g_eu2i2_table;
+  extern unsigned long  const* g_ej2u1_table;
+  extern unsigned long  const* g_ej2u2_table;
+  extern unsigned char  const* g_eu2j1_table; /* char [][5] */
+  extern unsigned char  const* g_eu2j2_table; /* char [][5] */
   extern unsigned long  const* g_ed2u_table;
   extern unsigned short const* g_eu2d_table;
 
   /* i-mode/j-sky/dot-i絵文字 <=> UTF8 変換テーブルの要素数 */
   /* バイト数でなく要素数                                   */
-  extern int g_ei2u_size;
-  extern int g_eu2i_size;
-  extern int g_ej2u_size;
-  extern int g_eu2j_size;
+  extern int g_ei2u1_size;
+  extern int g_ei2u2_size;
+  extern int g_eu2i1_size;
+  extern int g_eu2i2_size;
+  extern int g_ej2u1_size;
+  extern int g_ej2u2_size;
+  extern int g_eu2j1_size;
+  extern int g_eu2j2_size;
   extern int g_ed2u_size;
   extern int g_eu2d_size;
 #ifdef __cplusplus
@@ -106,6 +123,7 @@ extern "C"
 #endif
 
 #ifdef UNIJP__PERL_OLDER_THEN_5_006
+/* above symbol is defined by Makefile.PL:sub configure. */
 
 #define aTHX_
 #define pTHX_
@@ -116,12 +134,13 @@ extern "C"
 #define newSVpvn(str,len) newSVpv(str,len)
 #endif
 
-#endif
+#endif /* UNIJP__PERL_OLDER_THEN_5_006 */
 
 #ifdef UNIJP__PERL_OLDER_THEN_5_005
+/* above symbol is defined by Makefile.PL:sub configure. */
 #ifndef PL_sv_undef
 #define PL_sv_undef sv_undef
 #endif
-#endif
+#endif /* UNIJP__PERL_OLDER_THEN_5_005 */
 
-#endif /* UNICODE__JAPANESE */
+#endif /* UNICODE__JAPANESE_H__ */

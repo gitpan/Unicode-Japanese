@@ -9,13 +9,19 @@ BEGIN { plan tests => 4 }
 
 my $string;
 
-# strlen
+# strlen (KATAKANA-AIU)
 $string = new Unicode::Japanese "\xe3\x82\xa2\xe3\x82\xa4\xe3\x82\xa6";
 ok($string->strlen, 6);
 
-# strcut
+# strcut (KATAKANA-AIU)
 $string = new Unicode::Japanese "\xe3\x82\xa2\xe3\x82\xa4\xe3\x82\xa6";
-ok($string->strcut(5)->[0], "\xe3\x82\xa2\xe3\x82\xa4");
+if( $]>=5.008 )
+{
+  ok($string->strcut(5)->[0], "\x{30a2}\x{30a4}");
+}else
+{
+  ok($string->strcut(5)->[0], "\xe3\x82\xa2\xe3\x82\xa4");
+}
 
 # join_csv
 $string = new Unicode::Japanese;

@@ -1,5 +1,5 @@
 
-/* $Id: Japanese.xs,v 1.9 2002/06/30 23:15:45 hio Exp $ */
+/* $Id: Japanese.xs,v 1.11 2002/10/24 14:34:51 hio Exp $ */
 
 #include "Japanese.h"
 
@@ -7,6 +7,7 @@ EXTERN_C SV* test(SV* str);
 
 
 MODULE = Unicode::Japanese		PACKAGE = Unicode::Japanese
+PROTOTYPES: DISABLE
 
 #========================#
 # SJIS <=> utf8          #
@@ -86,18 +87,34 @@ OUTPUT:
 #========================#
 
 SV*
-_si2u(this_,str)
+_si2u1(this_,str)
     SV* str;
 CODE:
-    RETVAL = xs_sjis_imode_utf8(str);
+    RETVAL = xs_sjis_imode1_utf8(str);
 OUTPUT:
     RETVAL
 
 SV*
-_u2si(this_,str)
+_si2u2(this_,str)
     SV* str;
 CODE:
-    RETVAL = xs_utf8_sjis_imode(str);
+    RETVAL = xs_sjis_imode2_utf8(str);
+OUTPUT:
+    RETVAL
+
+SV*
+_u2si1(this_,str)
+    SV* str;
+CODE:
+    RETVAL = xs_utf8_sjis_imode1(str);
+OUTPUT:
+    RETVAL
+
+SV*
+_u2si2(this_,str)
+    SV* str;
+CODE:
+    RETVAL = xs_utf8_sjis_imode2(str);
 OUTPUT:
     RETVAL
 
@@ -106,18 +123,34 @@ OUTPUT:
 #========================#
 
 SV*
-_sj2u(this_,str)
+_sj2u1(this_,str)
     SV* str;
 CODE:
-    RETVAL = xs_sjis_jsky_utf8(str);
+    RETVAL = xs_sjis_jsky1_utf8(str);
 OUTPUT:
     RETVAL
 
 SV*
-_u2sj(this_,str)
+_sj2u2(this_,str)
     SV* str;
 CODE:
-    RETVAL = xs_utf8_sjis_jsky(str);
+    RETVAL = xs_sjis_jsky2_utf8(str);
+OUTPUT:
+    RETVAL
+
+SV*
+_u2sj1(this_,str)
+    SV* str;
+CODE:
+    RETVAL = xs_utf8_sjis_jsky1(str);
+OUTPUT:
+    RETVAL
+
+SV*
+_u2sj2(this_,str)
+    SV* str;
+CODE:
+    RETVAL = xs_utf8_sjis_jsky2(str);
 OUTPUT:
     RETVAL
 

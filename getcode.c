@@ -1,5 +1,5 @@
 
-// $Id: getcode.cpp,v 1.6 2002/07/10 20:20:29 hio Exp $
+// $Id: getcode.c,v 1.1 2002/10/29 06:23:56 hio Exp $
 
 #include "Japanese.h"
 #include "getcode.h"
@@ -23,6 +23,7 @@ enum charcode_t
   cc_sjis_doti,
   cc_last,
 };
+typedef enum charcode_t charcode_t;
 
 // 文字コード名文字列(SV*)
 #define new_CC_UNKNOWN()  newSVpvn("unknown",7)
@@ -117,6 +118,7 @@ struct CodeCheck
   const char** msg;
 #endif
 };
+typedef struct CodeCheck CodeCheck;
 
 // 文字コード判定の初期状態
 #ifndef TEST
@@ -148,6 +150,7 @@ struct CodeResult
   int begin;
   int len;
 };
+typedef struct CodeResult CodeResult;
 
 // 複数候補から１つを選択
 int choice_one(CodeCheck* check, int cc_max)
@@ -165,9 +168,11 @@ int choice_one(CodeCheck* check, int cc_max)
     cc_sjis_doti,
     cc_utf8,
   };
-  for( int cc=0; cc<cc_tmpl_max; ++cc )
+  int cc;
+  int i;
+  for( cc=0; cc<cc_tmpl_max; ++cc )
   {
-    for( int i=0; i<cc_max; ++i )
+    for( i=0; i<cc_max; ++i )
     {
       if( check[i].code==order[cc] )
       {
@@ -181,47 +186,61 @@ int choice_one(CodeCheck* check, int cc_max)
 // getcode関数
 SV* xs_getcode(SV* sv_str)
 {
+  unsigned char* src;
+  int len;
+  const unsigned char* src_end;
+  
+  CodeCheck check[cc_tmpl_max];
+  int cc_max;
+  int index;
+  
   if( sv_str==&PL_sv_undef )
   {
     return new_SV_UNDEF();
   }
-  unsigned char* src = (unsigned char*)SvPV(sv_str,PL_na);
-  int len = sv_len(sv_str);
-  const unsigned char* src_end = src+len;
+  
+  src = (unsigned char*)SvPV(sv_str,PL_na);
+  len = sv_len(sv_str);
+  src_end = src+len;
+  
+  /* empty string */
+  /* (jp:) 空文字列は unknown */
   if( len==0 )
   {
     return new_CC_UNKNOWN();
   }
+  
+  /* BOM of UTF32 */
   if( (len%4)==0 && len>=4 &&
       ( memcmp(src,RE_BOM4_BE,4)==0 || memcmp(src,RE_BOM4_LE,4)==0 ) )
   {
     return new_CC_UTF32();
   }
+  
+  /* BOM of UTF16 */
   if( (len%2)==0 && len>=2 &&
       ( memcmp(src,RE_BOM2_BE,2)==0 || memcmp(src,RE_BOM2_LE,2)==0 ) )
   {
     return new_CC_UTF16();
   }
 
-  //fprintf(stderr,"Unicode::Japanese::(xs)getcode[%d]\n",len);
-  //fprintf(stderr,">>%s<<\n",src);
-  //bin_dump("in ",src,len);
+  /* fprintf(stderr,"Unicode::Japanese::(xs)getcode[%d]\n",len); */
+  /* fprintf(stderr,">>%s<<\n",src); */
+  /* bin_dump("in ",src,len); */
 
-  //asm volatile(".int 3");
-  //SV_Buf result(len*3/2+4);
-
-  CodeCheck check[cc_tmpl_max];
   memcpy(check,cc_tmpl,sizeof(cc_tmpl));
-  int cc_max = cc_tmpl_max;
+  cc_max = cc_tmpl_max;
 
   for( ; src<src_end; ++src )
   {
+    int invalids;
+    int i;
 #if TEST && GC_DISP
     fprintf(stderr,"[%d] %d (0x%02x)\n",len-(src_end-src),*src,*src);
 #endif
     // 遷移を１つ進める〜
-    int invalids = 0;
-    for( int i=0; i<cc_max; ++i )
+    invalids = 0;
+    for( i=0; i<cc_max; ++i )
     {
       int nxt = check[i].table[*src];
 #if TEST && GC_DISP
@@ -262,29 +281,32 @@ SV* xs_getcode(SV* sv_str)
     }
   }
 
-  int wr = 0;
-  for( int i=0; i<cc_max; ++i )
   {
-    if( check[i].table == check[i].base )
+    int wr = 0;
+    int i;
+    for( i=0; i<cc_max; ++i )
     {
-      if( wr!=i )
+      if( check[i].table == check[i].base )
       {
-	check[wr] = check[i];
+        if( wr!=i )
+	{
+	  check[wr] = check[i];
+	}
+	++wr;
       }
-      ++wr;
     }
+    cc_max = wr;
   }
-  cc_max = wr;
 
 #if TEST && GC_DISP
   fprintf(stderr,"<availables>\n");
-  for( int i=0; i<cc_max; ++i )
+  for( i=0; i<cc_max; ++i )
   {
     fprintf(stderr,"  %s\n",charcodeToStr(check[i].code));
   }
 #endif
 
-  int index = choice_one(check,cc_max);
+  index = choice_one(check,cc_max);
 #if TEST && GC_DISP
   fprintf(stderr,"<choice>\n  [%d/0..%d]\n",index,cc_max-1);
   fprintf(stderr,"<selected>\n");

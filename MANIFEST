@@ -8,25 +8,27 @@ Makefile.PL
 MANIFEST              MANIFEST in Japanese
 MANIFEST.en           MANIFEST in English
 MANIFEST.noxs
-conv.cpp              sjis<=>utf8 変換コード
-eucjp.cpp             sjis<=>eucjp 変換コード
-getcode.cpp           getcode
+conv.c                sjis<=>utf8 変換コード
+esc.pl                制御文字をエスケープする関数.
+eucjp.c               sjis<=>eucjp 変換コード
+getcode.c             getcode
 getcode.h
-getcode_map.cpp       getcode用状態遷移テーブル
+getcode_map.c         getcode用状態遷移テーブル
 hints/MSWin32.pl      hints ファイル (MSWin32)
 hints/freebsd.pl      hints ファイル (FreeBSD)
 hints/linux.pl        hints ファイル (Linux)
 hints/sunos.pl        hints ファイル (Solaris)
-jis.cpp               sjis<=>jis 変換コード
-memmap.cpp            データファイルのメモリマップコード
+jis.c                 sjis<=>jis 変換コード
+memmap.c              データファイルのメモリマップコード
 memmap_win32.c        
-sjis.cpp              sjis有効判定テーブル
+sjis.c                sjis有効判定テーブル
 sjis.h                sjis有効判定テーブル 前方宣言
-sjis_doti.cpp         sjis(dot-i)<=>utf8 変換コード
-sjis_imode.cpp        sjis(i-mode)<=>utf8 変換コード
-sjis_jsky.cpp         sjis(j-sky)<=>utf8 変換コード
+sjis_doti.c           sjis(dot-i)<=>utf8 変換コード
+sjis_imode.c          sjis(i-mode)<=>utf8 変換コード
+sjis_jsky.c           sjis(j-sky)<=>utf8 変換コード
 str.h                 SV* 操作用クラス
-ucs2_utf8.cpp
+ucs2_utf8.c
+t/0.loadxs.t
 t/allchar_utf8.pl
 t/base.t
 t/emoji.t
