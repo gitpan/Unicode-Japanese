@@ -3,7 +3,7 @@
  * ----------------------------------------------------------------------------
  * Mastering programed by YAMASHINA Hio
  * ----------------------------------------------------------------------------
- * $Id: utf16.c,v 1.3 2004/11/04 07:23:32 hio Exp $
+ * $Id: utf16.c,v 1.5 2005/05/15 10:00:22 hio Exp $
  * ------------------------------------------------------------------------- */
 
 
@@ -62,32 +62,39 @@ xs_utf16_utf8(SV* sv_str)
     { /* surrogate pair */
       if( src+2<src_end )
       {
-#if ENABLE_SURROGATE_PAIR
-        const unsigned short utf16a = ntohs(*(unsigned short*)src+2);
-        const unsigned long  ucs4   = ((utf16&0x03FF)<<10|(utf16a&0x3FFF))+0x010000;
-        src += 2;
-        if( 0x010000<=ucs4 && ucs4<=0x1FFFFF )
+        const unsigned short utf16a = ntohs(*(unsigned short*)(src+2));
+        if( utf16<=0xdbff && 0xdc00 <= utf16a && utf16a <= 0xdfff )
         {
-          buf[0] = 0xF0 | ((utf16>>18) & 0x3F);
-          buf[1] = 0x80 | ((utf16>>12) & 0x3F);
-          buf[2] = 0x80 | ((utf16>>6) & 0x3F);
-          buf[3] = 0x80 | (utf16 & 0x3F);
-          SV_Buf_append_ch4(&result,*(unsigned int*)buf);
+#if ENABLE_SURROGATE_PAIR
+          const UJ_UINT32  ucs4   = ((utf16&0x03FF)<<10|(utf16a&0x03FF))+0x010000;
+          src += 2;
+          if( 0x010000<=ucs4 && ucs4<=0x10FFFF )
+          {
+            buf[0] = 0xF0 | ((ucs4>>18) & 0x3F);
+            buf[1] = 0x80 | ((ucs4>>12) & 0x3F);
+            buf[2] = 0x80 | ((ucs4>>6) & 0x3F);
+            buf[3] = 0x80 | (ucs4 & 0x3F);
+            SV_Buf_append_ch4(&result,*(unsigned int*)buf);
+          }else
+          {
+            /* utf8 not support >= U+10FFFF */
+            /* or illegal representation */
+            SV_Buf_append_ch(&result,'?');
+          }
+#else
+          {
+            /* surrogate pair disabled. */
+            SV_Buf_append_ch(&result,'?');
+          }
+#endif
         }else
         {
-          /* utf8 not support >= U+1FFFFF */
-          /* or illegal representation */
+          /* invalid surrogate */
           SV_Buf_append_ch(&result,'?');
         }
-#else
-        {
-          /* surrogate pair disabled. */
-          SV_Buf_append_ch(&result,'?');
-        }
-#endif
       }else
       {
-        /* no 2nd char of surrogate pair */
+        /* no trail surrogate */
         SV_Buf_append_ch(&result,'?');
       }
     }
@@ -220,7 +227,7 @@ xs_utf8_utf16(SV* sv_str)
       
 #if ENABLE_SURROGATE_PAIR
       { /* encode surrogate pair */
-        const unsigned long surrogate = ucs - 0x010000;
+        const UJ_UINT32 surrogate = ucs - 0x010000;
         SV_Buf_append_ch2(&result,htons(((surrogate>>10)&0x03FF)|0xD800));
         SV_Buf_append_ch2(&result,htons(((surrogate    )&0x03FF)|0xDC00));
         continue;

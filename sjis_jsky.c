@@ -1,5 +1,5 @@
 
-/* $Id: sjis_jsky.c,v 1.5 2005/01/24 11:23:05 hio Exp $ */
+/* $Id: sjis_jsky.c,v 1.6 2005/05/15 08:34:42 hio Exp $ */
 
 #include "Japanese.h"
 #include <stdio.h>
@@ -175,7 +175,7 @@ xs_sjis_jsky2_utf8(SV* sv_str)
     if( src[0]<0x80 )
     { /* ASCII */
       int j1;
-      unsigned long const* table;
+      UJ_UINT32 const* table;
       const unsigned char* begin;
       const unsigned char* ptr;
       

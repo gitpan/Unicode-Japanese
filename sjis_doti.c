@@ -1,5 +1,5 @@
 
-/* $Id: sjis_doti.c,v 1.4 2002/10/31 11:08:50 hio Exp $ */
+/* $Id: sjis_doti.c,v 1.5 2005/05/15 08:34:42 hio Exp $ */
 
 #include "Japanese.h"
 #include <stdio.h>
@@ -75,7 +75,7 @@ xs_sjis_doti_utf8(SV* sv_str)
     }else if( src+1<src_end && ( 0xf0<=src[0] && src[0]<=0xf4 ) )
     { /* dot-i³¨Ê¸»ú */
       ptr = (unsigned char*)&g_ed2u_table[((src[0]&0x07)<<8)|src[1]];
-      if( *(unsigned long*)ptr==0 )
+      if( *(UJ_UINT32*)ptr==0 )
       {
 	register const unsigned short sjis = ntohs(*(unsigned short*)src);
 	/*fprintf(stderr,"sjis: %04x\n",sjis); */

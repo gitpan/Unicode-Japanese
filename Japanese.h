@@ -2,7 +2,7 @@
 #ifndef UNICODE__JAPANESE_H__
 #define UNICODE__JAPANESE_H__
 
-/* $Id: Japanese.h,v 1.21 2004/11/02 13:06:42 hio Exp $ */
+/* $Id: Japanese.h,v 1.22 2005/05/15 08:34:38 hio Exp $ */
 
 #if !defined(__cplusplus) && !defined(bool)
 #define bool char
@@ -97,21 +97,21 @@ extern "C"
   /* SJIS <=> UTF8 mapping table      */
   /* (ja:) SJIS <=> UTF8 変換テーブル */
   /* index is in 0..0xffff            */
-  extern unsigned short const* g_u2s_table;
-  extern unsigned long  const* g_s2u_table;
+  extern UJ_UINT16 const* g_u2s_table;
+  extern UJ_UINT32  const* g_s2u_table;
 
   /* i-mode/j-sky/dot-i emoji <=> UTF8 mapping table */
   /* (ja:) i-mode/j-sky/dot-i 絵文字 <=> UTF8 変換テーブル */
-  extern unsigned long  const* g_ei2u1_table;
-  extern unsigned long  const* g_ei2u2_table;
-  extern unsigned short const* g_eu2i1_table;
-  extern unsigned short const* g_eu2i2_table;
-  extern unsigned long  const* g_ej2u1_table;
-  extern unsigned long  const* g_ej2u2_table;
-  extern unsigned char  const* g_eu2j1_table; /* char [][5] */
-  extern unsigned char  const* g_eu2j2_table; /* char [][5] */
-  extern unsigned long  const* g_ed2u_table;
-  extern unsigned short const* g_eu2d_table;
+  extern UJ_UINT32 const* g_ei2u1_table;
+  extern UJ_UINT32 const* g_ei2u2_table;
+  extern UJ_UINT16 const* g_eu2i1_table;
+  extern UJ_UINT16 const* g_eu2i2_table;
+  extern UJ_UINT32 const* g_ej2u1_table;
+  extern UJ_UINT32 const* g_ej2u2_table;
+  extern UJ_UINT8  const* g_eu2j1_table; /* char [][5] */
+  extern UJ_UINT8  const* g_eu2j2_table; /* char [][5] */
+  extern UJ_UINT32 const* g_ed2u_table;
+  extern UJ_UINT16 const* g_eu2d_table;
 
   /* i-mode/j-sky/dot-i絵文字 <=> UTF8 変換テーブルの要素数 */
   /* バイト数でなく要素数                                   */

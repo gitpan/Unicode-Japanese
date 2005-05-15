@@ -1,5 +1,5 @@
 
-/* $Id: jis.c,v 1.6 2004/11/02 08:51:59 hio Exp $ */
+/* $Id: jis.c,v 1.7 2005/05/15 08:34:42 hio Exp $ */
 
 #include "Japanese.h"
 #include "sjis.h"
@@ -303,7 +303,7 @@ xs_jis_sjis(SV* sv_str)
     }
   } /*while */
 
-  /*bin_dump("out",result.getBegin(),result.getLength()); */
+  /* bin_dump("out",SV_Buf_getBegin(&result), SV_Buf_getLength(&result)); */
   SV_Buf_setLength(&result);
 
   return SV_Buf_getSv(&result);

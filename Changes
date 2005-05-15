@@ -1,7 +1,12 @@
 Revision history for Perl extension Unicode::Japanese.
 
-0.25_01 Tue Feb 15 13:16:30 JST 2005
-	- fix, 0.25 not updated on xs data.
+0.27 Sun May 15 18:57:51 JST 2005
+	- support for x86_64 (EM64T)
+	- fix, surrogate pair was not worked
+
+0.26 Tue Feb 15 13:16:30 JST 2005
+	- fix, 0.25 was not updated on xs data.
+	- add, cp932([fa-fc]xx) map into jis.
 
 0.25 Tue Feb 15 13:00:16 JST 2005
         - bin/ujconv and bin/ujguess added.

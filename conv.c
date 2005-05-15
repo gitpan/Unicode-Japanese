@@ -4,7 +4,7 @@
  * ----------------------------------------------------------------------------
  * Mastering programed by YAMASHINA Hio
  * ----------------------------------------------------------------------------
- * $Id: conv.c,v 1.6 2004/11/04 06:08:04 hio Exp $
+ * $Id: conv.c,v 1.7 2005/05/15 08:34:42 hio Exp $
  * ------------------------------------------------------------------------- */
 
 #ifdef _MSC_VER
@@ -80,7 +80,7 @@ xs_sjis_utf8(SV* sv_str)
       continue;
     }else if( 0xa1<=src[0] && src[0]<=0xdf )
     { /* half-width katakana (ja:È¾³Ñ¥«¥Ê) */
-      /*fprintf(stderr,"kana": %02x\n",src[0]); */
+      /* fprintf(stderr,"kana: %02x\n",src[0]); */
       ptr = (unsigned char*)&g_s2u_table[src[0]];
       ++src;
     }else if( ((0x81<=src[0] && src[0]<=0x9f) || (0xe0<=src[0] && src[0]<=0xfc) )

@@ -1,13 +1,14 @@
 Changes
-Japanese/u2s-s2u.dat  sjis<=>utf8 mapping table
-Japanese/emoji.dat    i-mode/j-sky/dot-i<=>utf8 conversion table
+Japanese.h            forward declarations for XS-Unicode::Japanese
 Japanese.pm           Unicode::Japanese perl module
 Japanese.xs           Unicode::Japanese XS code
-Japanese.h            forward declarations for XS-Unicode::Japanese
-Makefile.PL
+Japanese/emoji.dat    i-mode/j-sky/dot-i<=>utf8 conversion table
+Japanese/u2s-s2u.dat  sjis<=>utf8 mapping table
 MANIFEST              MANIFEST in Japanese
 MANIFEST.en           MANIFEST in English
 MANIFEST.noxs
+META.yml                                 Module meta-data (added by MakeMaker)
+Makefile.PL
 README
 bin/ujconv            iconv like tool with Unicode::Japanese
 bin/ujguess           charset detection tool
@@ -29,25 +30,28 @@ sjis_doti.c           sjis(dot-i)<=>utf8 conversion
 sjis_imode.c          sjis(i-mode)<=>utf8 conversion
 sjis_jsky.c           sjis(j-sky)<=>utf8 conversion
 str.h                 SV* manipulate class
-ucs2_utf8.c
-utf16.c
 t/allchar_utf8.pl
 t/base.t
 t/emoji.t
 t/fromutf8.t
+t/getcode.t
 t/hirakata.t
 t/illegal.t
 t/illlet.t
 t/jis.t
-t/toutf8.t
-t/util.t
-t/z2h.t
-t/getcode.t
 t/outrange.t
 t/random.pl
 t/random_redo.pl
+t/toutf8.t
 t/ucs2_utf8.pl
+t/utf16.t
+t/utf8flag.t
+t/util.t
 t/verify_sjis_ucs2.pl
+t/z2h.t
+ucs2_utf8.c
+utf16.c
 win32/Japanese.rc
 win32/resource.h
+wordsize.c
 xs_test.c             compile test code for xs.

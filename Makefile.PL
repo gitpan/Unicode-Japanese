@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Makefile.PL for Unicode-Japanese.
 # -----------------------------------------------------------------------------
-# $Id: Makefile.PL,v 1.43 2005/02/14 04:58:56 hio Exp $
+# $Id: Makefile.PL,v 1.46 2005/05/15 10:25:03 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::MakeMaker;
 
@@ -11,6 +11,7 @@ use strict;
 use ExtUtils::Manifest;
 use ExtUtils::MakeMaker;
 use ExtUtils::Embed;
+use File::Spec;
 
 my $MANIFEST_bak = $ExtUtils::Manifest::MANIFEST;
 
@@ -102,6 +103,7 @@ if( @arg )
 # run MakerMaker :: WriteMakefile
 #   and hints, configure().
 
+print " >> invoke WriteMakefile\n";
 WriteMakefile(%param);
 
 $ExtUtils::Manifest::MANIFEST = $MANIFEST_bak;
@@ -136,6 +138,7 @@ sub configure
     use ExtUtils::Embed;
     my $cc = exists $argv{CC} ? $argv{CC} : $Config{cc};
     my $ccopts = $param_xs{'CCFLAGS'}||ExtUtils::Embed::ccopts();
+    
     my $xstest_src = $^O eq 'MSWin32' ? 'memmap_win32.c' : 'memmap.c';
     my $xstest_out = $^O eq 'MSWin32' ? 'memmap_win32.obj' : 'memmap.o';
     my $cmd = "$cc $ccopts -c $xstest_src -o $xstest_out";
@@ -168,6 +171,51 @@ sub configure
       }
     }
     print " >> ok, test succeed.\n";
+    
+    my %SIZES;
+    print "check word sizes...\n";
+    {
+      my $exe_ext = $^O eq 'MSWin32' ? '.exe' : '';
+      $xstest_src = 'wordsize.c';
+      ($xstest_out = $xstest_src) =~ s/\.c$/$exe_ext/;
+      $cmd = "$cc $ccopts $xstest_src -o $xstest_out";
+      print "compile... : $cmd\n";
+      my $rc = 0xffff & system($cmd);
+      if( $rc==-1 )
+      {
+        print " >> compile failed: $!\n";
+        return disableXS();
+      }
+      if( $rc!=0 )
+      {
+        print " >> compile failed, exit status is: $rc\n";
+        return disableXS();
+      }
+      $cmd = File::Spec->catfile(".",$xstest_out);
+      my @list  = `$cmd`;
+      if( $? )
+      {
+        print " >> check execute failed, is: $?\n";
+        return disableXS();
+      }
+      foreach(@list)
+      {
+        chomp;
+        /^(.*?) = (\d+)/ or next;
+        $SIZES{$1} = $2;
+      }
+    }
+    foreach(qw(short int long void*))
+    {
+      $SIZES{$_} ||= 0;
+    }
+    my $int32 = $SIZES{int}*8==32 ? 'int' : 'long';
+    my $int16 = $SIZES{int}*8==16 ? 'int' : 'short';
+    my $int8  = 'char';
+    $param_xs{DEFINE} .= qq| -DUJ_UINT32="unsigned $int32"|;
+    $param_xs{DEFINE} .= qq| -DUJ_UINT16="unsigned $int16"|;
+    $param_xs{DEFINE} .= qq| -DUJ_UINT8="unsigned $int8"|;
+    $param_xs{DEFINE} =~s/^ //;
   }else
   {
     print "skip xs compile test\n";
@@ -216,6 +264,7 @@ sub enableXS
   $hdr = "/* from hints/$type.pl */\n\n".$hdr;
   $cpp = "/* from hints/$type.pl */\n\n".$cpp;
 
+  print " >> write mediate.c, mediate.h\n";
   use FileHandle;
   my $fh_hdr = new FileHandle('>mediate.h');
   my $fh_cpp = new FileHandle('>mediate.c');

@@ -1,8 +1,17 @@
 #ifndef UNICODE__JAPANESE__STR_H__
 #define UNICODE__JAPANESE__STR_H__
 
-/* $Id: str.h,v 1.11 2004/11/02 08:51:34 hio Exp $ */
+/* $Id: str.h,v 1.12 2005/05/15 08:34:42 hio Exp $ */
 
+#ifndef UJ_UINT32
+#define UJ_UINT32 unsigned int
+#endif
+#ifndef UJ_UINT16
+#define UJ_UINT16 unsigned short
+#endif
+#ifndef UJ_UINT8
+#define UJ_UINT8 unsigned char
+#endif
 
 /* ----------------------------------------------------------------------------
  * struct SV_Buf

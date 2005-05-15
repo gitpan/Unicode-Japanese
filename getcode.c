@@ -1,5 +1,5 @@
 
-/* $Id: getcode.c,v 1.2 2002/10/31 11:08:50 hio Exp $ */
+/* $Id: getcode.c,v 1.3 2005/05/15 08:34:42 hio Exp $ */
 
 #include "Japanese.h"
 #include "getcode.h"
@@ -46,7 +46,7 @@ typedef enum charcode_t charcode_t;
 #define RE_BOM4_BE  "\x00\x00\xfe\xff"
 #define RE_BOM4_LE  "\xff\xfe\x00\x00"
 
-#if defined(TEST)
+#if defined(TEST) && 0
 /* 文字コード定数を文字コード名に. */
 static const char* charcodeToStr(charcode_t code)
 {

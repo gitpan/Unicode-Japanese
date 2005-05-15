@@ -1,5 +1,5 @@
 
-/* $Id: sjis_imode.c,v 1.6 2005/01/24 11:23:05 hio Exp $ */
+/* $Id: sjis_imode.c,v 1.7 2005/05/15 08:34:42 hio Exp $ */
 
 #include "Japanese.h"
 #include <stdio.h>
@@ -78,7 +78,7 @@ xs_sjis_imode1_utf8(SV* sv_str)
     { /* i-mode³¨Ê¸»ú */
       /* warn("code: %02x %02x\n", src[0],src[1]); */
       ptr = (unsigned char*)&g_ei2u1_table[((src[0]&1)<<8)|src[1]];
-      if( *(unsigned long*)ptr==0 )
+      if( *(UJ_UINT32*)ptr==0 )
       {
 	register const unsigned short sjis = ntohs(*(unsigned short*)src);
 	/*fprintf(stderr,"sjis: %04x\n",sjis); */
@@ -197,7 +197,7 @@ xs_sjis_imode2_utf8(SV* sv_str)
     { /* i-mode³¨Ê¸»ú */
       /*fprintf(stderr,"code: %02x %02x\n", src[0],src[1]); */
       ptr = (unsigned char*)&g_ei2u2_table[((src[0]&1)<<8)|src[1]];
-      if( *(unsigned long*)ptr==0 )
+      if( *(UJ_UINT32*)ptr==0 )
       {
 	register const unsigned short sjis = ntohs(*(unsigned short*)src);
 	/*fprintf(stderr,"sjis: %04x\n",sjis); */
