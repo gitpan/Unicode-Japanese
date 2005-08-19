@@ -1,5 +1,9 @@
 Revision history for Perl extension Unicode::Japanese.
 
+0.28 --- --- -- --:--:-- --- ----
+	- add, au emoji.
+	- rewrite mmap code on XSubs.
+
 0.27 Sun May 15 18:57:51 JST 2005
 	- support for x86_64 (EM64T)
 	- fix, surrogate pair was not worked

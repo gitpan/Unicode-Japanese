@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Makefile.PL for Unicode-Japanese.
 # -----------------------------------------------------------------------------
-# $Id: Makefile.PL,v 1.46 2005/05/15 10:25:03 hio Exp $
+# $Id: Makefile.PL,v 1.51 2005/08/16 07:41:01 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::MakeMaker;
 
@@ -39,13 +39,10 @@ my %param = (
     'clean'    => { FILES => 't/pureperl.flag mediate.c mediate.h' },
   );
 my %param_xs = (
-    'PM'=>{'Japanese/u2s-s2u.dat'=>'$(INST_LIBDIR)/Japanese/u2s-s2u.dat',
-	   'Japanese/emoji.dat'=>'$(INST_LIBDIR)/Japanese/emoji.dat',
-	   'Japanese.pm'=>'$(INST_LIBDIR)/Japanese.pm',
-	  },
-    'OBJECT' => join(' ',qw( Japanese.o memmap.o conv.o ucs2_utf8.o
+    'OBJECT' => join(' ',qw( Japanese.o memmap_common.o memmap_unix.o
+                             conv.o ucs2_utf8.o
 			     getcode.o getcode_map.o sjis.o eucjp.o jis.o
-			     sjis_imode.o sjis_jsky.o sjis_doti.o utf16.o
+			     sjis_imode1.o sjis_imode2.o sjis_jsky1.o sjis_jsky2.o sjis_doti.o utf16.o
 			     mediate.o 
 			     ) ),
     'XS' => {'Japanese.xs'=>'Japanese.c',},
@@ -139,8 +136,8 @@ sub configure
     my $cc = exists $argv{CC} ? $argv{CC} : $Config{cc};
     my $ccopts = $param_xs{'CCFLAGS'}||ExtUtils::Embed::ccopts();
     
-    my $xstest_src = $^O eq 'MSWin32' ? 'memmap_win32.c' : 'memmap.c';
-    my $xstest_out = $^O eq 'MSWin32' ? 'memmap_win32.obj' : 'memmap.o';
+    my $xstest_src = $^O eq 'MSWin32' ? 'memmap_win32.c' : 'memmap_unix.c';
+    my $xstest_out = $^O eq 'MSWin32' ? 'memmap_win32.obj' : 'memmap_unix.o';
     my $cmd = "$cc $ccopts -c $xstest_src -o $xstest_out";
     print "Checking XS Compiling... : $cmd\n";
     my $rc = 0xffff & system($cmd);
@@ -253,8 +250,7 @@ sub enableXS
 
   if( $type eq 'MSWin32' )
   {
-    $param_xs{'OBJECT'} =~ s/\bmemmap.o\b/memmap_win32.o/;
-    $param_xs{'OBJECT'} .= ' win32\Japanese.res';
+    $param_xs{'OBJECT'} =~ s/\bmemmap_unix.o\b/memmap_win32.o/;
     $param_xs{'PM'} and delete @{$param_xs{'PM'}}{qw(Japanese/u2s-s2u.dat Japanese/emoji.dat)};
   }
 
@@ -332,6 +328,7 @@ sub flush_ccflags
 
 sub include_test
 {
-  add_ccflags('-g -DTEST=1');
+  $^O ne 'MSWin32' and add_ccflags('-g');
+  add_ccflags('-DTEST=1');
   $param_xs{'OBJECT'}  .= ' test.o';
 }

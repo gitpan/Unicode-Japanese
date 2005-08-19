@@ -24,13 +24,16 @@ hints/linux.pl        hints ファイル (Linux)
 hints/solaris.pl      hitns ファイル (Solaris 8 以降)
 hints/sunos.pl        hints ファイル (SunOS 及び Solaris 2.6 以前)
 jis.c                 sjis<=>jis 変換コード
-memmap.c              データファイルのメモリマップコード
-memmap_win32.c        
+memmap_common.c       データファイルの振り分け
+memmap_unix.c         データファイルのメモリマップコード(UNIX)
+memmap_win32.c        データファイルのメモリマップコード(Win32)
 sjis.c                sjis有効判定テーブル
 sjis.h                sjis有効判定テーブル 前方宣言
 sjis_doti.c           sjis(dot-i)<=>utf8 変換コード
-sjis_imode.c          sjis(i-mode)<=>utf8 変換コード
-sjis_jsky.c           sjis(j-sky)<=>utf8 変換コード
+sjis_imode1.c         sjis(i-mode1)<=>utf8 変換コード
+sjis_imode2.c         sjis(i-mode2)<=>utf8 変換コード
+sjis_jsky1.c          sjis(j-sky1)<=>utf8 変換コード
+sjis_jsky2.c          sjis(j-sky2)<=>utf8 変換コード
 str.h                 SV* 操作用クラス
 t/0.loadxs.t
 t/allchar_utf8.pl
@@ -54,7 +57,5 @@ t/verify_sjis_ucs2.pl
 t/z2h.t
 ucs2_utf8.c
 utf16.c
-win32/Japanese.rc
-win32/resource.h
 wordsize.c
 xs_test.c             xsコンパイルテスト用コード

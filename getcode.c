@@ -1,5 +1,5 @@
 
-/* $Id: getcode.c,v 1.3 2005/05/15 08:34:42 hio Exp $ */
+/* $Id: getcode.c,v 1.4 2005/08/02 09:16:34 hio Exp $ */
 
 #include "Japanese.h"
 #include "getcode.h"
@@ -13,6 +13,8 @@ enum charcode_t
   cc_ascii,
   cc_sjis,
   cc_eucjp,
+  cc_jis_au,
+  cc_jis_jsky,
   cc_jis,
   cc_utf8,
   cc_utf32,
@@ -26,14 +28,16 @@ enum charcode_t
 typedef enum charcode_t charcode_t;
 
 /* 文字コード名文字列(SV*) */
-#define new_CC_UNKNOWN()  newSVpvn("unknown",7)
-#define new_CC_ASCII()    newSVpvn("ascii",  5)
-#define new_CC_SJIS()     newSVpvn("sjis",   4)
-#define new_CC_JIS()      newSVpvn("jis",    3)
-#define new_CC_EUCJP()    newSVpvn("euc",    3)
-#define new_CC_UTF8()     newSVpvn("utf8",   4)
-#define new_CC_UTF16()    newSVpvn("utf16",  5)
-#define new_CC_UTF32()    newSVpvn("utf32",  5)
+#define new_CC_UNKNOWN()  newSVpvn("unknown", 7)
+#define new_CC_ASCII()    newSVpvn("ascii",   5)
+#define new_CC_SJIS()     newSVpvn("sjis",    4)
+#define new_CC_JIS_AU()   newSVpvn("jis-au",  6)
+#define new_CC_JIS_JSKY() newSVpvn("jis-jsky",8)
+#define new_CC_JIS()      newSVpvn("jis",     3)
+#define new_CC_EUCJP()    newSVpvn("euc",     3)
+#define new_CC_UTF8()     newSVpvn("utf8",    4)
+#define new_CC_UTF16()    newSVpvn("utf16",   5)
+#define new_CC_UTF32()    newSVpvn("utf32",   5)
 #define new_CC_UTF32_BE() newSVpvn("utf32-be",8)
 #define new_CC_UTF32_LE() newSVpvn("utf32-le",8)
 #define new_CC_SJIS_JSKY()  newSVpvn("sjis-jsky",9)
@@ -46,7 +50,7 @@ typedef enum charcode_t charcode_t;
 #define RE_BOM4_BE  "\x00\x00\xfe\xff"
 #define RE_BOM4_LE  "\xff\xfe\x00\x00"
 
-#if defined(TEST) && 0
+#if defined(TEST) || GC_DISP
 /* 文字コード定数を文字コード名に. */
 static const char* charcodeToStr(charcode_t code)
 {
@@ -56,6 +60,8 @@ static const char* charcodeToStr(charcode_t code)
   case cc_ascii:    return "ascii";
   case cc_sjis:     return "sjis";
   case cc_eucjp:    return "eucjp";
+  case cc_jis_au:   return "jis-au";
+  case cc_jis_jsky: return "jis-jsky";
   case cc_jis:      return "jis";
   case cc_utf8:     return "utf8";
   case cc_utf32:    return "utf32";
@@ -77,6 +83,16 @@ DECL_MAP_MODE(jis,10) =
 {
   "jis","jis#1","jis#2","jis#3","jis#4","jis#5","jis#6",
   "jis#7","jis#loop1","jis#loop2",
+};
+DECL_MAP_MODE(jis_au,11) =
+{
+  "jis","jis#1","jis#2","jis#3","jis#4","jis#5","jis#6",
+  "jis#7","jis#loop1","jis#loop2","jis#au",
+};
+DECL_MAP_MODE(jis_jsky,12) =
+{
+  "jis","jis#1","jis#2","jis#3","jis#4","jis#5","jis#6",
+  "jis#7","jis#loop1","jis#loop2","jis#j2","jis#jend",
 };
 DECL_MAP_MODE(utf8,6) = 
 {
@@ -128,12 +144,14 @@ typedef struct CodeCheck CodeCheck;
 #define GEN_CODE(name) \
   { cc_##name, (const unsigned char*)map_##name, (const unsigned char*)map_##name, mode_##name, }
 #endif
-#define cc_tmpl_max 10
+#define cc_tmpl_max 12
 const CodeCheck cc_tmpl[] = 
 {
   GEN_CODE(ascii),
   GEN_CODE(eucjp),
   GEN_CODE(sjis),
+  GEN_CODE(jis_au),
+  GEN_CODE(jis_jsky),
   GEN_CODE(jis),
   GEN_CODE(utf8),
   GEN_CODE(utf32_be),
@@ -155,12 +173,14 @@ typedef struct CodeResult CodeResult;
 /* 複数候補から１つを選択. */
 int choice_one(CodeCheck* check, int cc_max)
 {
-  charcode_t order[cc_tmpl_max] = 
+  static const charcode_t order[cc_tmpl_max] = 
   {
     cc_utf32_be,
     cc_utf32_le,
     cc_ascii,
     cc_jis,
+    cc_jis_au,
+    cc_jis_jsky,
     cc_eucjp,
     cc_sjis,
     cc_sjis_jsky,
@@ -236,7 +256,7 @@ SV* xs_getcode(SV* sv_str)
     int invalids;
     int i;
 #if TEST && GC_DISP
-    fprintf(stderr,"[%d] %d (0x%02x)\n",len-(src_end-src),*src,*src);
+    fprintf(stderr,"[%d] '%c' 0x%02x (%d)\n",len-(src_end-src),(0x20<=*src&&*src<=0x7f?*src:'.'),*src,*src);
 #endif
     /* 遷移を１つ進める〜 */
     invalids = 0;
@@ -300,16 +320,19 @@ SV* xs_getcode(SV* sv_str)
 
 #if TEST && GC_DISP
   fprintf(stderr,"<availables>\n");
-  for( i=0; i<cc_max; ++i )
   {
-    fprintf(stderr,"  %s\n",charcodeToStr(check[i].code));
+    int i;
+    for( i=0; i<cc_max; ++i )
+    {
+      fprintf(stderr,"  %s\n",charcodeToStr(check[i].code));
+    }
   }
 #endif
 
   index = choice_one(check,cc_max);
 #if TEST && GC_DISP
-  fprintf(stderr,"<choice>\n  [%d/0..%d]\n",index,cc_max-1);
   fprintf(stderr,"<selected>\n");
+  fprintf(stderr,"  %d of 0..%d\n",index,cc_max-1);
   fprintf(stderr,"  %s\n",charcodeToStr(check[index].code));
 #endif
   switch(check[index].code)
@@ -319,6 +342,8 @@ SV* xs_getcode(SV* sv_str)
   case cc_sjis:     return new_CC_SJIS();
   case cc_eucjp:    return new_CC_EUCJP();
   case cc_jis:      return new_CC_JIS();
+  case cc_jis_au:   return new_CC_JIS_AU();
+  case cc_jis_jsky: return new_CC_JIS_JSKY();
   case cc_utf8:     return new_CC_UTF8();
   /*case cc_utf32:  return new_CC_UTF32(); */
   case cc_utf32_be: return new_CC_UTF32_BE();

@@ -27,7 +27,7 @@ ok($string->utf8(), "\xe6\x84\x9b");
 
 # imode
 $string = new Unicode::Japanese "\xf8\xa8", 'sjis-imode';
-ok($string->utf8(), "\xf3\xbf\xa2\xa8");
+ok($string->utf8(), "\xf3\xbf\xa2\xa8", 'sjis-imode');
 
 # dot-i
 $string = new Unicode::Japanese "\xf0\x48\xf3\x8e", 'sjis-doti';

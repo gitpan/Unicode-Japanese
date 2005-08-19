@@ -23,12 +23,16 @@ hints/linux.pl        hints file (Linux)
 hints/solaris.pl      hitns file (Solaris 8 and later)
 hints/sunos.pl        hints file (SunOS, Solaris 2.6 and prior)
 jis.c                 sjis<=>jis conversion
-memmap.c              mmapping of mapping table
+memmap_common.c       mmapping of mapping table
+memmap_unix.c         mmap in UNIX
+memmap_win32.c        mmap in Win32
 sjis.c                validate table for sjis
 sjis.h                forward decls for sjis validator
 sjis_doti.c           sjis(dot-i)<=>utf8 conversion
-sjis_imode.c          sjis(i-mode)<=>utf8 conversion
-sjis_jsky.c           sjis(j-sky)<=>utf8 conversion
+sjis_imode1.c         sjis(i-mode1)<=>utf8 conversion
+sjis_imode2.c         sjis(i-mode2)<=>utf8 conversion
+sjis_jsky1.c          sjis(j-sky1)<=>utf8 conversion
+sjis_jsky2.c          sjis(j-sky2)<=>utf8 conversion
 str.h                 SV* manipulate class
 t/allchar_utf8.pl
 t/base.t

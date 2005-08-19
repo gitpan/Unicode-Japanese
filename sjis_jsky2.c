@@ -1,37 +1,8 @@
-/* ----------------------------------------------------------------------------
- * conv.c
- * convert sjis <=> utf8
- * ----------------------------------------------------------------------------
- * Mastering programed by YAMASHINA Hio
- * ----------------------------------------------------------------------------
- * $Id: conv.c,v 1.9 2005/08/15 08:58:42 hio Exp $
- * ------------------------------------------------------------------------- */
 
-#ifdef _MSC_VER
-#include "EXTERN.h"
-#include "perl.h"
-#include "XSUB.h"
-#include <windows.h>
-#include <winsock.h>
-#define snprintf _snprintf
-#endif
+/* $Id: sjis_jsky2.c,v 1.3 2005/08/18 10:12:08 hio Exp $ */
 
 #include "Japanese.h"
 #include <stdio.h>
-#ifndef _MSC_VER
-#include <netinet/in.h>
-#endif
-
-#define DISP_S2U 0
-#define DISP_U2S 0
-
-#if DISP_U2S
-#define ECHO_U2S(arg) fprintf arg
-#define ON_U2S(cmd) cmd
-#else
-#define ECHO_U2S(arg)
-#define ON_U2S(cmd)
-#endif
 
 #ifndef __cplusplus
 #undef bool
@@ -40,13 +11,31 @@
 typedef enum bool { false, true, } bool;
 #endif
 
+#define DISP_U2S 0
+#define DISP_S2U 0
+
+#if DISP_U2S
+#define ECHO_U2S(arg) fprintf arg
+#define ON_U2S(cmd) cmd
+#else
+#define ECHO_U2S(arg)
+#define ON_U2S(cmd)
+#endif
+#if DISP_S2U
+#define ECHO_S2U(arg) fprintf arg
+#define ON_S2U(cmd) cmd
+#else
+#define ECHO_S2U(arg)
+#define ON_S2U(cmd)
+#endif
+
 /* ----------------------------------------------------------------------------
- * SV* sv_utf8 = xs_sjis_utf8(SV* sv_sjis)
- * convert sjis into utf8.
+ * SV* sv_utf8 = xs_sjis_jsky2_utf8(SV* sv_sjis)
+ * convert sjis(jsky2) into utf8.
  * ------------------------------------------------------------------------- */
 EXTERN_C
 SV*
-xs_sjis_utf8(SV* sv_str)
+xs_sjis_jsky2_utf8(SV* sv_str)
 {
   STRLEN src_len;
   unsigned char* src;
@@ -63,7 +52,7 @@ xs_sjis_utf8(SV* sv_str)
   src = (unsigned char*)SvPV(sv_str,src_len);
   len = sv_len(sv_str);
 #if DISP_S2U
-  fprintf(stderr,"Unicode::Japanese::(xs)sjis_utf8\n",len);
+  fprintf(stderr,"Unicode::Japanese::(xs)sjis_utf8_jsky2\n",len);
   bin_dump("in ",src,len);
 #endif
   SV_Buf_init(&result,len*3/2+4);
@@ -74,9 +63,67 @@ xs_sjis_utf8(SV* sv_str)
     const unsigned char* ptr;
     if( src[0]<0x80 )
     { /* ASCII */
+      unsigned char* begin;
+      int j1;
+      const UJ_UINT32* table;
       ECHO_U2S((stderr,"ascii: %02x\n",src[0]));
-      SV_Buf_append_ch(&result,*src);
+      
+      if( src[0]!='\x1b' || src+2>=src_end || src[1]!='$' )
+      { /* not emoji. */
+	SV_Buf_append_ch(&result,*src);
+	++src;
+	continue;
+      }
+      /*fprint(stderr,"detect j-sky emoji-start escape\n"); */
+      /* E_JSKY_1 */
+      if( src[2]=='E' || src[2]=='F' || src[2]=='G' )
+      {
+        j1 = (src[2]-'E')<<8;
+        table = g_ej2u1_table;
+        ECHO_U2S((stderr,"src[2]: %02x '%c' j1:%04x\n",src[2],src[2],j1));
+      }else if( src[2]=='O' || src[2]=='P' || src[2]=='Q' )
+      {
+	j1 = (src[2]-'O')<<8;
+	table = g_ej2u2_table;
+        ECHO_U2S((stderr,"src[2]: %02x '%c' j1:%04x\n",src[2],src[2],j1));
+      }else
+      {
+	/*fprintf(stderr,"first char is invalid"); */
+	SV_Buf_append_ch(&result,*src);
+	++src;
+	continue;
+      }
+      
+      begin = src;
+      src += 3;
+      /* E_JSKY_2 */
+      while( src+1<src_end )
+      {
+	if( '!'<=src[0] && src[0]<='z' )
+	{
+	  ++src;
+	  continue;
+	}
+	break;
+      }
+      if( src[0]!=0x0f )
+      {
+	/*fprintf(stderr,"invalid\n"); */
+	src = begin;
+	SV_Buf_append_ch(&result,*src);
+	++src;
+	continue;
+      }
       ++src;
+      for( ptr = begin+3; ptr<src-1; ++ptr )
+      {
+	/*fprintf(stderr," <%c%c:%04x>\n",begin[2],*ptr,j1+*ptr); */
+	/*fprintf(stderr,"   => %04x\n",g_ej2u2_table[j1+*ptr]); */
+	const unsigned char* str = (unsigned char*)&table[j1+*ptr];
+	/*fprintf(stderr,"   len: %d\n",str[3]?4:strlen((char*)str)); */
+	SV_Buf_append_str(&result,str,str[3]?4:strlen((char*)str));
+      }
+      /*fprintf(stderr,"j-sky string done.\n"); */
       continue;
     }else if( 0xa1<=src[0] && src[0]<=0xdf )
     { /* half-width katakana (ja:È¾³Ñ¥«¥Ê) */
@@ -122,27 +169,24 @@ xs_sjis_utf8(SV* sv_str)
       SV_Buf_append_ch(&result,'?');
     }
   }
-#if DISP_S2U
-  bin_dump("out",result.getBegin(),result.getLength());
-#endif
+  ON_S2U( bin_dump("out",SV_Buf_getBegin(&result),SV_Buf_getLength(&result)) );
   SV_Buf_setLength(&result);
 
   return SV_Buf_getSv(&result);
 }
 
-/* ----------------------------------------------------------------------------
- * SV* sv_sjis = xs_utf8_sjis(SV* sv_utf8)
- * convert utf8 into sjis.
+/* ---------------------------------------------------------------------------
+ * utf8 ==> jsky2
  * ------------------------------------------------------------------------- */
 EXTERN_C
 SV*
-xs_utf8_sjis(SV* sv_str)
+xs_utf8_sjis_jsky2(SV* sv_str)
 {
   unsigned char* src;
   int len;
   SV_Buf result;
   const unsigned char* src_end;
-  
+
   if( sv_str==&PL_sv_undef )
   {
     return newSVsv(&PL_sv_undef);
@@ -150,7 +194,7 @@ xs_utf8_sjis(SV* sv_str)
   src = (unsigned char*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
 
-  ECHO_U2S((stderr,"Unicode::Japanese::(xs)utf8_sjis\n"));
+  ECHO_U2S((stderr,"Unicode::Japanese::(xs)utf8_sjis_jsky2\n"));
   ON_U2S( bin_dump("in ",src,len) );
 
   SV_Buf_init(&result,len+4);
@@ -250,8 +294,38 @@ xs_utf8_sjis(SV* sv_str)
       }
       /* private area: block emoji */ 
       if( 0x0f0000<=ucs && ucs<=0x0fffff )
-      { 
-        SV_Buf_append_ch(&result,'?');
+      {
+        const unsigned char* sjis;
+        if( ucs<0x0fe000 )
+        { /* unknown area. */
+	  SV_Buf_append_ch(&result,'?');
+	  continue;
+        }
+        /* j-sky2 emoji */
+        sjis = &g_eu2j2_table[(ucs - 0x0fe000)*5];
+        /*fprintf(stderr,"  emoji: %02x %02x %02x %02x %02x\n", */
+        /*	  sjis[0],sjis[1],sjis[2],sjis[3],sjis[4]); */
+        if( sjis[4]!=0 )
+        { /* 5 bytes */
+	  SV_Buf_append_ch5(&result,sjis);
+        }else if( sjis[3]!=0 )
+        { /* 4 bytes. */
+	  assert("not reach here" && 0);
+	  SV_Buf_append_ch4(&result,*(const int*)(sjis));
+        }else if( sjis[2]!=0 )
+        { /* 3 bytes. */
+	  assert("not reach here" && 0);
+	  SV_Buf_append_ch3(&result,*(const int*)(sjis));
+        }else if( sjis[1]!=0 )
+        { /* 2 bytes. */
+	  SV_Buf_append_ch2(&result,*(const unsigned short*)(sjis));
+        }else if( sjis[0]!=0 )
+        { /* 1 byte. */
+	  SV_Buf_append_ch(&result,*sjis);
+        }else
+        { /* no mapping */
+          SV_Buf_append_ch(&result,'?');
+        }
         continue;
       }
       
@@ -393,16 +467,73 @@ xs_utf8_sjis(SV* sv_str)
       SV_Buf_append_ch(&result,(unsigned char)ucs);
     }else
     {
-      SV_Buf_append_entityref(&result,ucs);
+      SV_Buf_append_ch(&result,'?');
     }
   } /* while */
 
   ON_U2S( bin_dump("out",SV_Buf_getBegin(&result),SV_Buf_getLength(&result)) );
   SV_Buf_setLength(&result);
 
-  return SV_Buf_getSv(&result);
-}
+  sv_2mortal(SV_Buf_getSv(&result));
+  {
+  /* packing J-SKY emoji escapes */
+  SV_Buf pack;
+  unsigned char* ptr;
+  unsigned char tmpl[5] = { '\x1b','$',0,0,'\x0f',};
+  
+  SV_Buf_init(&pack,SV_Buf_getLength(&result));
+  src = SV_Buf_getBegin(&result);
+  src_end = src + SV_Buf_getLength(&result);
+  ptr = src;
+  for( ; src+5*2-1<src_end; ++src )
+  {
+    unsigned char ch1;
+    /* E_JSKY_START  "\x1b\$", */
+    if( src[0]!='\x1b' ) continue;
+    if( src[1]!='$' ) continue;
+    /* E_JSKY1   '[EFG]', */
+    /*fprintf(stderr,"  found emoji-start\n"); */
+    if( src[2]!='E' && src[2]!='F' && src[2]!='G'
+        && src[2]!='O' && src[2]!='P' && src[2]!='Q' )
+    {
+      /*fprintf(stderr,"  invalid ch1 [%x:%02x]\n",src[2],src[2]); */
+      continue;
+    }
+    ch1 = src[2];
+    /* E_JSKY2    '[\!-\;\=-z\xbc]', */
+    if( src[3]<'!' || 'z'<src[3] )
+    {
+      /*fprintf(stderr,"  invalid ch2 [%02x]\n",src[3]); */
+      continue;
+    }
+    /* E_JSKY_END    "\x0f", */
+    if( src[4]!='\x0f' ) continue;
 
-/* ----------------------------------------------------------------------------
- * End Of File.
- * ------------------------------------------------------------------------- */
+    /*fprintf(stderr,"  found first emoji [%02x:%c]\n",ch1,ch1); */
+    src += 5;
+    SV_Buf_append_str(&pack,ptr,(src-1)-ptr);
+    tmpl[2] = ch1;
+    for( ; src_end-src>=5; src+= 5 )
+    {
+      tmpl[3] = src[3];
+      if( memcmp(src,tmpl,5)!=0 ) break;
+      /*fprintf(stderr,"  packing...[%02x]\n",src[3]); */
+      SV_Buf_append_ch(&pack,src[3]);
+    }
+    /*fprintf(stderr,"  pack done.\n"); */
+    SV_Buf_append_ch(&pack,'\x0f');
+    ptr = src;
+  }
+  /*fprintf(stderr,"  pack complete.\n"); */
+  /*fprintf(stderr,"  append len %0d\n",src_end-ptr); */
+  if( ptr!=src_end )
+  {
+    SV_Buf_append_str(&pack,ptr,src_end-ptr);
+  }
+
+  ON_U2S( bin_dump("out",SV_Buf_getBegin(&pack),SV_Buf_getLength(&pack)) );
+  SV_Buf_setLength(&pack);
+
+  return SV_Buf_getSv(&pack);
+  }
+}

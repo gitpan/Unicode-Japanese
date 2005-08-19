@@ -1,83 +1,39 @@
 
-/* $Id: memmap_win32.c,v 1.7 2005/05/15 08:34:42 hio Exp $ */
+/* $Id: memmap_win32.c,v 1.9 2005/08/05 06:24:59 hio Exp $ */
 
 #include "Japanese.h"
 #include <windows.h>
-#include "win32/resource.h"
 #include <tchar.h>
 #include <stdio.h>
 
-static LPTSTR getLastErrorMessage(void);
-
-#ifdef UNIJP_NO_DLLMAIN
-extern HMODULE getDllHandle();
-#else
-static HMODULE Unicode_Japanese_hModule;
-#define getDllHandle() Unicode_Japanese_hModule
-
-/* ----------------------------------------------------------------------------
- * DllMain
- */
-BOOL APIENTRY DllMain( HANDLE hDll, 
-                       DWORD  ul_reason_for_call, 
-                       LPVOID lpReserved
-		       )
-{
-  switch (ul_reason_for_call)
-  {
-  case DLL_PROCESS_ATTACH:
-    {
-      Unicode_Japanese_hModule = hDll;
-      break;
-    }
-  case DLL_THREAD_ATTACH:
-  case DLL_THREAD_DETACH:
-    {
-      break;
-    }
-  case DLL_PROCESS_DETACH:
-    {
-      break;
-    }
-  }
-  return TRUE;
-}
+#if PERL_REVISION <= 5 && PERL_VERSION < 5
+/* copy from libwin32-0.24/APIFile/File.xs */
+/* Perl 5.005 added win32_get_osfhandle/win32_open_osfhandle */
+# define win32_get_osfhandle _get_osfhandle
+# define win32_open_osfhandle _open_osfhandle
+# ifdef _get_osfhandle
+#  undef _get_osfhandle/* stolen_get_osfhandle() isn't available here */
+# endif
+# ifdef _open_osfhandle
+#  undef _open_osfhandle /* stolen_open_osfhandle() isn't available here */
+# endif
 #endif
 
-  /* SJIS <=> UTF8 変換テーブル */
-  UJ_UINT16 const* g_u2s_table;
-  UJ_UINT32 const* g_s2u_table;
 
-  /* i-mode/j-sky/dot-i絵文字 <=> UTF8 変換テーブル */
-  UJ_UINT32 const* g_ei2u1_table;
-  UJ_UINT32 const* g_ei2u2_table;
-  UJ_UINT16 const* g_eu2i1_table;
-  UJ_UINT16 const* g_eu2i2_table;
-  UJ_UINT32 const* g_ej2u1_table;
-  UJ_UINT32 const* g_ej2u2_table;
-  UJ_UINT8  const* g_eu2j1_table; /* char [][5] */
-  UJ_UINT8  const* g_eu2j2_table; /* char [][5] */
-  UJ_UINT32 const* g_ed2u_table;
-  UJ_UINT16 const* g_eu2d_table;
+/* easy win32 strerror. */
+static LPTSTR getLastErrorMessage(void);
 
-  /* i-mode/j-sky/dot-i絵文字 <=> UTF8 変換テーブルの要素数 */
-  /* バイト数でなく要素数                                   */
-  int g_ei2u1_size;
-  int g_ei2u2_size;
-  int g_eu2i1_size;
-  int g_eu2i2_size;
-  int g_ej2u1_size;
-  int g_ej2u2_size;
-  int g_eu2j1_size;
-  int g_eu2j2_size;
-  int g_ed2u_size;
-  int g_eu2d_size;
+/* win32 native file/mmap object */
+static HANDLE* hFile_pmfile;
+static HANDLE* hFileMapping;
 
-  /* メモリマップの情報 */
-  static int   g_mmap_u2s_length;
-  static char* g_mmap_u2s_start;
-  static int   g_mmap_emj_length;
-  static char* g_mmap_emj_start;
+
+/* pointer to mapped file */
+static char* s_mmap_pmfile;
+static int   s_mmap_pmfile_size;
+
+/* split mapping table. */
+extern void do_memmap_set(const char* mmap_pmfile, int mmap_pmfile_size);
 
 /* ----------------------------------------------------------------------------
  * 必要なファイルをメモリにマッピング
@@ -85,134 +41,61 @@ BOOL APIENTRY DllMain( HANDLE hDll,
 void
 do_memmap(void)
 {
-  HRSRC hResource;
-  HGLOBAL hResourceChunk;
-  LPVOID data_u2s, data_emj;
-  DWORD siz_u2s, siz_emj;
-  const HANDLE hModule = getDllHandle();
+  int fd_pmfile;
+  DWORD dwFileSizeLow, dwFileSizeHigh;
+  struct stat st_pmfile;
   
-  /*fprintf(stderr,"* Unicode::Japanese::(xs)do_memmap *\n"); */
-  
-  hResource = FindResourceEx(hModule,RT_RCDATA,MAKEINTRESOURCE(RC_U2STABLE),LOCALE_INVARIANT);
-  if( hResource==NULL )
   {
-    LPTSTR msg = getLastErrorMessage();
-    sv_setpv(ERRSV,"do_memmap(win32), FindResource(u2stable) failed : ");
-    sv_catpv(ERRSV,msg);
-    LocalFree(msg);
-    croak(Nullch);
-  }
-  hResourceChunk = LoadResource(hModule,hResource);
-  if( hResourceChunk==NULL )
-  {
-    Perl_croak(aTHX_ "do_memmap(win32), LoadResource(u2stable) failed.");
-  }
-  data_u2s = LockResource(hResourceChunk);
-  if( data_u2s==NULL )
-  {
-    Perl_croak(aTHX_ "do_memmap(win32), LockResource(u2stable) failed.");
-  }
-  siz_u2s = SizeofResource(hModule,hResource);
-  if( siz_u2s==0 )
-  {
-    LPTSTR msg = getLastErrorMessage();
-    sv_setpv(ERRSV,"do_memmap(win32), SizeofResource(u2stable) failed : ");
-    sv_catpv(ERRSV,msg);
-    LocalFree(msg);
-    croak(Nullch);
-  }
-  
-  hResource = FindResourceEx(hModule,RT_RCDATA,MAKEINTRESOURCE(RC_EMJTABLE),LOCALE_INVARIANT);
-  if( hResource==NULL )
-  {
-    Perl_croak(aTHX_ "do_memmap(win32), FindResource(emjtable) failed.");
-  }
-  hResourceChunk = LoadResource(hModule,hResource);
-  if( hResourceChunk==NULL )
-  {
-    Perl_croak(aTHX_ "do_memmap(win32), LoadResource(emjtable) failed.");
-  }
-  data_emj = LockResource(hResourceChunk);
-  if( data_emj==NULL )
-  {
-    Perl_croak(aTHX_ "do_memmap(win32), LockResource(emjtable) failed.");
-  }
-  siz_emj = SizeofResource(hModule,hResource);
-  if( siz_emj==0 )
-  {
-    Perl_croak(aTHX_ "do_memmap(win32), SizeofResource(emjtable) failed.");
-  }
-  
-  /* サイズチェック */
-  if( siz_u2s!=0x60000 )
-  {
-    Perl_croak(aTHX_ "do_memmap, u2s-s2u size != 0x60000, [got %#x].",siz_u2s);
-    return;
-  }
-  if( siz_emj!=0x13c00 )
-  {
-    Perl_croak(aTHX_ "do_memmap, emoji.dat size != 0x13c00, [got %#x].",siz_emj);
-    return;
-  }
-  
-  /* マッピングの作成 */
-  g_mmap_u2s_length  = siz_u2s;
-  g_mmap_u2s_start = (char*)data_u2s;
-  g_mmap_emj_length  = siz_emj;
-  g_mmap_emj_start = (char*)data_emj;
-  
-  if( g_mmap_u2s_start==NULL || g_mmap_emj_start==NULL )
-  {
-    const char* msg;
-    if( g_mmap_u2s_start!=NULL )
-    {
-      msg = "do_memmap, mmap emoji table failed.";
-      g_mmap_emj_start = NULL;
-    }else if( g_mmap_emj_start!=NULL )
-    {
-      msg = "do_memmap, mmap u2s table failed.";
-      g_mmap_u2s_start = NULL;
-    }else
-    {
-      msg = "do_memmap, mmap u2s and emoji table failed.";
-      g_mmap_u2s_start = NULL;
-      g_mmap_emj_start = NULL;
+    /* (ja)初期化を確認 */
+    /* ensure initialize. */
+    SV* sv = get_sv("Unicode::Japanese::PurePerl::HEADLEN",0);
+    if( sv==NULL || !SvOK(sv) )
+    { /* not loaded yet. */
+      /* load now. */
+      call_pv("Unicode::Japanese::PurePerl::_init_table",G_NOARGS|G_DISCARD);
     }
-    do_memunmap();
-    Perl_croak(aTHX_ msg);
-    return;
   }
-
-  /* u2s,s2uの設定 */
-  g_u2s_table = (UJ_UINT16*)(g_mmap_u2s_start +     0x0);
-  g_s2u_table = (UJ_UINT32*)(g_mmap_u2s_start + 0x20000);
-
-  /* i-mode 1 */
-  g_eu2i1_table = (UJ_UINT16*)(g_mmap_emj_start +     0x0); /* +0x2000 */
-  g_eu2i1_size  = 0x2000/2;
-  g_ei2u1_table = (UJ_UINT32*)(g_mmap_emj_start +  0x2000); /* +0x0800 */
-  g_ei2u1_size  = 0x800/4;
-  /* i-mode 2 */
-  g_eu2i2_table = (UJ_UINT16*)(g_mmap_emj_start +  0x2800); /* +0x2000 */
-  g_eu2i2_size  = 0x2000/2;
-  g_ei2u2_table = (UJ_UINT32*)(g_mmap_emj_start +  0x4800); /* +0x0800 */
-  g_ei2u2_size  = 0x800/4;
-  /* jsky 1 */
-  g_eu2j1_table = (UJ_UINT8*)(g_mmap_emj_start +  0x5000); /* +0x5000 */
-  g_eu2j1_size  = 0x5000/1;
-  g_ej2u1_table = (UJ_UINT32*)(g_mmap_emj_start +  0xa000); /* +0xc00 */
-  g_ej2u1_size  = 0xc00/4;
-  /* jsky 2 */
-  g_eu2j2_table = (UJ_UINT8*)(g_mmap_emj_start +  0xac00); /* +0x5000 */
-  g_eu2j2_size  = 0x5000/1;
-  g_ej2u2_table = (UJ_UINT32*)(g_mmap_emj_start +  0xfc00); /* +0xc00 */
-  g_ej2u2_size  = 0xc00/4;
-  /* dot-i */
-  g_eu2d_table  = (UJ_UINT16*)(g_mmap_emj_start + 0x10800); /* +0x2000 */
-  g_eu2d_size   = 0x2000/2;
-  g_ed2u_table  = (UJ_UINT32*)(g_mmap_emj_start + 0x12800); /* +0x1400 */
-  g_ed2u_size   = 0x1400/4;
-
+  
+  {
+    /* get file descriptor and size. */
+    SV* sv_fd;
+    sv_fd = eval_pv("fileno($Unicode::Japanese::PurePerl::FH)",G_KEEPERR|G_SCALAR|G_NOARGS);
+    if( sv_fd==NULL || !SvOK(sv_fd) || !SvIOK(sv_fd) )
+    {
+      croak("Unicode::Japanese#do_memmap, could not get fd of FH");
+    }
+    fd_pmfile = SvIV(sv_fd);
+    
+    hFile_pmfile = (HANDLE)win32_get_osfhandle(fd_pmfile);
+    if( hFile_pmfile==INVALID_HANDLE_VALUE )
+    {
+      croak("Unicode::Japanese#do_memmap, could not get native handle for fd [%d]", fd_pmfile);
+    }
+    dwFileSizeLow = GetFileSize(hFile_pmfile,&dwFileSizeHigh);
+    if( dwFileSizeLow==-1 && GetLastError()!=NO_ERROR )
+    {
+      croak("Unicode::Japanese#do_memmap, %s failed","GetFileSize");
+    }
+  }
+  
+  {
+    /* mmap */
+    hFileMapping = CreateFileMapping(hFile_pmfile,NULL,PAGE_READONLY,dwFileSizeHigh,dwFileSizeLow,NULL);
+    if( hFileMapping==NULL )
+    {
+      croak("Unicode::Japanese#do_memmap, %s failed","CreateFileMapping");
+    }
+    s_mmap_pmfile_size = dwFileSizeLow;
+    s_mmap_pmfile = MapViewOfFile(hFileMapping,FILE_MAP_READ,0,0,s_mmap_pmfile_size);
+    if( s_mmap_pmfile==NULL )
+    {
+      croak("Unicode::Japanese#do_memmap, %s failed","MapViewOfFile");
+    }
+  }
+  
+  /* bind each table. */
+  do_memmap_set(s_mmap_pmfile,s_mmap_pmfile_size);
+  
   return;
 }
 
@@ -223,7 +106,23 @@ void
 do_memunmap(void)
 {
   /* printf("* do_memunmap() *\n"); */
-
+  if( s_mmap_pmfile!=NULL )
+  {
+    UnmapViewOfFile(s_mmap_pmfile);
+    s_mmap_pmfile;
+  }
+  if( hFileMapping!=NULL )
+  {
+    CloseHandle(hFileMapping);
+    hFileMapping = NULL;
+  }
+  if( hFile_pmfile!=NULL )
+  {
+    /* this handle is opened by perl, and not duped. */
+    /* no need CloseHandle. */
+    hFile_pmfile = NULL;
+  }
+  
   return;
 }
 

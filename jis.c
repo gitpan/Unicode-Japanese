@@ -1,11 +1,26 @@
 
-/* $Id: jis.c,v 1.7 2005/05/15 08:34:42 hio Exp $ */
+/* $Id: jis.c,v 1.8 2005/08/02 09:16:34 hio Exp $ */
 
 #include "Japanese.h"
 #include "sjis.h"
 
 #define S2J_DISP 0
 #define J2S_DISP 0
+
+#if S2J_DISP
+#define ECHO_S2J(arg) fprintf arg
+#define ON_S2J(cmd) cmd
+#else
+#define ECHO_S2J(arg)
+#define ON_S2J(cmd)
+#endif
+#if J2S_DISP
+#define ECHO_J2S(arg) fprintf arg
+#define ON_J2S(cmd) cmd
+#else
+#define ECHO_J2S(arg)
+#define ON_J2S(cmd)
+#endif
 
 #define JIS_0208 ((const unsigned char*)"\x1b$B")
 #define JIS_0212 ((const unsigned char*)"\x1b$(D")
@@ -37,8 +52,8 @@ xs_sjis_jis(SV* sv_str)
   
   src = (unsigned char*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
-  /*fprintf(stderr,"Unicode::Japanese::(xs)sjis_jis\n",len); */
-  /*bin_dump("in ",src,len); */
+  ECHO_S2J((stderr,"Unicode::Japanese::(xs)sjis_jis\n",len));
+  ON_S2J(bin_dump("in ",src,len));
   SV_Buf_init(&result,len+8);
   esc_asc = 1;
   src_end = src+len;
@@ -178,8 +193,8 @@ xs_jis_sjis(SV* sv_str)
   
   src = (unsigned char*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
-  /*fprintf(stderr,"Unicode::Japanese::(xs)jis_sjis\n",len); */
-  /*bin_dump("in ",src,len); */
+  ECHO_J2S((stderr,"Unicode::Japanese::(xs)jis_sjis\n",len));
+  ON_J2S(bin_dump("in ",src,len));
   SV_Buf_init(&result,len);
   src_end = src+len;
   
@@ -303,7 +318,7 @@ xs_jis_sjis(SV* sv_str)
     }
   } /*while */
 
-  /* bin_dump("out",SV_Buf_getBegin(&result), SV_Buf_getLength(&result)); */
+  ON_J2S(bin_dump("out",SV_Buf_getBegin(&result), SV_Buf_getLength(&result)));
   SV_Buf_setLength(&result);
 
   return SV_Buf_getSv(&result);
