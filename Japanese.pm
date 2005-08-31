@@ -2,7 +2,7 @@
 # Unicode::Japanese
 # Unicode::Japanese::PurePerl
 # -----------------------------------------------------------------------------
-# $Id: Japanese.pm,v 1.105 2005/08/18 10:30:17 hio Exp $
+# $Id: Japanese_stub.pm,v 1.58 2005/08/30 09:54:37 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::PurePerl;
 
@@ -16,7 +16,7 @@ package Unicode::Japanese;
 
 use strict;
 use vars qw($VERSION $PurePerl $xs_loaderror);
-$VERSION = '0.27_94';
+$VERSION = '0.27_95';
 
 # `use bytes' and `use Encode' if on perl-5.8.0 or later.
 if( $] >= 5.008 )
@@ -193,9 +193,17 @@ AUTOLOAD
   my ($pkg,$subname) = $AUTOLOAD =~ /^(.*)::(\w+)$/
     or got_undefined_subroutine($AUTOLOAD);
   no strict 'refs';
+  if(!defined($Unicode::Japanese::xs_loaderror) )
+  {
+    Unicode::Japanese::PurePerl::_init_table();
+    if( defined(&$AUTOLOAD) )
+    {
+      return &$AUTOLOAD;
+    }
+  }
   my $ppsubname = "$pkg\:\:PurePerl\:\:$subname";
   my $sub = \&$ppsubname;
-  *$AUTOLOAD = $sub;
+  *$AUTOLOAD = $sub; # copy.
   goto &$sub;
 }
 
@@ -1100,7 +1108,7 @@ SUGIURA Tatsuki & Debian JP Project
 
 
 __DATA__
-  ”{'joinCsv'=>{'length'=>939,'offset'=>187},'_decodeBase64'=>{'length'=>609,'offset'=>1126},'z2hNum'=>{'length'=>284,'offset'=>1735},'_utf16le_utf16'=>{'length'=>179,'offset'=>3261},'kata2hira'=>{'length'=>1242,'offset'=>2019},'jcode/emoji2/ea2u.dat'=>{'length'=>1320,'offset'=>365262},'_u2ai2'=>{'length'=>1063,'offset'=>4730},'z2hAlpha'=>{'length'=>836,'offset'=>7414},'_ucs4_utf8'=>{'length'=>936,'offset'=>8600},'h2zSym'=>{'length'=>316,'offset'=>9536},'utf8_icon_au1'=>{'length'=>73,'offset'=>9922},'h2z'=>{'length'=>114,'offset'=>9995},'jcode/emoji2/ea2u2s.dat'=>{'length'=>4096,'offset'=>423118},'sjis'=>{'length'=>177,'offset'=>12673},'euc_icon_au2'=>{'length'=>98,'offset'=>12850},'_u2si1'=>{'length'=>1620,'offset'=>12948},'_sj2u1'=>{'length'=>1144,'offset'=>14568},'euc_icon_au'=>{'length'=>97,'offset'=>16040},'tag2bin'=>{'length'=>328,'offset'=>15712},'z2hSym'=>{'length'=>596,'offset'=>16137},'ucs2'=>{'length'=>183,'offset'=>17502},'jis_au2'=>{'length'=>67,'offset'=>17685},'jcode/emoji2/ei2u2.dat'=>{'length'=>2048,'offset'=>237262},'_si2u1'=>{'length'=>1228,'offset'=>17926},'_utf8_utf16'=>{'length'=>950,'offset'=>20493},'jis_icon_au1'=>{'length'=>98,'offset'=>21529},'sjis_icon_au1'=>{'length'=>86,'offset'=>21443},'sjis_jsky2'=>{'length'=>70,'offset'=>21802},'jcode/emoji2/ei2u.dat'=>{'length'=>2048,'offset'=>218830},'getcode'=>{'length'=>1951,'offset'=>21872},'_j2s2'=>{'length'=>382,'offset'=>23823},'jcode/emoji2/ea2us.dat'=>{'length'=>4096,'offset'=>402638},'h2zKanaD'=>{'length'=>810,'offset'=>25065},'sjis_imode1'=>{'length'=>71,'offset'=>37212},'utf8'=>{'length'=>187,'offset'=>37283},'_s2e'=>{'length'=>244,'offset'=>37744},'jcode/emoji2/ea2u2.dat'=>{'length'=>3288,'offset'=>382966},'jcode/emoji2/eu2a2.dat'=>{'length'=>16384,'offset'=>386254},'jcode/s2u.dat'=>{'length'=>48573,'offset'=>170257},'conv'=>{'length'=>3178,'offset'=>42762},'_utf16be_utf16'=>{'length'=>71,'offset'=>46012},'jcode/emoji2/eu2j.dat'=>{'length'=>40960,'offset'=>258766},'hira2kata'=>{'length'=>1242,'offset'=>46555},'splitCsvu'=>{'length'=>177,'offset'=>48492},'_s2j'=>{'length'=>272,'offset'=>51613},'sjis_doti1'=>{'length'=>69,'offset'=>51544},'_ai2u1'=>{'length'=>454,'offset'=>56412},'join_csv'=>{'length'=>29,'offset'=>56383},'jcode/emoji2/eu2as.dat'=>{'length'=>16384,'offset'=>406734},'_s2u'=>{'length'=>988,'offset'=>57048},'jis_icon_au2'=>{'length'=>98,'offset'=>58296},'jis_jsky1'=>{'length'=>82,'offset'=>58214},'sjis_jsky'=>{'length'=>189,'offset'=>58394},'jis'=>{'length'=>179,'offset'=>59754},'jis_au1'=>{'length'=>67,'offset'=>59687},'_utf8_ucs4'=>{'length'=>1149,'offset'=>60674},'get'=>{'length'=>162,'offset'=>61823},'z2h'=>{'length'=>114,'offset'=>61985},'getu'=>{'length'=>266,'offset'=>62099},'_loadConvTable'=>{'length'=>18009,'offset'=>62710},'jcode/emoji2/eu2a2s.dat'=>{'length'=>16384,'offset'=>427214},'_ja2u1'=>{'length'=>1165,'offset'=>82453},'_u2ja1'=>{'length'=>1653,'offset'=>80800},'_j2s'=>{'length'=>177,'offset'=>84576},'utf16'=>{'length'=>187,'offset'=>0},'_u2ai1'=>{'length'=>1204,'offset'=>3440},'sjis_icon_au2'=>{'length'=>86,'offset'=>4644},'_u2si2'=>{'length'=>1621,'offset'=>5793},'splitCsv'=>{'length'=>350,'offset'=>8250},'jcode/emoji2/eu2i.dat'=>{'length'=>16384,'offset'=>220878},'jcode/emoji2/eu2i2.dat'=>{'length'=>16384,'offset'=>239310},'sjis_jsky1'=>{'length'=>70,'offset'=>9852},'_s2j3'=>{'length'=>355,'offset'=>10109},'_u2s'=>{'length'=>2209,'offset'=>10464},'_utf16_utf8'=>{'length'=>769,'offset'=>16733},'h2zNum'=>{'length'=>174,'offset'=>17752},'h2zKanaK'=>{'length'=>979,'offset'=>19154},'strlen'=>{'length'=>360,'offset'=>20133},'strcutu'=>{'length'=>175,'offset'=>21627},'sjis_imode2'=>{'length'=>71,'offset'=>24205},'_validate_utf8'=>{'length'=>789,'offset'=>24276},'z2hKanaK'=>{'length'=>979,'offset'=>25875},'h2zAlpha'=>{'length'=>264,'offset'=>26854},'_utf16_utf16'=>{'length'=>300,'offset'=>27118},'_ucs2_utf8'=>{'length'=>549,'offset'=>27418},'set'=>{'length'=>4697,'offset'=>27967},'jcode/emoji2/eu2a.dat'=>{'length'=>16384,'offset'=>366582},'_sj2u2'=>{'length'=>1503,'offset'=>32664},'getcodelist'=>{'length'=>2157,'offset'=>34167},'jcode/emoji2/ed2u.dat'=>{'length'=>5120,'offset'=>343758},'_utf32_ucs4'=>{'length'=>312,'offset'=>36324},'jis_icon_au'=>{'length'=>97,'offset'=>36636},'_ai2u2'=>{'length'=>406,'offset'=>36733},'utf8_icon_au2'=>{'length'=>73,'offset'=>37139},'z2hKana'=>{'length'=>89,'offset'=>37470},'h2zKana'=>{'length'=>185,'offset'=>37559},'_u2sj1'=>{'length'=>1773,'offset'=>37988},'_si2u2'=>{'length'=>1227,'offset'=>39761},'_u2sj2'=>{'length'=>1774,'offset'=>40988},'utf8_icon_au'=>{'length'=>72,'offset'=>45940},'sjis_doti'=>{'length'=>188,'offset'=>46083},'jis_jsky2'=>{'length'=>82,'offset'=>46271},'_e2s'=>{'length'=>202,'offset'=>46353},'jcode/emoji2/ej2u2.dat'=>{'length'=>3072,'offset'=>299726},'euc'=>{'length'=>175,'offset'=>47797},'_j2s3'=>{'length'=>337,'offset'=>47972},'jcode/emoji2/ej2u.dat'=>{'length'=>3072,'offset'=>255694},'ucs4'=>{'length'=>183,'offset'=>48309},'_sd2u'=>{'length'=>1221,'offset'=>48669},'_u2ja2'=>{'length'=>1654,'offset'=>49890},'_s2e2'=>{'length'=>446,'offset'=>51885},'z2hKanaD'=>{'length'=>498,'offset'=>52331},'_u2sd'=>{'length'=>1616,'offset'=>52829},'jcode/emoji2/eu2j2.dat'=>{'length'=>40960,'offset'=>302798},'jcode/emoji2/eu2d.dat'=>{'length'=>16384,'offset'=>348878},'_utf8_ucs2'=>{'length'=>672,'offset'=>54445},'_ja2u2'=>{'length'=>1168,'offset'=>55117},'jcode/u2s.dat'=>{'length'=>85504,'offset'=>84753},'euc_icon_au1'=>{'length'=>98,'offset'=>56285},'jis_au'=>{'length'=>182,'offset'=>56866},'_utf32le_ucs4'=>{'length'=>178,'offset'=>58036},'sjis_imode'=>{'length'=>192,'offset'=>58583},'_e2s2'=>{'length'=>535,'offset'=>58775},'_s2j2'=>{'length'=>377,'offset'=>59310},'_encodeBase64'=>{'length'=>741,'offset'=>59933},'validate_utf8'=>{'length'=>129,'offset'=>62365},'split_csv'=>{'length'=>131,'offset'=>62494},'sjis_icon_au'=>{'length'=>85,'offset'=>62625},'jis_jsky'=>{'length'=>81,'offset'=>80719},'strcut'=>{'length'=>888,'offset'=>83618},'_utf32be_ucs4'=>{'length'=>70,'offset'=>84506}}# -----------------------------------------------------------------------------
+  ”{'joinCsv'=>{'length'=>939,'offset'=>187},'_decodeBase64'=>{'length'=>609,'offset'=>1126},'z2hNum'=>{'length'=>284,'offset'=>1735},'_utf16le_utf16'=>{'length'=>179,'offset'=>3261},'kata2hira'=>{'length'=>1242,'offset'=>2019},'jcode/emoji2/ea2u.dat'=>{'length'=>1320,'offset'=>365251},'_u2ai2'=>{'length'=>1062,'offset'=>4729},'z2hAlpha'=>{'length'=>836,'offset'=>7411},'_ucs4_utf8'=>{'length'=>936,'offset'=>8597},'h2zSym'=>{'length'=>316,'offset'=>9533},'utf8_icon_au1'=>{'length'=>73,'offset'=>9919},'h2z'=>{'length'=>114,'offset'=>9992},'jcode/emoji2/ea2u2s.dat'=>{'length'=>4096,'offset'=>423107},'sjis'=>{'length'=>177,'offset'=>12669},'euc_icon_au2'=>{'length'=>98,'offset'=>12846},'_u2si1'=>{'length'=>1619,'offset'=>12944},'_sj2u1'=>{'length'=>1144,'offset'=>14563},'euc_icon_au'=>{'length'=>97,'offset'=>16035},'tag2bin'=>{'length'=>328,'offset'=>15707},'z2hSym'=>{'length'=>596,'offset'=>16132},'ucs2'=>{'length'=>183,'offset'=>17497},'jis_au2'=>{'length'=>67,'offset'=>17680},'jcode/emoji2/ei2u2.dat'=>{'length'=>2048,'offset'=>237251},'_si2u1'=>{'length'=>1228,'offset'=>17921},'_utf8_utf16'=>{'length'=>950,'offset'=>20488},'jis_icon_au1'=>{'length'=>98,'offset'=>21524},'sjis_icon_au1'=>{'length'=>86,'offset'=>21438},'sjis_jsky2'=>{'length'=>70,'offset'=>21797},'jcode/emoji2/ei2u.dat'=>{'length'=>2048,'offset'=>218819},'getcode'=>{'length'=>1951,'offset'=>21867},'_j2s2'=>{'length'=>382,'offset'=>23818},'jcode/emoji2/ea2us.dat'=>{'length'=>4096,'offset'=>402627},'h2zKanaD'=>{'length'=>810,'offset'=>25060},'sjis_imode1'=>{'length'=>71,'offset'=>37207},'utf8'=>{'length'=>187,'offset'=>37278},'_s2e'=>{'length'=>244,'offset'=>37739},'jcode/emoji2/ea2u2.dat'=>{'length'=>3288,'offset'=>382955},'jcode/emoji2/eu2a2.dat'=>{'length'=>16384,'offset'=>386243},'jcode/s2u.dat'=>{'length'=>48573,'offset'=>170246},'conv'=>{'length'=>3178,'offset'=>42755},'_utf16be_utf16'=>{'length'=>71,'offset'=>46005},'jcode/emoji2/eu2j.dat'=>{'length'=>40960,'offset'=>258755},'hira2kata'=>{'length'=>1242,'offset'=>46548},'splitCsvu'=>{'length'=>177,'offset'=>48485},'_s2j'=>{'length'=>272,'offset'=>51605},'sjis_doti1'=>{'length'=>69,'offset'=>51536},'_ai2u1'=>{'length'=>454,'offset'=>56402},'join_csv'=>{'length'=>29,'offset'=>56373},'jcode/emoji2/eu2as.dat'=>{'length'=>16384,'offset'=>406723},'_s2u'=>{'length'=>988,'offset'=>57038},'jis_icon_au2'=>{'length'=>98,'offset'=>58286},'jis_jsky1'=>{'length'=>82,'offset'=>58204},'sjis_jsky'=>{'length'=>189,'offset'=>58384},'jis'=>{'length'=>179,'offset'=>59744},'jis_au1'=>{'length'=>67,'offset'=>59677},'_utf8_ucs4'=>{'length'=>1149,'offset'=>60664},'get'=>{'length'=>162,'offset'=>61813},'z2h'=>{'length'=>114,'offset'=>61975},'getu'=>{'length'=>266,'offset'=>62089},'_loadConvTable'=>{'length'=>18009,'offset'=>62700},'jcode/emoji2/eu2a2s.dat'=>{'length'=>16384,'offset'=>427203},'_ja2u1'=>{'length'=>1165,'offset'=>82442},'_u2ja1'=>{'length'=>1652,'offset'=>80790},'_j2s'=>{'length'=>177,'offset'=>84565},'utf16'=>{'length'=>187,'offset'=>0},'_u2ai1'=>{'length'=>1203,'offset'=>3440},'sjis_icon_au2'=>{'length'=>86,'offset'=>4643},'_u2si2'=>{'length'=>1620,'offset'=>5791},'splitCsv'=>{'length'=>350,'offset'=>8247},'jcode/emoji2/eu2i.dat'=>{'length'=>16384,'offset'=>220867},'jcode/emoji2/eu2i2.dat'=>{'length'=>16384,'offset'=>239299},'sjis_jsky1'=>{'length'=>70,'offset'=>9849},'_s2j3'=>{'length'=>355,'offset'=>10106},'_u2s'=>{'length'=>2208,'offset'=>10461},'_utf16_utf8'=>{'length'=>769,'offset'=>16728},'h2zNum'=>{'length'=>174,'offset'=>17747},'h2zKanaK'=>{'length'=>979,'offset'=>19149},'strlen'=>{'length'=>360,'offset'=>20128},'strcutu'=>{'length'=>175,'offset'=>21622},'sjis_imode2'=>{'length'=>71,'offset'=>24200},'_validate_utf8'=>{'length'=>789,'offset'=>24271},'z2hKanaK'=>{'length'=>979,'offset'=>25870},'h2zAlpha'=>{'length'=>264,'offset'=>26849},'_utf16_utf16'=>{'length'=>300,'offset'=>27113},'_ucs2_utf8'=>{'length'=>549,'offset'=>27413},'set'=>{'length'=>4697,'offset'=>27962},'jcode/emoji2/eu2a.dat'=>{'length'=>16384,'offset'=>366571},'_sj2u2'=>{'length'=>1503,'offset'=>32659},'getcodelist'=>{'length'=>2157,'offset'=>34162},'jcode/emoji2/ed2u.dat'=>{'length'=>5120,'offset'=>343747},'_utf32_ucs4'=>{'length'=>312,'offset'=>36319},'jis_icon_au'=>{'length'=>97,'offset'=>36631},'_ai2u2'=>{'length'=>406,'offset'=>36728},'utf8_icon_au2'=>{'length'=>73,'offset'=>37134},'z2hKana'=>{'length'=>89,'offset'=>37465},'h2zKana'=>{'length'=>185,'offset'=>37554},'_u2sj1'=>{'length'=>1772,'offset'=>37983},'_si2u2'=>{'length'=>1227,'offset'=>39755},'_u2sj2'=>{'length'=>1773,'offset'=>40982},'utf8_icon_au'=>{'length'=>72,'offset'=>45933},'sjis_doti'=>{'length'=>188,'offset'=>46076},'jis_jsky2'=>{'length'=>82,'offset'=>46264},'_e2s'=>{'length'=>202,'offset'=>46346},'jcode/emoji2/ej2u2.dat'=>{'length'=>3072,'offset'=>299715},'euc'=>{'length'=>175,'offset'=>47790},'_j2s3'=>{'length'=>337,'offset'=>47965},'jcode/emoji2/ej2u.dat'=>{'length'=>3072,'offset'=>255683},'ucs4'=>{'length'=>183,'offset'=>48302},'_sd2u'=>{'length'=>1221,'offset'=>48662},'_u2ja2'=>{'length'=>1653,'offset'=>49883},'_s2e2'=>{'length'=>446,'offset'=>51877},'z2hKanaD'=>{'length'=>498,'offset'=>52323},'_u2sd'=>{'length'=>1615,'offset'=>52821},'jcode/emoji2/eu2j2.dat'=>{'length'=>40960,'offset'=>302787},'jcode/emoji2/eu2d.dat'=>{'length'=>16384,'offset'=>348867},'_utf8_ucs2'=>{'length'=>671,'offset'=>54436},'_ja2u2'=>{'length'=>1168,'offset'=>55107},'jcode/u2s.dat'=>{'length'=>85504,'offset'=>84742},'euc_icon_au1'=>{'length'=>98,'offset'=>56275},'jis_au'=>{'length'=>182,'offset'=>56856},'_utf32le_ucs4'=>{'length'=>178,'offset'=>58026},'sjis_imode'=>{'length'=>192,'offset'=>58573},'_e2s2'=>{'length'=>535,'offset'=>58765},'_s2j2'=>{'length'=>377,'offset'=>59300},'_encodeBase64'=>{'length'=>741,'offset'=>59923},'validate_utf8'=>{'length'=>129,'offset'=>62355},'split_csv'=>{'length'=>131,'offset'=>62484},'sjis_icon_au'=>{'length'=>85,'offset'=>62615},'jis_jsky'=>{'length'=>81,'offset'=>80709},'strcut'=>{'length'=>888,'offset'=>83607},'_utf32be_ucs4'=>{'length'=>70,'offset'=>84495}}# -----------------------------------------------------------------------------
 # $bytes_utf16 = $unijp->utf16();
 # 
 sub utf16
@@ -1244,7 +1252,7 @@ sub _u2ai1 {
   my $c;
   my $d;
   my $ch;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
+  $str =~ s/([\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|([^\x00-\x7f])/
     defined($2) ? '?' :
     ((length($1) == 1) ? $1 :
      (length($1) == 2) ? $1 :
@@ -1299,7 +1307,7 @@ sub _u2ai2 {
   my $c;
   my $d;
   my $ch;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
+  $str =~ s/([\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|([^\x00-\x7f])/
     defined($2) ? '?' :
     ((length($1) == 1) ? $1 :
      (length($1) == 2) ? $1 :
@@ -1353,7 +1361,7 @@ sub _u2si2 {
   my $c6;
   my $c;
   my $ch;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
+  $str =~ s/([\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|([^\x00-\x7f])/
     defined($2) ? '?' :
     ((length($1) == 1) ? $1 :
      (length($1) == 2) ? (
@@ -1524,7 +1532,7 @@ sub _u2s {
   my $c6;
   my $c;
   my $ch;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
+  $str =~ s/([\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|([^\x00-\x7f])/
     defined($2) ? '?' : (
     $U2S{$1}
       or ($U2S{$1}
@@ -1623,7 +1631,7 @@ sub _u2si1 {
   my $c6;
   my $c;
   my $ch;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
+  $str =~ s/([\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|([^\x00-\x7f])/
     defined($2) ? '?' :
     ((length($1) == 1) ? $1 :
      (length($1) == 2) ? (
@@ -1691,7 +1699,7 @@ sub _sj2u1 {
   my $l;
   my $j1;
   my $uc;
-  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_JSKYv1}|[\x00-\xff])/
+  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_JSKYv1}|[\x80-\xff])/
     (length($1) <= 2) ? 
       (
        $l = (unpack('n', $1) or unpack('C', $1)),
@@ -1839,7 +1847,7 @@ sub _si2u1 {
   
   my $l;
   my $uc;
-  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_IMODEv1}|[\x00-\xff])/
+  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_IMODEv1}|[\x80-\xff])/
     $S2U{$1}
       or ($S2U{$1} =
 	  (
@@ -2464,7 +2472,7 @@ sub _sj2u2 {
   my $l;
   my $j1;
   my $uc;
-  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_JSKY}|[\x00-\xff])/
+  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_JSKY}|[\x80-\xff])/
     (length($1) <= 2) ? 
       (
        $l = (unpack('n', $1) or unpack('C', $1)),
@@ -2757,7 +2765,7 @@ sub _u2sj1 {
   my $c6;
   my $c;
   my $ch;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
+  $str =~ s/([\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|([^\x00-\x7f])/
     defined($2) ? '?' :
     ((length($1) == 1) ? $1 :
      (length($1) == 2) ? (
@@ -2831,7 +2839,7 @@ sub _si2u2 {
   
   my $l;
   my $uc;
-  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_IMODE}|[\x00-\xff])/
+  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_IMODE}|[\x80-\xff])/
     $S2U{$1}
       or ($S2U{$1} =
 	  (
@@ -2898,7 +2906,7 @@ sub _u2sj2 {
   my $c6;
   my $c;
   my $ch;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
+  $str =~ s/([\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|([^\x00-\x7f])/
     defined($2) ? '?' :
     ((length($1) == 1) ? $1 :
      (length($1) == 2) ? (
@@ -3238,7 +3246,7 @@ sub _sd2u {
   
   my $l;
   my $uc;
-  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_DOTI}|[\x00-\xff])/
+  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|$RE{E_DOTI}|[\x80-\xff])/
     $S2U{$1}
       or ($S2U{$1} =
 	  (
@@ -3306,7 +3314,7 @@ sub _u2ja2 {
   my $c6;
   my $c;
   my $ch;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
+  $str =~ s/([\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|([^\x00-\x7f])/
     defined($2) ? '?' :
     ((length($1) == 1) ? $1 :
      (length($1) == 2) ? (
@@ -3432,7 +3440,7 @@ sub _u2sd {
   my $c6;
   my $c;
   my $ch;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
+  $str =~ s/([\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|([^\x00-\x7f])/
     defined($2) ? '?' :
     ((length($1) == 1) ? $1 :
      (length($1) == 2) ? (
@@ -3490,7 +3498,7 @@ sub _utf8_ucs2 {
   my $c1;
   my $c2;
   my $c3;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5}|(.))/
+  $str =~ s/([\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5}|([^\x00-\x7f]))/
     defined($2)?"\0$2":
     $T2U{$1}
       or ($T2U{$1}
@@ -3526,7 +3534,7 @@ sub _ja2u2 {
   
   my $l;
   my $uc;
-  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|[\x00-\xff])/
+  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|[\x80-\xff])/
     $SA2U2{$1}
       or ($SA2U2{$1} =
 	  (
@@ -3625,7 +3633,7 @@ sub _s2u {
 
   my $l;
   my $uc;
-  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|[\x00-\xff])/
+  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|[\x80-\xff])/
     $S2U{$1}
       or ($S2U{$1} =
 	  (
@@ -4248,7 +4256,7 @@ sub _u2ja1 {
   my $c6;
   my $c;
   my $ch;
-  $str =~ s/([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|(.)/
+  $str =~ s/([\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5})|([^\x00-\x7f])/
     defined($2) ? '?' :
     ((length($1) == 1) ? $1 :
      (length($1) == 2) ? (
@@ -4318,7 +4326,7 @@ sub _ja2u1 {
 
   my $l;
   my $uc;
-  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|[\x00-\xff])/
+  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|[\x80-\xff])/
     $SA2U1{$1}
       or ($SA2U1{$1} =
 	  (
