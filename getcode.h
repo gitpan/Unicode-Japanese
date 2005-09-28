@@ -2,7 +2,7 @@
 #ifndef GETCODE_H
 #define GETCODE_H
 
-/* $Id: getcode.h,v 1.4 2005/08/02 09:16:34 hio Exp $ */
+/* $Id: getcode.h,v 1.5 2005/09/28 13:17:06 hio Exp $ */
 
 #ifdef TEST
 #define DECL_MAP_MODE(name,num) const char* mode_##name[num]
@@ -22,9 +22,9 @@ EXTERN_DECL_MAP(ascii,1);
 EXTERN_DECL_MAP(eucjp,5);
 EXTERN_DECL_MAP(sjis,2);
 EXTERN_DECL_MAP(utf8,6);
-EXTERN_DECL_MAP(jis,10);
-EXTERN_DECL_MAP(jis_au,11);
-EXTERN_DECL_MAP(jis_jsky,12);
+EXTERN_DECL_MAP(jis,11);
+EXTERN_DECL_MAP(jis_au,12);
+EXTERN_DECL_MAP(jis_jsky,13);
 EXTERN_DECL_MAP(utf32_be,4);
 EXTERN_DECL_MAP(utf32_le,4);
 EXTERN_DECL_MAP(sjis_jsky,5);

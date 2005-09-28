@@ -53,6 +53,7 @@ t/ucs2_utf8.pl
 t/utf16.t
 t/utf8flag.t
 t/util.t
+t/v031_getcode_jiskana.t
 t/verify_sjis_ucs2.pl
 t/z2h.t
 ucs2_utf8.c

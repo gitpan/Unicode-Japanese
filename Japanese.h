@@ -2,7 +2,7 @@
 #ifndef UNICODE__JAPANESE_H__
 #define UNICODE__JAPANESE_H__
 
-/* $Id: Japanese.h,v 1.23 2005/08/02 09:16:32 hio Exp $ */
+/* $Id: Japanese.h,v 1.24 2005/09/28 13:17:03 hio Exp $ */
 
 #if !defined(__cplusplus) && !defined(bool)
 #define bool char
@@ -58,6 +58,7 @@ extern "C"
 
   /* getcode  (getcode.cpp) */
   SV* xs_getcode(SV* sv_str);
+  int xs_getcode_list(SV* sv_str);
 
   /* sjis<=>eucjp, sjis<=>jis */
   SV* xs_sjis_eucjp(SV* sv_str);

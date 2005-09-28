@@ -1,5 +1,5 @@
 
-/* $Id: Japanese.xs,v 1.12 2004/11/02 13:06:43 hio Exp $ */
+/* $Id: Japanese.xs,v 1.13 2005/09/28 13:17:06 hio Exp $ */
 
 #include "Japanese.h"
 
@@ -40,6 +40,16 @@ CODE:
     RETVAL = xs_getcode(str);
 OUTPUT:
     RETVAL
+
+#========================#
+# getcode_list           #
+#========================#
+
+void
+getcode_list(this_,str)
+    SV* str;
+CODE:
+    XSRETURN(xs_getcode_list(str));
 
 #========================#
 # SJIS <=> EUCJP         #

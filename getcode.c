@@ -1,5 +1,5 @@
 
-/* $Id: getcode.c,v 1.4 2005/08/02 09:16:34 hio Exp $ */
+/* $Id: getcode.c,v 1.5 2005/09/28 13:17:06 hio Exp $ */
 
 #include "Japanese.h"
 #include "getcode.h"
@@ -17,6 +17,7 @@ enum charcode_t
   cc_jis_jsky,
   cc_jis,
   cc_utf8,
+  cc_utf16,
   cc_utf32,
   cc_utf32_be,
   cc_utf32_le,
@@ -79,20 +80,20 @@ DECL_MAP_MODE(ascii,1) = { "ascii", };
 DECL_MAP_MODE(eucjp,5) =
 { "eucjp", "0212:3.1","0212:3.2","c:2.1","kana:2.1",};
 DECL_MAP_MODE(sjis,2) = { "sjis","c:2.1", };
-DECL_MAP_MODE(jis,10) =
+DECL_MAP_MODE(jis,11) =
 {
   "jis","jis#1","jis#2","jis#3","jis#4","jis#5","jis#6",
-  "jis#7","jis#loop1","jis#loop2",
+  "jis#7","jis#loop1","jis#loop2","jis#kana",
 };
-DECL_MAP_MODE(jis_au,11) =
+DECL_MAP_MODE(jis_au,12) =
 {
   "jis","jis#1","jis#2","jis#3","jis#4","jis#5","jis#6",
-  "jis#7","jis#loop1","jis#loop2","jis#au",
+  "jis#7","jis#loop1","jis#loop2","jis#kana","jis#au",
 };
-DECL_MAP_MODE(jis_jsky,12) =
+DECL_MAP_MODE(jis_jsky,13) =
 {
   "jis","jis#1","jis#2","jis#3","jis#4","jis#5","jis#6",
-  "jis#7","jis#loop1","jis#loop2","jis#j2","jis#jend",
+  "jis#7","jis#loop1","jis#loop2","jis#kana","jis#j2","jis#jend",
 };
 DECL_MAP_MODE(utf8,6) = 
 {
@@ -147,18 +148,18 @@ typedef struct CodeCheck CodeCheck;
 #define cc_tmpl_max 12
 const CodeCheck cc_tmpl[] = 
 {
-  GEN_CODE(ascii),
-  GEN_CODE(eucjp),
-  GEN_CODE(sjis),
-  GEN_CODE(jis_au),
-  GEN_CODE(jis_jsky),
-  GEN_CODE(jis),
-  GEN_CODE(utf8),
   GEN_CODE(utf32_be),
   GEN_CODE(utf32_le),
+  GEN_CODE(ascii),
+  GEN_CODE(jis),
+  GEN_CODE(jis_au),
+  GEN_CODE(jis_jsky),
+  GEN_CODE(eucjp),
+  GEN_CODE(sjis),
   GEN_CODE(sjis_jsky),
   GEN_CODE(sjis_imode),
   GEN_CODE(sjis_doti),
+  GEN_CODE(utf8),
 };
 
 /* 判定結果の構造体. */
@@ -170,53 +171,16 @@ struct CodeResult
 };
 typedef struct CodeResult CodeResult;
 
-/* 複数候補から１つを選択. */
-int choice_one(CodeCheck* check, int cc_max)
-{
-  static const charcode_t order[cc_tmpl_max] = 
-  {
-    cc_utf32_be,
-    cc_utf32_le,
-    cc_ascii,
-    cc_jis,
-    cc_jis_au,
-    cc_jis_jsky,
-    cc_eucjp,
-    cc_sjis,
-    cc_sjis_jsky,
-    cc_sjis_imode,
-    cc_sjis_doti,
-    cc_utf8,
-  };
-  int cc;
-  int i;
-  for( cc=0; cc<cc_tmpl_max; ++cc )
-  {
-    for( i=0; i<cc_max; ++i )
-    {
-      if( check[i].code==order[cc] )
-      {
-	return i;
-      }
-    }
-  }
-  return 0;
-}
-
-/* getcode関数 */
-SV* xs_getcode(SV* sv_str)
+static int getcode_list(SV* sv_str, CodeCheck* check)
 {
   unsigned char* src;
   int len;
   const unsigned char* src_end;
-  
-  CodeCheck check[cc_tmpl_max];
   int cc_max;
-  int index;
   
   if( sv_str==&PL_sv_undef )
   {
-    return new_SV_UNDEF();
+    return 0;
   }
   
   src = (unsigned char*)SvPV(sv_str,PL_na);
@@ -227,21 +191,23 @@ SV* xs_getcode(SV* sv_str)
   /* (jp:) 空文字列は unknown */
   if( len==0 )
   {
-    return new_CC_UNKNOWN();
+    return 0;
   }
   
   /* BOM of UTF32 */
   if( (len%4)==0 && len>=4 &&
       ( memcmp(src,RE_BOM4_BE,4)==0 || memcmp(src,RE_BOM4_LE,4)==0 ) )
   {
-    return new_CC_UTF32();
+    check[0].code = cc_utf32;
+    return 1;
   }
   
   /* BOM of UTF16 */
   if( (len%2)==0 && len>=2 &&
       ( memcmp(src,RE_BOM2_BE,2)==0 || memcmp(src,RE_BOM2_LE,2)==0 ) )
   {
-    return new_CC_UTF16();
+    check[0].code = cc_utf16;
+    return 1;
   }
 
   /* fprintf(stderr,"Unicode::Japanese::(xs)getcode[%d]\n",len); */
@@ -296,11 +262,11 @@ SV* xs_getcode(SV* sv_str)
       cc_max = wr;
     }else
     { /* 全部だめ〜 */
-      return new_CC_UNKNOWN();
-      break;
+      return 0;
     }
   }
 
+  /* check whether finished at valid state. */
   {
     int wr = 0;
     int i;
@@ -328,37 +294,103 @@ SV* xs_getcode(SV* sv_str)
     }
   }
 #endif
-
-  index = choice_one(check,cc_max);
-#if TEST && GC_DISP
-  fprintf(stderr,"<selected>\n");
-  fprintf(stderr,"  %d of 0..%d\n",index,cc_max-1);
-  fprintf(stderr,"  %s\n",charcodeToStr(check[index].code));
-#endif
-  switch(check[index].code)
-  {
-  case cc_unknown:  return new_CC_UNKNOWN();
-  case cc_ascii:    return new_CC_ASCII();
-  case cc_sjis:     return new_CC_SJIS();
-  case cc_eucjp:    return new_CC_EUCJP();
-  case cc_jis:      return new_CC_JIS();
-  case cc_jis_au:   return new_CC_JIS_AU();
-  case cc_jis_jsky: return new_CC_JIS_JSKY();
-  case cc_utf8:     return new_CC_UTF8();
-  /*case cc_utf32:  return new_CC_UTF32(); */
-  case cc_utf32_be: return new_CC_UTF32_BE();
-  case cc_utf32_le: return new_CC_UTF32_LE();
-  case cc_sjis_jsky: return new_CC_SJIS_JSKY();
-  case cc_sjis_imode: return new_CC_SJIS_IMODE();
-  case cc_sjis_doti: return new_CC_SJIS_DOTI();
-
-  default:
-#ifdef TEST
-    return NULL;
-#else
-    return new_CC_UNKNOWN();
-#endif
-  }
-
+  
+  return cc_max;
 }
 
+/* getcode関数 */
+SV* xs_getcode(SV* sv_str)
+{
+  int matches;
+  CodeCheck check[cc_tmpl_max];
+  
+  if( sv_str==&PL_sv_undef )
+  {
+    return new_SV_UNDEF();
+  }
+  matches = getcode_list(sv_str, check);
+  if( matches>0 )
+  {
+    int index = 0;
+#if TEST && GC_DISP
+    fprintf(stderr,"<selected>\n");
+    fprintf(stderr,"  %d of 0..%d\n",index,matches-1);
+    fprintf(stderr,"  %s\n",charcodeToStr(check[index].code));
+#endif
+    switch(check[index].code)
+    {
+    case cc_unknown:    return new_CC_UNKNOWN();
+    case cc_ascii:      return new_CC_ASCII();
+    case cc_sjis:       return new_CC_SJIS();
+    case cc_eucjp:      return new_CC_EUCJP();
+    case cc_jis:        return new_CC_JIS();
+    case cc_jis_au:     return new_CC_JIS_AU();
+    case cc_jis_jsky:   return new_CC_JIS_JSKY();
+    case cc_utf8:       return new_CC_UTF8();
+    case cc_utf16:      return new_CC_UTF16();
+    case cc_utf32:      return new_CC_UTF32();
+    case cc_utf32_be:   return new_CC_UTF32_BE();
+    case cc_utf32_le:   return new_CC_UTF32_LE();
+    case cc_sjis_jsky:  return new_CC_SJIS_JSKY();
+    case cc_sjis_imode: return new_CC_SJIS_IMODE();
+    case cc_sjis_doti:  return new_CC_SJIS_DOTI();
+    
+    default:
+#ifdef TEST
+      return NULL;
+#else
+      return new_CC_UNKNOWN();
+#endif
+    }
+  }else
+  {
+    return new_CC_UNKNOWN();
+  }
+}
+
+/* getcode_list関数 */
+int xs_getcode_list(SV* sv_str)
+{
+  int matches;
+  CodeCheck check[cc_tmpl_max];
+  int i;
+  dXSARGS;
+  
+  if( sv_str==&PL_sv_undef )
+  {
+    return 0;
+  }
+  matches = getcode_list(sv_str, check);
+  if( matches<=0 )
+  {
+    return 0;
+  }
+  EXTEND(SP, matches);
+  for( i=0; i<matches; ++i )
+  {
+    switch(check[i].code)
+    {
+    case cc_unknown:    ST(i) = sv_2mortal( new_CC_UNKNOWN()    ); break;
+    case cc_ascii:      ST(i) = sv_2mortal( new_CC_ASCII()      ); break;
+    case cc_sjis:       ST(i) = sv_2mortal( new_CC_SJIS()       ); break;
+    case cc_eucjp:      ST(i) = sv_2mortal( new_CC_EUCJP()      ); break;
+    case cc_jis:        ST(i) = sv_2mortal( new_CC_JIS()        ); break;
+    case cc_jis_au:     ST(i) = sv_2mortal( new_CC_JIS_AU()     ); break;
+    case cc_jis_jsky:   ST(i) = sv_2mortal( new_CC_JIS_JSKY()   ); break;
+    case cc_utf8:       ST(i) = sv_2mortal( new_CC_UTF8()       ); break;
+    case cc_utf16:      ST(i) = sv_2mortal( new_CC_UTF16()      ); break;
+    case cc_utf32:      ST(i) = sv_2mortal( new_CC_UTF32()      ); break;
+    case cc_utf32_be:   ST(i) = sv_2mortal( new_CC_UTF32_BE()   ); break;
+    case cc_utf32_le:   ST(i) = sv_2mortal( new_CC_UTF32_LE()   ); break;
+    case cc_sjis_jsky:  ST(i) = sv_2mortal( new_CC_SJIS_JSKY()  ); break;
+    case cc_sjis_imode: ST(i) = sv_2mortal( new_CC_SJIS_IMODE() ); break;
+    case cc_sjis_doti:  ST(i) = sv_2mortal( new_CC_SJIS_DOTI()  ); break;
+    default:            ST(i) = sv_2mortal( new_CC_UNKNOWN()    ); break;
+    }
+  }
+  return matches;
+}
+
+/* ----------------------------------------------------------------------------
+ * End of File.
+ * ------------------------------------------------------------------------- */
