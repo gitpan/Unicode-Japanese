@@ -3,7 +3,7 @@
  * ----------------------------------------------------------------------------
  * Mastering programed by YAMASHINA Hio
  * ----------------------------------------------------------------------------
- * $Id: ucs2_utf8.c,v 1.7 2005/05/15 08:34:42 hio Exp $
+ * $Id: ucs2_utf8.c,v 1.8 2005/11/04 03:22:17 hio Exp $
  * ------------------------------------------------------------------------- */
 
 
@@ -63,8 +63,8 @@ xs_ucs2_utf8(SV* sv_str)
       if( src+2<src_end )
       {
 #ifdef ENABLE_SURROGATE_PAIR
-        const unsigned short ucs2a = ntohs(*(unsigned short*)src+2);
-        const UJ_UINT32 ucs4  = ((ucs2&0x03FF)<<10|(ucs2a&0x3FFF))+0x010000;
+        const UJ_UINT16 ucs2a = ntohs(*(unsigned short*)(src+2));
+        const UJ_UINT32 ucs4  = ((ucs2&0x03FF)<<10|(ucs2a&0x3FF))+0x010000;
         src += 2;
         if( 0x010000<=ucs4 && ucs4<=0x1FFFFF )
         {

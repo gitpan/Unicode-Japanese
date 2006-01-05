@@ -4,7 +4,7 @@
  * ----------------------------------------------------------------------------
  * Mastering programed by YAMASHINA Hio
  * ----------------------------------------------------------------------------
- * $Id: memmap_common.c,v 1.1 2005/08/05 05:22:03 hio Exp $
+ * $Id: memmap_common.c,v 1.2 2005/11/04 03:22:17 hio Exp $
  * ------------------------------------------------------------------------- */
 
 #include "Japanese.h"
@@ -169,7 +169,7 @@ do_memmap_set(const char* mmap_pmfile, int mmap_pmfile_size)
       }
       offset = SvIV(*sv_offset);
       length = SvIV(*sv_length);
-      *ptr->data_ptr = mmap_pmfile + proglen + headlen + offset;
+      *ptr->data_ptr = (const UJ_UINT8*)mmap_pmfile + proglen + headlen + offset;
       *ptr->size_ptr = length;
       /* printf("[%s] offset: %d, length: %d\n", ptr->filename, offset, length); */
     }
