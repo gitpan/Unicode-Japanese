@@ -5,18 +5,18 @@
 #
 # Copyright YMIRLINK,Inc.
 # -----------------------------------------------------------------------------
-# $Id: illegal.t,v 1.4 2005/05/15 10:29:29 hio Exp $
+# $Id: illegal.t,v 1.5 2006/02/25 08:06:08 hio Exp $
 # -----------------------------------------------------------------------------
 use strict;
 use Test::More tests => 36;
 use Unicode::Japanese;
 
-my $Z1 = "\0";
-my $Z2 = "\xc0\x80";
-my $Z3 = "\xe0\x80\x80";
-my $Z4 = "\xf0\x80\x80\x80";
-my $Z5 = "\xf8\x80\x80\x80\x80";
-my $Z6 = "\xfc\x80\x80\x80\x80\x80";
+my $Z1 = "\0";                         # U+0000 in 1 byte.
+my $Z2 = "\xc0\x80";                   # U+0000 in 2 bytes.
+my $Z3 = "\xe0\x80\x80";               # U+0000 in 3 bytes.
+my $Z4 = "\xf0\x80\x80\x80";           # U+0000 in 4 bytes.
+my $Z5 = "\xf8\x80\x80\x80\x80";       # U+0000 in 5 bytes.
+my $Z6 = "\xfc\x80\x80\x80\x80\x80";   # U+0000 in 6 bytes.
 
 sub u{ unpack("H*",$_[0]) }
 

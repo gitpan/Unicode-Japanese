@@ -2,21 +2,14 @@
 # Unicode::Japanese
 # Unicode::Japanese::PurePerl
 # -----------------------------------------------------------------------------
-# $Id: Japanese.pm,v 1.113 2005/11/04 03:22:16 hio Exp $
+# $Id: Japanese.pm,v 1.116 2006/02/25 08:13:11 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::PurePerl;
-
-# methods of Unicode::Japanese::PurePerl are
-# below ones of Unicode::Japanese.
-
-# -----------------------------------------------------------------------------
-# Unicode::Japanese
-# -----------------------------------------------------------------------------
 package Unicode::Japanese;
 
 use strict;
 use vars qw($VERSION $PurePerl $xs_loaderror);
-$VERSION = '0.32';
+$VERSION = '0.33';
 
 # `use bytes' and `use Encode' if on perl-5.8.0 or later.
 if( $] >= 5.008 )
@@ -37,11 +30,22 @@ if( $] >= 5.008 )
 sub import
 {
   my $pkg = shift;
+  my ($callerpkg) = caller;
+  my %exp =
+  (
+    '&unijp' => \&unijp,
+  );
   my @na;
   foreach(@_)
   {
     $_ eq 'PurePerl' and $PurePerl=1, next;
-    if( $_ eq 'no_I18N_Japanese' )
+    if( $exp{$_} || $exp{'&'.$_} )
+    {
+      no strict 'refs';
+      (my $name = $_) =~ s/^\W//;
+      my $obj = $exp{$_} || $exp{'&'.$_};
+      *{$callerpkg.'::'.$name} = $obj;
+    }elsif( $_ eq 'no_I18N_Japanese' )
     {
       $^H &= ~0x0f00_0000;
       package Unicode::Japanese::PurePerl;
@@ -528,23 +532,25 @@ Unicode::Japanese - Japanese Character Encoding Handler
 
 =head1 SYNOPSIS
 
-use Unicode::Japanese;
-
-# convert utf8 -> sjis
-
-print Unicode::Japanese->new($str)->sjis;
-
-# convert sjis -> utf8
-
-print Unicode::Japanese->new($str,'sjis')->get;
-
-# convert sjis (imode_EMOJI) -> utf8
-
-print Unicode::Japanese->new($str,'sjis-imode')->get;
-
-# convert ZENKAKU (utf8) -> HANKAKU (utf8)
-
-print Unicode::Japanese->new($str)->z2h->get;
+ use Unicode::Japanese;
+ use Unicode::Japanese qw(unijp);
+ 
+ # convert utf8 -> sjis
+ 
+ print Unicode::Japanese->new($str)->sjis;
+ print unijp($str)->sjis; # same as avobe.
+ 
+ # convert sjis -> utf8
+ 
+ print Unicode::Japanese->new($str,'sjis')->get;
+ 
+ # convert sjis (imode_EMOJI) -> utf8
+ 
+ print Unicode::Japanese->new($str,'sjis-imode')->get;
+ 
+ # convert ZENKAKU (utf8) -> HANKAKU (utf8)
+ 
+ print Unicode::Japanese->new($str)->z2h->get;
 
 =head1 DESCRIPTION
 
@@ -616,6 +622,10 @@ Creates a new instance of Unicode::Japanese.
 
 If arguments are specified, passes through to set method.
 
+=item unijp($str [, $icode [, $encode]])
+
+Same as Unicode::Janaese->new(...).
+
 =item $s->set($str [, $icode [, $encode]])
 
 =over 2
@@ -633,8 +643,8 @@ If '$icode' is omitted, string is considered as UTF-8.
 
 To specify a encodings, choose from the following;
 'jis', 'sjis', 'euc', 'utf8',
-'ucs2', 'ucs4', 'utf16', 'utf16-ge', 'utf16-le',
-'utf32', 'utf32-ge', 'utf32-le', 'ascii', 'binary',
+'ucs2', 'ucs4', 'utf16', 'utf16-be', 'utf16-le',
+'utf32', 'utf32-be', 'utf32-le', 'ascii', 'binary',
 'sjis-imode', 'sjis-doti', 'sjis-jsky'.
 
 '&#dddd' will be converted to "EMOJI", when specified 'sjis-imode'
@@ -1108,7 +1118,7 @@ SUGIURA Tatsuki & Debian JP Project
 
 
 __DATA__
-  ”{'joinCsv'=>{'length'=>939,'offset'=>187},'_decodeBase64'=>{'length'=>609,'offset'=>1126},'z2hNum'=>{'length'=>284,'offset'=>1735},'_utf16le_utf16'=>{'length'=>179,'offset'=>3261},'kata2hira'=>{'length'=>1242,'offset'=>2019},'jcode/emoji2/ea2u.dat'=>{'length'=>1320,'offset'=>365251},'_u2ai2'=>{'length'=>1062,'offset'=>4729},'z2hAlpha'=>{'length'=>836,'offset'=>7411},'_ucs4_utf8'=>{'length'=>936,'offset'=>8597},'h2zSym'=>{'length'=>316,'offset'=>9533},'utf8_icon_au1'=>{'length'=>73,'offset'=>9919},'h2z'=>{'length'=>114,'offset'=>9992},'jcode/emoji2/ea2u2s.dat'=>{'length'=>4096,'offset'=>423107},'sjis'=>{'length'=>177,'offset'=>12669},'euc_icon_au2'=>{'length'=>98,'offset'=>12846},'_u2si1'=>{'length'=>1619,'offset'=>12944},'_sj2u1'=>{'length'=>1144,'offset'=>14563},'euc_icon_au'=>{'length'=>97,'offset'=>16035},'tag2bin'=>{'length'=>328,'offset'=>15707},'z2hSym'=>{'length'=>596,'offset'=>16132},'ucs2'=>{'length'=>183,'offset'=>17497},'jis_au2'=>{'length'=>67,'offset'=>17680},'jcode/emoji2/ei2u2.dat'=>{'length'=>2048,'offset'=>237251},'_si2u1'=>{'length'=>1228,'offset'=>17921},'_utf8_utf16'=>{'length'=>950,'offset'=>20488},'jis_icon_au1'=>{'length'=>98,'offset'=>21524},'sjis_icon_au1'=>{'length'=>86,'offset'=>21438},'sjis_jsky2'=>{'length'=>70,'offset'=>21797},'jcode/emoji2/ei2u.dat'=>{'length'=>2048,'offset'=>218819},'getcode'=>{'length'=>1951,'offset'=>21867},'_j2s2'=>{'length'=>382,'offset'=>23818},'jcode/emoji2/ea2us.dat'=>{'length'=>4096,'offset'=>402627},'h2zKanaD'=>{'length'=>810,'offset'=>25060},'sjis_imode1'=>{'length'=>71,'offset'=>37207},'utf8'=>{'length'=>187,'offset'=>37278},'_s2e'=>{'length'=>244,'offset'=>37739},'jcode/emoji2/ea2u2.dat'=>{'length'=>3288,'offset'=>382955},'jcode/emoji2/eu2a2.dat'=>{'length'=>16384,'offset'=>386243},'jcode/s2u.dat'=>{'length'=>48573,'offset'=>170246},'conv'=>{'length'=>3178,'offset'=>42755},'_utf16be_utf16'=>{'length'=>71,'offset'=>46005},'jcode/emoji2/eu2j.dat'=>{'length'=>40960,'offset'=>258755},'hira2kata'=>{'length'=>1242,'offset'=>46548},'splitCsvu'=>{'length'=>177,'offset'=>48485},'_s2j'=>{'length'=>272,'offset'=>51605},'sjis_doti1'=>{'length'=>69,'offset'=>51536},'_ai2u1'=>{'length'=>454,'offset'=>56402},'join_csv'=>{'length'=>29,'offset'=>56373},'jcode/emoji2/eu2as.dat'=>{'length'=>16384,'offset'=>406723},'_s2u'=>{'length'=>988,'offset'=>57038},'jis_icon_au2'=>{'length'=>98,'offset'=>58286},'jis_jsky1'=>{'length'=>82,'offset'=>58204},'sjis_jsky'=>{'length'=>189,'offset'=>58384},'jis'=>{'length'=>179,'offset'=>59744},'jis_au1'=>{'length'=>67,'offset'=>59677},'_utf8_ucs4'=>{'length'=>1149,'offset'=>60664},'get'=>{'length'=>162,'offset'=>61813},'z2h'=>{'length'=>114,'offset'=>61975},'getu'=>{'length'=>266,'offset'=>62089},'_loadConvTable'=>{'length'=>18009,'offset'=>62700},'jcode/emoji2/eu2a2s.dat'=>{'length'=>16384,'offset'=>427203},'_ja2u1'=>{'length'=>1165,'offset'=>82442},'_u2ja1'=>{'length'=>1652,'offset'=>80790},'_j2s'=>{'length'=>177,'offset'=>84565},'utf16'=>{'length'=>187,'offset'=>0},'_u2ai1'=>{'length'=>1203,'offset'=>3440},'sjis_icon_au2'=>{'length'=>86,'offset'=>4643},'_u2si2'=>{'length'=>1620,'offset'=>5791},'splitCsv'=>{'length'=>350,'offset'=>8247},'jcode/emoji2/eu2i.dat'=>{'length'=>16384,'offset'=>220867},'jcode/emoji2/eu2i2.dat'=>{'length'=>16384,'offset'=>239299},'sjis_jsky1'=>{'length'=>70,'offset'=>9849},'_s2j3'=>{'length'=>355,'offset'=>10106},'_u2s'=>{'length'=>2208,'offset'=>10461},'_utf16_utf8'=>{'length'=>769,'offset'=>16728},'h2zNum'=>{'length'=>174,'offset'=>17747},'h2zKanaK'=>{'length'=>979,'offset'=>19149},'strlen'=>{'length'=>360,'offset'=>20128},'strcutu'=>{'length'=>175,'offset'=>21622},'sjis_imode2'=>{'length'=>71,'offset'=>24200},'_validate_utf8'=>{'length'=>789,'offset'=>24271},'z2hKanaK'=>{'length'=>979,'offset'=>25870},'h2zAlpha'=>{'length'=>264,'offset'=>26849},'_utf16_utf16'=>{'length'=>300,'offset'=>27113},'_ucs2_utf8'=>{'length'=>549,'offset'=>27413},'set'=>{'length'=>4697,'offset'=>27962},'jcode/emoji2/eu2a.dat'=>{'length'=>16384,'offset'=>366571},'_sj2u2'=>{'length'=>1503,'offset'=>32659},'getcodelist'=>{'length'=>2157,'offset'=>34162},'jcode/emoji2/ed2u.dat'=>{'length'=>5120,'offset'=>343747},'_utf32_ucs4'=>{'length'=>312,'offset'=>36319},'jis_icon_au'=>{'length'=>97,'offset'=>36631},'_ai2u2'=>{'length'=>406,'offset'=>36728},'utf8_icon_au2'=>{'length'=>73,'offset'=>37134},'z2hKana'=>{'length'=>89,'offset'=>37465},'h2zKana'=>{'length'=>185,'offset'=>37554},'_u2sj1'=>{'length'=>1772,'offset'=>37983},'_si2u2'=>{'length'=>1227,'offset'=>39755},'_u2sj2'=>{'length'=>1773,'offset'=>40982},'utf8_icon_au'=>{'length'=>72,'offset'=>45933},'sjis_doti'=>{'length'=>188,'offset'=>46076},'jis_jsky2'=>{'length'=>82,'offset'=>46264},'_e2s'=>{'length'=>202,'offset'=>46346},'jcode/emoji2/ej2u2.dat'=>{'length'=>3072,'offset'=>299715},'euc'=>{'length'=>175,'offset'=>47790},'_j2s3'=>{'length'=>337,'offset'=>47965},'jcode/emoji2/ej2u.dat'=>{'length'=>3072,'offset'=>255683},'ucs4'=>{'length'=>183,'offset'=>48302},'_sd2u'=>{'length'=>1221,'offset'=>48662},'_u2ja2'=>{'length'=>1653,'offset'=>49883},'_s2e2'=>{'length'=>446,'offset'=>51877},'z2hKanaD'=>{'length'=>498,'offset'=>52323},'_u2sd'=>{'length'=>1615,'offset'=>52821},'jcode/emoji2/eu2j2.dat'=>{'length'=>40960,'offset'=>302787},'jcode/emoji2/eu2d.dat'=>{'length'=>16384,'offset'=>348867},'_utf8_ucs2'=>{'length'=>671,'offset'=>54436},'_ja2u2'=>{'length'=>1168,'offset'=>55107},'jcode/u2s.dat'=>{'length'=>85504,'offset'=>84742},'euc_icon_au1'=>{'length'=>98,'offset'=>56275},'jis_au'=>{'length'=>182,'offset'=>56856},'_utf32le_ucs4'=>{'length'=>178,'offset'=>58026},'sjis_imode'=>{'length'=>192,'offset'=>58573},'_e2s2'=>{'length'=>535,'offset'=>58765},'_s2j2'=>{'length'=>377,'offset'=>59300},'_encodeBase64'=>{'length'=>741,'offset'=>59923},'validate_utf8'=>{'length'=>129,'offset'=>62355},'split_csv'=>{'length'=>131,'offset'=>62484},'sjis_icon_au'=>{'length'=>85,'offset'=>62615},'jis_jsky'=>{'length'=>81,'offset'=>80709},'strcut'=>{'length'=>888,'offset'=>83607},'_utf32be_ucs4'=>{'length'=>70,'offset'=>84495}}# -----------------------------------------------------------------------------
+  {'joinCsv'=>{'length'=>939,'offset'=>187},'_decodeBase64'=>{'length'=>609,'offset'=>1126},'z2hNum'=>{'length'=>284,'offset'=>1735},'_utf16le_utf16'=>{'length'=>179,'offset'=>3261},'kata2hira'=>{'length'=>1242,'offset'=>2019},'jcode/emoji2/ea2u.dat'=>{'length'=>1320,'offset'=>365736},'_u2ai2'=>{'length'=>1062,'offset'=>4729},'z2hAlpha'=>{'length'=>836,'offset'=>7411},'_ucs4_utf8'=>{'length'=>936,'offset'=>8597},'h2zSym'=>{'length'=>316,'offset'=>9533},'utf8_icon_au1'=>{'length'=>73,'offset'=>9919},'h2z'=>{'length'=>114,'offset'=>9992},'jcode/emoji2/ea2u2s.dat'=>{'length'=>4096,'offset'=>423592},'sjis'=>{'length'=>177,'offset'=>12781},'euc_icon_au2'=>{'length'=>98,'offset'=>12958},'_u2si1'=>{'length'=>1619,'offset'=>13056},'_sj2u1'=>{'length'=>1144,'offset'=>14675},'euc_icon_au'=>{'length'=>97,'offset'=>16147},'tag2bin'=>{'length'=>328,'offset'=>15819},'z2hSym'=>{'length'=>596,'offset'=>16244},'ucs2'=>{'length'=>183,'offset'=>17609},'jis_au2'=>{'length'=>67,'offset'=>17792},'jcode/emoji2/ei2u2.dat'=>{'length'=>2048,'offset'=>237736},'_si2u1'=>{'length'=>1228,'offset'=>18033},'_utf8_utf16'=>{'length'=>950,'offset'=>20600},'sjis_icon_au1'=>{'length'=>86,'offset'=>21648},'jis_icon_au1'=>{'length'=>98,'offset'=>21550},'sjis_jsky2'=>{'length'=>70,'offset'=>21909},'jcode/emoji2/ei2u.dat'=>{'length'=>2048,'offset'=>219304},'getcode'=>{'length'=>1951,'offset'=>21979},'_j2s2'=>{'length'=>382,'offset'=>23930},'jcode/emoji2/ea2us.dat'=>{'length'=>4096,'offset'=>403112},'h2zKanaD'=>{'length'=>810,'offset'=>25172},'sjis_imode1'=>{'length'=>71,'offset'=>37362},'eucjp'=>{'length'=>32,'offset'=>37433},'utf8'=>{'length'=>187,'offset'=>37465},'_s2e'=>{'length'=>244,'offset'=>37926},'jcode/emoji2/ea2u2.dat'=>{'length'=>3288,'offset'=>383440},'jcode/emoji2/eu2a2.dat'=>{'length'=>16384,'offset'=>386728},'jcode/s2u.dat'=>{'length'=>48573,'offset'=>170731},'conv'=>{'length'=>3222,'offset'=>42942},'_utf16be_utf16'=>{'length'=>71,'offset'=>46236},'jcode/emoji2/eu2j.dat'=>{'length'=>40960,'offset'=>259240},'hira2kata'=>{'length'=>1242,'offset'=>46779},'splitCsvu'=>{'length'=>177,'offset'=>48716},'_s2j'=>{'length'=>272,'offset'=>51836},'sjis_doti1'=>{'length'=>69,'offset'=>51767},'_ai2u1'=>{'length'=>454,'offset'=>56717},'join_csv'=>{'length'=>29,'offset'=>56688},'jcode/emoji2/eu2as.dat'=>{'length'=>16384,'offset'=>407208},'_s2u'=>{'length'=>988,'offset'=>57353},'jis_icon_au2'=>{'length'=>98,'offset'=>58601},'jis_jsky1'=>{'length'=>82,'offset'=>58519},'sjis_jsky'=>{'length'=>189,'offset'=>58699},'jis'=>{'length'=>179,'offset'=>60059},'jis_au1'=>{'length'=>67,'offset'=>59992},'_utf8_ucs4'=>{'length'=>1149,'offset'=>60979},'get'=>{'length'=>162,'offset'=>62128},'z2h'=>{'length'=>114,'offset'=>62290},'getu'=>{'length'=>266,'offset'=>62533},'_loadConvTable'=>{'length'=>18009,'offset'=>63015},'unijp'=>{'length'=>137,'offset'=>81024},'jcode/emoji2/eu2a2s.dat'=>{'length'=>16384,'offset'=>427688},'_ja2u1'=>{'length'=>1165,'offset'=>82894},'_u2ja1'=>{'length'=>1652,'offset'=>81242},'_j2s'=>{'length'=>177,'offset'=>85050},'utf16'=>{'length'=>187,'offset'=>0},'_u2ai1'=>{'length'=>1203,'offset'=>3440},'sjis_icon_au2'=>{'length'=>86,'offset'=>4643},'_u2si2'=>{'length'=>1620,'offset'=>5791},'splitCsv'=>{'length'=>350,'offset'=>8247},'jcode/emoji2/eu2i.dat'=>{'length'=>16384,'offset'=>221352},'jcode/emoji2/eu2i2.dat'=>{'length'=>16384,'offset'=>239784},'sjis_jsky1'=>{'length'=>70,'offset'=>9849},'_s2j3'=>{'length'=>355,'offset'=>10106},'_u2s'=>{'length'=>2320,'offset'=>10461},'_utf16_utf8'=>{'length'=>769,'offset'=>16840},'h2zNum'=>{'length'=>174,'offset'=>17859},'h2zKanaK'=>{'length'=>979,'offset'=>19261},'strlen'=>{'length'=>360,'offset'=>20240},'strcutu'=>{'length'=>175,'offset'=>21734},'sjis_imode2'=>{'length'=>71,'offset'=>24312},'_validate_utf8'=>{'length'=>789,'offset'=>24383},'z2hKanaK'=>{'length'=>979,'offset'=>25982},'h2zAlpha'=>{'length'=>264,'offset'=>26961},'_utf16_utf16'=>{'length'=>300,'offset'=>27225},'_ucs2_utf8'=>{'length'=>549,'offset'=>27525},'set'=>{'length'=>4740,'offset'=>28074},'jcode/emoji2/eu2a.dat'=>{'length'=>16384,'offset'=>367056},'_sj2u2'=>{'length'=>1503,'offset'=>32814},'getcodelist'=>{'length'=>2157,'offset'=>34317},'jcode/emoji2/ed2u.dat'=>{'length'=>5120,'offset'=>344232},'_utf32_ucs4'=>{'length'=>312,'offset'=>36474},'jis_icon_au'=>{'length'=>97,'offset'=>36786},'_ai2u2'=>{'length'=>406,'offset'=>36883},'utf8_icon_au2'=>{'length'=>73,'offset'=>37289},'z2hKana'=>{'length'=>89,'offset'=>37652},'h2zKana'=>{'length'=>185,'offset'=>37741},'_u2sj1'=>{'length'=>1772,'offset'=>38170},'_si2u2'=>{'length'=>1227,'offset'=>39942},'_u2sj2'=>{'length'=>1773,'offset'=>41169},'utf8_icon_au'=>{'length'=>72,'offset'=>46164},'sjis_doti'=>{'length'=>188,'offset'=>46307},'jis_jsky2'=>{'length'=>82,'offset'=>46495},'_e2s'=>{'length'=>202,'offset'=>46577},'jcode/emoji2/ej2u2.dat'=>{'length'=>3072,'offset'=>300200},'euc'=>{'length'=>175,'offset'=>48021},'_j2s3'=>{'length'=>337,'offset'=>48196},'jcode/emoji2/ej2u.dat'=>{'length'=>3072,'offset'=>256168},'ucs4'=>{'length'=>183,'offset'=>48533},'_sd2u'=>{'length'=>1221,'offset'=>48893},'_u2ja2'=>{'length'=>1653,'offset'=>50114},'_s2e2'=>{'length'=>446,'offset'=>52108},'z2hKanaD'=>{'length'=>498,'offset'=>52554},'_u2sd'=>{'length'=>1615,'offset'=>53052},'jcode/emoji2/eu2j2.dat'=>{'length'=>40960,'offset'=>303272},'jcode/emoji2/eu2d.dat'=>{'length'=>16384,'offset'=>349352},'_utf8_ucs2'=>{'length'=>755,'offset'=>54667},'_ja2u2'=>{'length'=>1168,'offset'=>55422},'jcode/u2s.dat'=>{'length'=>85504,'offset'=>85227},'euc_icon_au1'=>{'length'=>98,'offset'=>56590},'jis_au'=>{'length'=>182,'offset'=>57171},'_utf32le_ucs4'=>{'length'=>178,'offset'=>58341},'sjis_imode'=>{'length'=>192,'offset'=>58888},'_e2s2'=>{'length'=>535,'offset'=>59080},'_s2j2'=>{'length'=>377,'offset'=>59615},'_encodeBase64'=>{'length'=>741,'offset'=>60238},'validate_utf8'=>{'length'=>129,'offset'=>62404},'split_csv'=>{'length'=>131,'offset'=>62799},'sjis_icon_au'=>{'length'=>85,'offset'=>62930},'jis_jsky'=>{'length'=>81,'offset'=>81161},'strcut'=>{'length'=>888,'offset'=>84059},'_utf32be_ucs4'=>{'length'=>70,'offset'=>84947},'cp932'=>{'length'=>33,'offset'=>85017}}# -----------------------------------------------------------------------------
 # $bytes_utf16 = $unijp->utf16();
 # 
 sub utf16
@@ -1542,7 +1552,7 @@ sub _u2s {
 				  $ch = (($c1 & 0x1F)<<6)|($c2 & 0x3F),
 				  $c = substr($u2s_table, $ch * 2, 2),
 				  # UTF-3¥Ð¥¤¥È(U+0x80-U+07FF)¤«¤ésjis-1¥Ð¥¤¥È¤Ø¤Î¥Þ¥Ã¥Ô¥ó¥°¤Ï¤Ê¤¤¤Î¤Ç\0¤òºï½ü¤ÏÉ¬Í×¤Ï¤Ê¤¤
-				  ($c eq "\0\0") ? '&#' . $ch . ';' : $c
+				  $ch<0x80 ? '?' : ($c eq "\0\0") ? '&#' . $ch . ';' : $c
 				 ) :
 	     (length($1) == 3) ? (
 				  ($c1,$c2,$c3) = unpack("C3", $1),
@@ -1559,13 +1569,14 @@ sub _u2s {
 				    $c = '&#' . $ch . ';'
 				   )
 				  ),
-				  ($c eq "\0\0") ? '&#' . $ch . ';' : $c
+				  $ch<0x0800 ? '?' : ($c eq "\0\0") ? '&#' . $ch . ';' : $c
 				 ) :
 	     (length($1) == 4) ? (
 				  ($c1,$c2,$c3,$c4) = unpack("C4", $1),
 				  $ch = (($c1 & 0x07)<<18)|(($c2 & 0x3F)<<12)|
 				  (($c3 & 0x3f) << 6)|($c4 & 0x3F),
 				  (
+				   $ch <0x01_0000 ? '?' :
 				   ($ch >= 0x0fe000 and $ch <= 0x0fffff) ?
 				   '?'
 				   : '&#' . $ch . ';'
@@ -1575,14 +1586,14 @@ sub _u2s {
 				  $ch = (($c1 & 0x03) << 24)|(($c2 & 0x3F) << 18)|
 				  (($c3 & 0x3f) << 12)|(($c4 & 0x3f) << 6)|
 				  ($c5 & 0x3F),
-				  '&#' . $ch . ';'
+				  $ch<0x20_0000 ? '?' : '&#' . $ch . ';'
 				 ) :
 	                         (
 				  ($c1,$c2,$c3,$c4,$c5,$c6) = unpack("C6", $1),
 				  $ch = (($c1 & 0x03) << 30)|(($c2 & 0x3F) << 24)|
 				  (($c3 & 0x3f) << 18)|(($c4 & 0x3f) << 12)|
 				  (($c5 & 0x3f) << 6)|($c6 & 0x3F),
-				  '&#' . $ch . ';'
+				  $ch<0x0400_0000 ? '?' : '&#' . $ch . ';'
 				 )
 	    )
 	 )
@@ -1943,15 +1954,15 @@ sub _utf8_utf16 {
   /eg;
   $str;
 }
-sub sjis_icon_au1
-{
-  my $this = shift;
-  $this->_u2s($this->_u2ai1($this->{str}));
-}
 sub jis_icon_au1
 {
   my $this = shift;
   $this->_s2j($this->_u2s($this->_u2ai1($this->{str})));
+}
+sub sjis_icon_au1
+{
+  my $this = shift;
+  $this->_u2s($this->_u2ai1($this->{str}));
 }
 sub strcutu
 {
@@ -2316,11 +2327,11 @@ sub set
 	{
 	  $this->{str} = $this->_s2u($this->_j2s($str));
 	}
-      elsif($icode eq 'euc')
+      elsif($icode eq 'euc' || $icode eq 'euc-jp')
 	{
 	  $this->{str} = $this->_s2u($this->_e2s($str));
 	}
-      elsif($icode eq 'sjis')
+      elsif($icode eq 'sjis' || $icode eq 'cp932')
 	{
 	  $this->{str} = $this->_s2u($str);
 	}
@@ -2694,6 +2705,10 @@ sub sjis_imode1
   my $this = shift;
   $this->_u2si1($this->{str});
 }
+sub eucjp
+{
+  shift->euc(@_);
+}
 # -----------------------------------------------------------------------------
 # $bytes_utf8 = $unijp->utf8();
 # 
@@ -2974,7 +2989,7 @@ sub conv {
     {
       $res = $this->utf8;
     }
-  elsif($ocode eq 'euc')
+  elsif($ocode eq 'euc' || $ocode eq 'euc-jp' )
     {
       $res = $this->euc;
     }
@@ -2982,7 +2997,7 @@ sub conv {
     {
       $res = $this->jis;
     }
-  elsif($ocode eq 'sjis')
+  elsif($ocode eq 'sjis' || $ocode eq 'cp932')
     {
       $res = $this->sjis;
     }
@@ -3498,15 +3513,20 @@ sub _utf8_ucs2 {
   my $c1;
   my $c2;
   my $c3;
-  $str =~ s/([\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5}|([^\x00-\x7f]))/
-    defined($2)?"\0$2":
+  my $ch;
+  $str =~ s/([\xc0-\xdf][\x80-\xbf]|[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3}|[\xf8-\xfb][\x80-\xbf]{4}|[\xfc-\xfd][\x80-\xbf]{5}|.)/
+    defined($2)?"\0?":
     $T2U{$1}
       or ($T2U{$1}
 	  = ((length($1) == 1) ? pack("n", unpack("C", $1)) :
 	     (length($1) == 2) ? (($c1,$c2) = unpack("C2", $1),
-				  pack("n", (($c1 & 0x1F)<<6)|($c2 & 0x3F))) :
+				  $ch = (($c1 & 0x1F)<<6)|($c2 & 0x3F),
+				  $ch<0x80 ? "\0?" : pack("n", $ch)
+				  ) :
 	     (length($1) == 3) ? (($c1,$c2,$c3) = unpack("C3", $1),
-				  pack("n", (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F))) : "\0?"))
+				  $ch = (($c1 & 0x0F)<<12)|(($c2 & 0x3F)<<6)|($c3 & 0x3F),
+				  $ch<0x0800 ? "\0?" : pack("n", $ch)
+				  ) : "\0?"))
 	/eg;
   $str;
 }
@@ -3854,6 +3874,12 @@ sub z2h {
 
   $this;
 }
+sub validate_utf8
+{
+  # my $safer_utf8 = Unicode::Japanese->validate_utf8($utf8_str);
+  #
+  $_[0]->_validate_utf8(@_[1..$#_]);
+}
 # -----------------------------------------------------------------------------
 # $chars_utf8 = $unijp->getu();
 # 
@@ -3865,12 +3891,6 @@ sub getu {
     Encode::_utf8_on($str);
   }
   $str;
-}
-sub validate_utf8
-{
-  # my $safer_utf8 = Unicode::Japanese->validate_utf8($utf8_str);
-  #
-  $_[0]->_validate_utf8(@_[1..$#_]);
 }
 # -----------------------------------------------------------------------------
 # split/join Csv
@@ -4223,6 +4243,13 @@ sub _loadConvTable {
 
 
 }
+# -----------------------------------------------------------------------------
+# unijp();
+#
+sub unijp
+{
+  Unicode::Japanese->new(@_);
+}
 sub jis_jsky
 {
   my $this = shift;
@@ -4410,6 +4437,10 @@ sub _utf32be_ucs4 {
   my $str = shift;
 
   $str;
+}
+sub cp932
+{
+  shift->sjis(@_);
 }
 sub _j2s {
   my $this = shift;
