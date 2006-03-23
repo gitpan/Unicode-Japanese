@@ -1,5 +1,8 @@
 Revision history for Perl extension Unicode::Japanese.
 
+0.34 Thu Mar 23 17:16:32 JST 2006
+	- fix, JIS-X6226-1979 escape sequence (\e$@) on xsubs.
+
 0.33 Sat Feb  4 15:51:37 JST 2006
 	- fix,  typos in pod.
 	- add,  unijp, a short-named constructor.

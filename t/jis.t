@@ -1,12 +1,12 @@
 ## ----------------------------------------------------------------------------
 # t/jis.t
 # -----------------------------------------------------------------------------
-# $Id: jis.t,v 1.3 2005/08/02 09:16:42 hio Exp $
+# $Id: jis.t,v 1.4 2006/03/23 08:18:36 hio Exp $
 # -----------------------------------------------------------------------------
 
 use strict;
 use Test;
-BEGIN { plan tests => 8, };
+BEGIN { plan tests => 20, };
 
 # -----------------------------------------------------------------------------
 # load module
@@ -19,6 +19,8 @@ sub jisToUtf8_xs($){ tt($xs->set($_[0],'jis')->utf8()); }
 sub jisToUtf8_pp($){ tt($pp->set($_[0],'jis')->utf8()); }
 sub jisToSjis_xs($){ tt($xs->set($_[0],'jis')->sjis()); }
 sub jisToSjis_pp($){ tt($pp->set($_[0],'jis')->sjis()); }
+sub jisToJis_xs($){ tt($xs->set($_[0],'jis')->jis()); }
+sub jisToJis_pp($){ tt($pp->set($_[0],'jis')->jis()); }
 sub tt($){ escfull($_[0]) }
 sub bin($){ escfull(pack("H*",join('',split(' ',$_[0])))); }
 
@@ -61,20 +63,43 @@ sub bin($){ escfull(pack("H*",join('',split(' ',$_[0])))); }
 }
 
 {
-  # jis-x-0208-1978(旧JIS) : \e$@
-  # jis-x-0208-1983(新JIS) : \e$B
+  # jis-c-6226-1979(old-JIS) : \e$@
+  # jis-x-0208-1983(new-JIS) : \e$B
   # jis-x-0208-1990 : \e&@\e$B
-  #skip("jis-x-0208 not ready");
-  #skip("jis-x-0208 not ready");
-  ;
+  my $test_old_jis = "\e\$\@!!\e(B";
+  my $test_new_jis = "\e\$B!!\e(B";
+  my $test_jis1990 = "\e&\@\e\$B!!\e(B";
+  my $correct = tt("\x81\x40");
+  ok(jisToSjis_xs($test_old_jis),$correct,"old-jis to sjis (xs)");
+  ok(jisToSjis_pp($test_old_jis),$correct,"old-jis to sjis (pp)");
+  ok(jisToSjis_xs($test_new_jis),$correct,"new-jis to sjis (xs)");
+  ok(jisToSjis_pp($test_new_jis),$correct,"new-jis to sjis (pp)");
+  ok(jisToSjis_xs($test_jis1990),$correct,"jis1990 to sjis (xs)");
+  ok(jisToSjis_pp($test_jis1990),$correct,"jis1990 to sjis (pp)");
 }
 
 {
   # jis-x-0212-1990: \e$(D
   #skip("jis-x-0212 not ready");
   #skip("jis-x-0212 not ready");
-  ;
+  my $test = "\e\$(D!!\e(B";
+  my $correct = tt("\x81\xac");
+  ok(jisToSjis_xs($test),$correct,"jis0212 to sjis (xs)");
+  ok(jisToSjis_pp($test),$correct,"jis0212 to sjis (pp)");
 }
+
+{
+  # resume to ascii on newline. : \e(B 
+  #  JIS X 0208-1983  \e$B
+  my $test1 = "\e\$B!!\n!!!";
+  my $correct1_sjis = tt("\x81\x40\n!!!");
+  my $correct1_jis = tt("\e\$B!!\e(B\n!!!");
+  ok(jisToSjis_xs($test1),$correct1_sjis,"resume to ASCII (xs)");
+  ok(jisToSjis_pp($test1),$correct1_sjis,"resume to ASCII (pp)");
+  ok(jisToJis_xs($test1), $correct1_jis, "resume to ASCII (xs)");
+  ok(jisToJis_pp($test1), $correct1_jis, "resume to ASCII (pp)");
+}
+
 
 # -----------------------------------------------------------------------------
 # End Of File.
