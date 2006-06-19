@@ -4,7 +4,8 @@ use Test;
 BEGIN { plan tests => 8*2; }
 
 use Unicode::Japanese;
-require './esc.pl';
+use lib 't';
+require 'esc.pl';
 
 #Unicode::Japanese->new();
 #$Unicode::Japanese::xs_loaderror and print STDERR "$Unicode::Japanese::xs_loaderror\n";

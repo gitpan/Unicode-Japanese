@@ -6,12 +6,12 @@
 #
 # Copyright 2005 YAMASHINA Hio
 # -----------------------------------------------------------------------------
-# $Id: ujconv,v 1.1 2005/02/14 04:33:18 hio Exp $
+# $Id: ujconv,v 1.2 2006/06/19 05:58:33 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::UJConv;
 use strict;
 use Unicode::Japanese;
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 if( !caller )
 {
@@ -62,6 +62,10 @@ sub do_work
     }elsif( $key =~ /^(-V|--version)$/ )
     {
       print_version();
+      return 1;
+    }elsif( $key =~ /^(-l|--list)$/ )
+    {
+      print_list();
       return 1;
     }else
     {
@@ -127,6 +131,7 @@ sub do_work
 sub print_usage
 {
   print "usage: ujconv [-f from_encode] [-t to_encode] [-s string] [files...]\n";
+  print "see \`perldoc ujconv' for detail.\n";
 }
 
 # -----------------------------------------------------------------------------
@@ -137,6 +142,93 @@ sub print_version
   print "ujconv $VERSION\n";
   print "Unicode::Janaese $Unicode::Japanese::VERSION\n";
 }
+
+# -----------------------------------------------------------------------------
+# print_list();
+#
+sub print_list
+{
+  foreach my $enc (qw(
+      utf8
+      ucs2
+      ucs4
+      utf16
+      jis
+      euc
+      euc-jp
+      sjis
+      cp932
+      sjis-imode
+      sjis-doti
+      sjis-jsky
+      jis-jsky
+      jis-au
+      sjis-icon-au
+      euc-icon-au
+      jis-icon-au
+      utf8-icon-au
+  ))
+  {
+    print "$enc\n";
+  }
+}
+
+__END__
+
+=head1 NAME
+
+ujconv -- iconv(1), reinvented in Unicode::Japanese
+
+=head1 SYNOPSIS
+
+  ujconv [-f from_encoding] [-t to_encoding] [-s string] [files...]
+  ujconv -l
+  ujconv -h
+  ujconv -V
+
+=head1 DESCRIPTION
+
+B<ujconv> is Unicode::Japanese (written in perl) version of B<iconv>.
+
+ujconv converts the character encoding of either STDIN or files
+specified in the argument and prints out to STDOUT.
+
+Here is the list of options.  Each option can be in short format (-f)
+or long (--from).
+
+=over 4
+
+=item -f,--from from_encoding
+
+Specifies the encoding you are converting from.  Unlike B<iconv>,
+this option can be omitted.  In such cases, source encoding is 
+automatically guessed.
+
+=item -t,--to to_encoding
+
+Specifies the encoding you are converting to. 
+
+=item -s,--string I<string>
+
+uses I<string> instead of file for the source of text.
+
+=item -l,--list
+
+Lists all available encodings, one per line.
+
+=item -h,--help
+
+Show usage.
+
+=back
+
+=head1 SEE ALSO
+
+L<Unicode::Japanese>,
+L<piconv(1)>,
+L<iconv(1)>
+
+=cut
 
 # -----------------------------------------------------------------------------
 # End of File.

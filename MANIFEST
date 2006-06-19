@@ -1,6 +1,5 @@
 Changes
 Japanese.h            XS-Unicode::Japanese の各種前方宣言
-Japanese.pm           Unicode::Japanese パッケージ
 Japanese.xs           Unicode::Japanese XS宣言
 Japanese/emoji.dat    i-mode/j-sky/dot-i<=>utf8変換テーブル
 Japanese/u2s-s2u.dat  sjis<=>utf8変換テーブル
@@ -13,7 +12,6 @@ README
 bin/ujconv            iconv like tool with Unicode::Japanese
 bin/ujguess           Unicode::Japanese による文字コード判定ツール
 conv.c                sjis<=>utf8 変換コード
-esc.pl                制御文字をエスケープする関数.
 eucjp.c               sjis<=>eucjp 変換コード
 getcode.c             getcode
 getcode.h
@@ -24,6 +22,8 @@ hints/linux.pl        hints ファイル (Linux)
 hints/solaris.pl      hitns ファイル (Solaris 8 以降)
 hints/sunos.pl        hints ファイル (SunOS 及び Solaris 2.6 以前)
 jis.c                 sjis<=>jis 変換コード
+lib/Unicode/Japanese.pm           Unicode::Japanese パッケージ
+lib/Unicode/Japanese/JA.pod       Unicode::Japanese 日本語ドキュメント
 memmap_common.c       データファイルの振り分け
 memmap_unix.c         データファイルのメモリマップコード(UNIX)
 memmap_win32.c        データファイルのメモリマップコード(Win32)
@@ -36,9 +36,11 @@ sjis_jsky1.c          sjis(j-sky1)<=>utf8 変換コード
 sjis_jsky2.c          sjis(j-sky2)<=>utf8 変換コード
 str.h                 SV* 操作用クラス
 t/0.loadxs.t
+t/00-load.t
 t/allchar_utf8.pl
 t/base.t
 t/emoji.t
+t/esc.pl              制御文字をエスケープする関数. t/*.t 用.
 t/fromutf8.t
 t/getcode.t
 t/hirakata.t
@@ -46,6 +48,8 @@ t/illegal.t
 t/illlet.t
 t/jis.t
 t/outrange.t
+t/pod-coverage.t
+t/pod.t
 t/random.pl
 t/random_redo.pl
 t/toutf8.t
@@ -58,5 +62,6 @@ t/verify_sjis_ucs2.pl
 t/z2h.t
 ucs2_utf8.c
 utf16.c
+utf8.c
 wordsize.c
 xs_test.c             xsコンパイルテスト用コード

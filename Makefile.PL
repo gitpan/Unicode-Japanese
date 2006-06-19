@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Makefile.PL for Unicode-Japanese.
 # -----------------------------------------------------------------------------
-# $Id: Makefile.PL,v 1.51 2005/08/16 07:41:01 hio Exp $
+# $Id: Makefile.PL,v 1.53 2006/06/14 06:49:05 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::MakeMaker;
 
@@ -25,8 +25,8 @@ unlink(qw(medaite.h mediate.c));
 # create default parameter
 my %param = (
     'NAME'		=> 'Unicode::Japanese',
-    'VERSION_FROM'	=> 'Japanese.pm', # finds $VERSION
-    'ABSTRACT_FROM'     => 'Japanese.pm', #
+    'VERSION_FROM'	=> 'lib/Unicode/Japanese.pm', # finds $VERSION
+    'ABSTRACT_FROM'     => 'lib/Unicode/Japanese.pm', #
     'AUTHOR'		=> 'SANO Taku (SAWATARI Mikage) and YAMASHINA Hio',
 
     'PREREQ_PM'		=> {}, # e.g., Module::Name => 1.1
@@ -34,13 +34,11 @@ my %param = (
     'EXE_FILES'         => ['bin/ujconv','bin/ujguess',],
 
     'CONFIGURE'         => \&configure,	 
-    'PM'=>{'Japanese.pm'=>'$(INST_LIBDIR)/Japanese.pm',
-	  },
     'clean'    => { FILES => 't/pureperl.flag mediate.c mediate.h' },
   );
 my %param_xs = (
     'OBJECT' => join(' ',qw( Japanese.o memmap_common.o memmap_unix.o
-                             conv.o ucs2_utf8.o
+                             conv.o ucs2_utf8.o utf8.o
 			     getcode.o getcode_map.o sjis.o eucjp.o jis.o
 			     sjis_imode1.o sjis_imode2.o sjis_jsky1.o sjis_jsky2.o sjis_doti.o utf16.o
 			     mediate.o 

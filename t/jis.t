@@ -1,7 +1,7 @@
 ## ----------------------------------------------------------------------------
 # t/jis.t
 # -----------------------------------------------------------------------------
-# $Id: jis.t,v 1.4 2006/03/23 08:18:36 hio Exp $
+# $Id: jis.t,v 1.5 2006/06/14 07:13:04 hio Exp $
 # -----------------------------------------------------------------------------
 
 use strict;
@@ -12,7 +12,8 @@ BEGIN { plan tests => 20, };
 # load module
 
 use Unicode::Japanese;
-require './esc.pl';
+use lib 't';
+require 'esc.pl';
 my $xs = Unicode::Japanese->new();
 my $pp = Unicode::Japanese::PurePerl->new();
 sub jisToUtf8_xs($){ tt($xs->set($_[0],'jis')->utf8()); }

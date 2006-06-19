@@ -11,7 +11,8 @@ BEGIN { plan tests => 9 }
 $]>=5.008 and eval 'use bytes', $@ && die $@;
 
 my $string;
-require './esc.pl';
+use lib 't';
+require 'esc.pl';
 
 # sjis
 $string = new Unicode::Japanese "\x88\xa4", 'sjis';

@@ -1,5 +1,10 @@
 Revision history for Perl extension Unicode::Japanese.
 
+0.35 Mon Jun 19 17:47:54 JST 2006
+        - made validate_utf8 available in XS.
+        - add, -l switch for ujconv(1).
+        - fix, au mapping broken.
+
 0.34 Thu Mar 23 17:16:32 JST 2006
 	- fix, JIS-X6226-1979 escape sequence (\e$@) on xsubs.
 

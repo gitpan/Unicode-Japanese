@@ -2,7 +2,8 @@
 use Test;
 
 use Unicode::Japanese;
-require './esc.pl';
+use lib 't';
+require 'esc.pl';
 
 BEGIN { plan tests => 6 }
 

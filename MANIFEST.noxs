@@ -1,20 +1,25 @@
 Changes
-Japanese.pm           Unicode::Japanese パッケージ
 MANIFEST
 MANIFEST.noxs
 Makefile.PL
 README
 bin/ujconv            iconv like tool with Unicode::Japanese
 bin/ujguess           charset detection tool
+lib/Unicode/Japanese.pm           Unicode::Japanese perl module
+lib/Unicode/Japanese/JA.pod       Unicode::Japanese pod in Japanese.
+t/00-load.t
 t/allchar_utf8.pl
 t/base.t
 t/emoji.t
+t/esc.pl              method that escapes controll char (like a quotemeta)
 t/fromutf8.t
 t/getcode.t
 t/hirakata.t
 t/illlet.t
 t/jis.t
 t/outrange.t
+t/pod-coverage.t
+t/pod.t
 t/random.pl
 t/random_redo.pl
 t/toutf8.t
