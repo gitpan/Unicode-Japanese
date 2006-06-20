@@ -3,7 +3,11 @@
 
 =head1 NAME
 
-Unicode::Japanese - 日本語文字コード変換
+Unicode::Japanese::JA - Japanese Character Encoding Handler (ja-doc)
+
+=head1 NAME (ja)
+
+Unicode::Japanese::JA - 日本語文字コード変換
 
 =head1 SYNOPSIS
 
