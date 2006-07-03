@@ -1,7 +1,7 @@
 #ifndef UNICODE__JAPANESE__STR_H__
 #define UNICODE__JAPANESE__STR_H__
 
-/* $Id: str.h,v 1.12 2005/05/15 08:34:42 hio Exp $ */
+/* $Id: str.h,v 1.13 2006/07/03 01:33:15 hio Exp $ */
 
 #ifndef UJ_UINT32
 #define UJ_UINT32 unsigned int
@@ -20,8 +20,8 @@ struct SV_Buf
 {
   SV* sv;
   STRLEN alloc_len;
-  unsigned char* dst;
-  unsigned char* dst_begin;
+  UJ_UINT8* dst;
+  UJ_UINT8* dst_begin;
   char tmpbuf[32];
 };
 typedef struct SV_Buf SV_Buf;
@@ -35,7 +35,7 @@ typedef struct SV_Buf SV_Buf;
     (pbuf)->sv = newSVpvn("",0); \
     alen = (len)+1; \
     SvGROW((pbuf)->sv,alen); \
-    (pbuf)->dst_begin = (unsigned char*)SvPV((pbuf)->sv,alen); \
+    (pbuf)->dst_begin = (UJ_UINT8*)SvPV((pbuf)->sv,alen); \
     (pbuf)->dst = (pbuf)->dst_begin; \
   }
 
@@ -48,7 +48,7 @@ typedef struct SV_Buf SV_Buf;
 #define SV_Buf_setLength(pbuf) SvCUR_set((pbuf)->sv,SV_Buf_getLength(pbuf))
 
 /* ----------------------------------------------------------------------------
- * unsigned char* getBegin(){ return dst_begin; } */
+ * UJ_UINT8* getBegin(){ return dst_begin; } */
 #define SV_Buf_getBegin(pbuf) ((pbuf)->dst_begin)
 
 /* ----------------------------------------------------------------------------
@@ -56,17 +56,17 @@ typedef struct SV_Buf SV_Buf;
 #define SV_Buf_getSv(pbuf) (*(pbuf)->dst='\0', (pbuf)->sv)
 
 /* ----------------------------------------------------------------------------
- * inline void append_ch(unsigned char ch) */
+ * inline void append_ch(UJ_UINT8 ch) */
 #define SV_Buf_append_ch(pbuf,ch) \
   { \
     SV_Buf_checkbuf(pbuf,1); \
     *(pbuf)->dst++ = (ch); \
   }
 /* ----------------------------------------------------------------------------
- * inline void append_ch2(unsigned short ch) */
+ * inline void append_ch2(UJ_UINT16 ch) */
 #define SV_Buf_append_ch2(pbuf,ch) \
   { \
-    const unsigned short xxtmp = (ch); \
+    const UJ_UINT16 xxtmp = (ch); \
     SV_Buf_checkbuf(pbuf,2); \
     memcpy((pbuf)->dst,&xxtmp,2); \
     (pbuf)->dst += 2; \
@@ -90,15 +90,16 @@ typedef struct SV_Buf SV_Buf;
     (pbuf)->dst += 4; \
   }
 /* ----------------------------------------------------------------------------
- * inline void append_ch5(const unsigned char* src) */
+ * inline void append_ch5(const UJ_UINT8* src) */
 #define SV_Buf_append_ch5(pbuf,str) \
   { \
     SV_Buf_checkbuf(pbuf,5); \
     memcpy((pbuf)->dst,str,5); \
     (pbuf)->dst += 5; \
   }
-/* ---------------------------------------------------------------------------- * inline void append(const unsigned char* src, int len) */
-#define SV_Buf_append_str(pbuf,str,len) \
+/* ----------------------------------------------------------------------------
+ * inline void append(const UJ_UINT8* src, int len) */
+#define SV_Buf_append_mem(pbuf,str,len) \
   { \
     SV_Buf_checkbuf(pbuf,len); \
     memcpy((pbuf)->dst,str,len); \
@@ -106,13 +107,13 @@ typedef struct SV_Buf SV_Buf;
   }
 
 /* ----------------------------------------------------------------------------
- * inline void append_entityref(unsigned int ucs) */
+ * inline void append_entityref(UJ_UINT32 ucs) */
 #define SV_Buf_append_entityref(pbuf,ucs) \
   { \
     register int write_len = snprintf((pbuf)->tmpbuf,32,"&#%u;",ucs); \
     if( write_len!=-1 && write_len<32 ) \
     { \
-      SV_Buf_append_str(pbuf,(unsigned char*)(pbuf)->tmpbuf,write_len); \
+      SV_Buf_append_mem(pbuf,(UJ_UINT8*)(pbuf)->tmpbuf,write_len); \
     }else \
     { \
       SV_Buf_append_ch(pbuf,'?'); \
@@ -139,7 +140,7 @@ typedef struct SV_Buf SV_Buf;
       SvGROW((pbuf)->sv,alen); \
       (pbuf)->alloc_len = new_len; \
        \
-      (pbuf)->dst_begin = (unsigned char*)SvPV((pbuf)->sv,curlen); \
+      (pbuf)->dst_begin = (UJ_UINT8*)SvPV((pbuf)->sv,curlen); \
       (pbuf)->dst = (pbuf)->dst_begin + now_len; \
     } \
   }

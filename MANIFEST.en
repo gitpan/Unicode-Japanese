@@ -1,14 +1,13 @@
 Changes
 Japanese.h            forward declarations for XS-Unicode::Japanese
 Japanese.xs           Unicode::Japanese XS code
-Japanese/emoji.dat    i-mode/j-sky/dot-i<=>utf8 conversion table
-Japanese/u2s-s2u.dat  sjis<=>utf8 mapping table
 MANIFEST              MANIFEST in Japanese
 MANIFEST.en           MANIFEST in English
 MANIFEST.noxs
 META.yml                                 Module meta-data (added by MakeMaker)
 Makefile.PL
 README
+SIGNATURE             you can verify with cpansign
 bin/ujconv            iconv like tool with Unicode::Japanese
 bin/ujguess           charset detection tool
 conv.c                sjis<=>utf8 conversion

@@ -3,7 +3,7 @@
  * ----------------------------------------------------------------------------
  * Mastering programed by YAMASHINA Hio
  * ----------------------------------------------------------------------------
- * $Id: ucs2_utf8.c,v 1.8 2005/11/04 03:22:17 hio Exp $
+ * $Id: ucs2_utf8.c,v 1.9 2006/07/03 01:33:15 hio Exp $
  * ------------------------------------------------------------------------- */
 
 
@@ -18,18 +18,18 @@ EXTERN_C
 SV*
 xs_ucs2_utf8(SV* sv_str)
 {
-  unsigned char* src;
+  UJ_UINT8* src;
   int len;
   SV_Buf result;
-  const unsigned char* src_end;
-  unsigned char buf[4];
+  const UJ_UINT8* src_end;
+  UJ_UINT8 buf[4];
 
   if( sv_str==&PL_sv_undef )
   {
     return newSVpvn("",0);
   }
   
-  src = (unsigned char*)SvPV(sv_str,PL_na);
+  src = (UJ_UINT8*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
   src_end = src+(len&~1);
   /*fprintf(stderr,"Unicode::Japanese::(xs)ucs2_utf8\n",len);*/
@@ -43,27 +43,27 @@ xs_ucs2_utf8(SV* sv_str)
 
   for(; src<src_end; src+=2 )
   {
-    const unsigned short ucs2 = ntohs(*(unsigned short*)src);
+    const UJ_UINT16 ucs2 = (src[0]<<8)+src[1]; /* ntohs */
     if( ucs2<0x80 )
     {
-      SV_Buf_append_ch(&result,(unsigned char)ucs2);
+      SV_Buf_append_ch(&result,(UJ_UINT8)ucs2);
     }else if( ucs2<0x800 )
     {
       buf[0] = 0xC0 | (ucs2 >> 6);
       buf[1] = 0x80 | (ucs2 & 0x3F);
-      SV_Buf_append_ch2(&result,*(unsigned short*)buf);
+      SV_Buf_append_mem(&result, buf, 2);
     }else if( !(0xd800 <= ucs2 && ucs2 <= 0xdfff) )
     { /* normal char (non surrogate pair) */
       buf[0] = 0xE0 | (ucs2 >> 12);
       buf[1] = 0x80 | ((ucs2 >> 6) & 0x3F);
       buf[2] = 0x80 | (ucs2 & 0x3F);
-      SV_Buf_append_ch3(&result,*(unsigned int*)buf);
+      SV_Buf_append_mem(&result, buf, 3);
     }else
     { /* surrogate pair */
       if( src+2<src_end )
       {
 #ifdef ENABLE_SURROGATE_PAIR
-        const UJ_UINT16 ucs2a = ntohs(*(unsigned short*)(src+2));
+        const UJ_UINT16 ucs2a = (src[0]<<8)+src[1]; /* ntohs */
         const UJ_UINT32 ucs4  = ((ucs2&0x03FF)<<10|(ucs2a&0x3FF))+0x010000;
         src += 2;
         if( 0x010000<=ucs4 && ucs4<=0x1FFFFF )
@@ -72,7 +72,7 @@ xs_ucs2_utf8(SV* sv_str)
           buf[1] = 0x80 | ((ucs2>>12) & 0x3F);
           buf[2] = 0x80 | ((ucs2>>6) & 0x3F);
           buf[3] = 0x80 | (ucs2 & 0x3F);
-          SV_Buf_append_ch4(&result,*(unsigned int*)buf);
+          SV_Buf_append_mem(&result, buf, 4);
         }else
         {
           /* utf8 not support >= U+1FFFFF */
@@ -106,17 +106,17 @@ EXTERN_C
 SV*
 xs_utf8_ucs2(SV* sv_str)
 {
-  unsigned char* src;
+  UJ_UINT8* src;
   int len;
   SV_Buf result;
-  const unsigned char* src_end;
+  const UJ_UINT8* src_end;
 
   if( sv_str==&PL_sv_undef )
   {
     return newSVpvn("",0);
   }
   
-  src = (unsigned char*)SvPV(sv_str,PL_na);
+  src = (UJ_UINT8*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
   src_end = src+len;
   /*fprintf(stderr,"Unicode::Japanese::(xs)utf8_ucs2\n",len); */
@@ -125,18 +125,18 @@ xs_utf8_ucs2(SV* sv_str)
   
   while( src<src_end )
   {
-    unsigned int ucs;
+    UJ_UINT32 ucs;
     if( *src<=0x7f )
-    {
+    { /* ascii. */
       SV_Buf_append_ch2(&result,htons(*src));
       ++src;
       continue;
     }
     if( 0xc0<=*src && *src<=0xdf )
     { /* length [2] */
-      const int utf8_len          = 2;
-      const unsigned int ucs_min  = 0x80;
-      const unsigned int ucs_max  = 0x7ff;
+      const int       utf8_len = 2;
+      const UJ_UINT32 ucs_min  = 0x80;
+      const UJ_UINT32 ucs_max  = 0x7ff;
       if( src+1>=src_end ||
           src[1]<0x80 || 0xbf<src[1] )
       {
@@ -159,9 +159,9 @@ xs_utf8_ucs2(SV* sv_str)
       /* ok. */
     }else if( 0xe0<=*src && *src<=0xef )
     { /* length [3] */
-      const int          utf8_len = 3;
-      const unsigned int ucs_min  = 0x800;
-      const unsigned int ucs_max  = 0xffff;
+      const int       utf8_len = 3;
+      const UJ_UINT32 ucs_min  = 0x800;
+      const UJ_UINT32 ucs_max  = 0xffff;
       if( src+2>=src_end ||
           src[1]<0x80 || 0xbf<src[1] ||
           src[2]<0x80 || 0xbf<src[2] )
@@ -193,9 +193,9 @@ xs_utf8_ucs2(SV* sv_str)
       /* ok. */
     }else if( 0xf0<=*src && *src<=0xf7 )
     { /* length [4] */
-      const int          utf8_len = 4;
-      const unsigned int ucs_min  = 0x010000;
-      const unsigned int ucs_max  = 0x10ffff;
+      const int       utf8_len = 4;
+      const UJ_UINT32 ucs_min  = 0x010000;
+      const UJ_UINT32 ucs_max  = 0x10ffff;
       if( src+3>=src_end ||
           src[1]<0x80 || 0xbf<src[1] ||
           src[2]<0x80 || 0xbf<src[2] ||

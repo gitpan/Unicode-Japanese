@@ -3,6 +3,7 @@ MANIFEST
 MANIFEST.noxs
 Makefile.PL
 README
+SIGNATURE             you can verify with cpansign
 bin/ujconv            iconv like tool with Unicode::Japanese
 bin/ujguess           charset detection tool
 lib/Unicode/Japanese.pm           Unicode::Japanese perl module

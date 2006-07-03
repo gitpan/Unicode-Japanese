@@ -1,5 +1,5 @@
 
-/* $Id: jis.c,v 1.9 2006/03/23 08:18:35 hio Exp $ */
+/* $Id: jis.c,v 1.11 2006/07/03 01:33:15 hio Exp $ */
 
 #include "Japanese.h"
 #include "sjis.h"
@@ -82,7 +82,7 @@ xs_sjis_jis(SV* sv_str)
 	const unsigned char* begin;
 	if( !esc_asc )
 	{
-	  SV_Buf_append_str(&result,JIS_ASC,JIS_ASC_LEN);
+	  SV_Buf_append_mem(&result,JIS_ASC,JIS_ASC_LEN);
 	  esc_asc = 1;
 	}
 #if TEST && S2J_DISP
@@ -101,12 +101,12 @@ xs_sjis_jis(SV* sv_str)
 	fprintf(stderr,"\n");
 	fflush(stderr);
 #endif
-	SV_Buf_append_str(&result,begin,src-begin);
+	SV_Buf_append_mem(&result,begin,src-begin);
 	break;
       }
     case CHK_SJIS_C:
       {
-	SV_Buf_append_str(&result,JIS_X0208_1983,JIS_X0208_1983_LEN);
+	SV_Buf_append_mem(&result,JIS_X0208_1983,JIS_X0208_1983_LEN);
 	esc_asc = 0;
 	ECHO_S2J((stderr,"  (sjis:c)"));
 	do
@@ -116,7 +116,7 @@ xs_sjis_jis(SV* sv_str)
 	  if( src[1]<0x40 || 0xfc<src[1] || src[1]==0x7f )
 	  {
 	    ECHO_S2J((stderr, "*"));
-	    SV_Buf_append_str(&result,UNDEF_JIS,UNDEF_JIS_LEN);
+	    SV_Buf_append_mem(&result,UNDEF_JIS,UNDEF_JIS_LEN);
 	    ++src;
 	    break;
 	  }
@@ -131,7 +131,7 @@ xs_sjis_jis(SV* sv_str)
 	  }
 	  tmp[0] &= 0x7f;
 	  tmp[1] &= 0x7f;
-	  SV_Buf_append_ch2(&result,*(unsigned short*)tmp);
+	  SV_Buf_append_ch2(&result,*(UJ_UINT16*)tmp);
 	  src += 2;
 	}while( src<src_end && chk_sjis[*src]==CHK_SJIS_C );
 	ECHO_S2J((stderr,"\n"));
@@ -139,7 +139,7 @@ xs_sjis_jis(SV* sv_str)
       }
     case CHK_SJIS_KANA:
       { /* SJIS:KANA => JIS:KANA */
-	SV_Buf_append_str(&result,JIS_KANA,JIS_KANA_LEN);
+	SV_Buf_append_mem(&result,JIS_KANA,JIS_KANA_LEN);
 	esc_asc = 0;
 #if TEST && S2J_DISP
 	fprintf(stderr,"  (sjis:kana)");
@@ -171,7 +171,7 @@ xs_sjis_jis(SV* sv_str)
 
   if( !esc_asc )
   {
-    SV_Buf_append_str(&result,JIS_ASC,JIS_ASC_LEN);
+    SV_Buf_append_mem(&result,JIS_ASC,JIS_ASC_LEN);
   }
   /* bin_dump("out",SV_Buf_getBegin(&result),SV_Buf_getLength(&result)); */
   SV_Buf_setLength(&result);
@@ -208,7 +208,7 @@ xs_jis_sjis(SV* sv_str)
     while( ++src<src_end && *src!='\x1b')
     {
     }
-    SV_Buf_append_str(&result,begin,src-begin);
+    SV_Buf_append_mem(&result,begin,src-begin);
   }
   while( src<src_end )
   {
@@ -225,7 +225,7 @@ xs_jis_sjis(SV* sv_str)
       }
       if( src!=begin )
       {
-	SV_Buf_append_str(&result,begin,src-begin);
+	SV_Buf_append_mem(&result,begin,src-begin);
       }
     }else if( src_end-src>=JIS_ROMAN_LEN && memcmp(src,JIS_ROMAN,JIS_ROMAN_LEN)==0 )
     { /* <<jis.roman>> */
@@ -239,7 +239,7 @@ xs_jis_sjis(SV* sv_str)
       }
       if( src!=begin )
       {
-	SV_Buf_append_str(&result,begin,src-begin);
+	SV_Buf_append_mem(&result,begin,src-begin);
       }
     }else if( src_end-src>=JIS_KANA_LEN && memcmp(src,JIS_KANA,JIS_KANA_LEN)==0 )
     { /* <<jis.kana>> */
@@ -285,7 +285,7 @@ xs_jis_sjis(SV* sv_str)
 	  tmp[0] = (tmp[0]>>1) + (tmp[0] < 0xdf ? 0x30 : 0x70);
 	  tmp[1] = tmp[1] - 2;
 	}
-	SV_Buf_append_ch2(&result,*(unsigned short*)tmp);
+	SV_Buf_append_ch2(&result,*(UJ_UINT16*)tmp);
 	src += 2;
       }
       ECHO_J2S((stderr,"\n"));
@@ -302,9 +302,9 @@ xs_jis_sjis(SV* sv_str)
       }
       for( i=0; i<(src-begin)/2; ++i )
       {
-	SV_Buf_append_str(&result,UNDEF_SJIS,UNDEF_SJIS_LEN);
+	SV_Buf_append_mem(&result,UNDEF_SJIS,UNDEF_SJIS_LEN);
       }
-    }else if( src[0]!='\e' )
+    }else if( src[0]!='\x1b') /* !='\e' */
     { /* <<no escape>> */
       const unsigned char* begin;
       ECHO_J2S((stderr,"  <no.escape>");fflush(stderr));
@@ -315,7 +315,7 @@ xs_jis_sjis(SV* sv_str)
       }
       if( src!=begin )
       {
-	SV_Buf_append_str(&result,begin,src-begin);
+	SV_Buf_append_mem(&result,begin,src-begin);
       }
     }else
     { /* <<unknown escape>> */

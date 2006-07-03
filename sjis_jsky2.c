@@ -1,5 +1,5 @@
 
-/* $Id: sjis_jsky2.c,v 1.3 2005/08/18 10:12:08 hio Exp $ */
+/* $Id: sjis_jsky2.c,v 1.5 2006/07/03 01:33:15 hio Exp $ */
 
 #include "Japanese.h"
 #include <stdio.h>
@@ -38,18 +38,18 @@ SV*
 xs_sjis_jsky2_utf8(SV* sv_str)
 {
   STRLEN src_len;
-  unsigned char* src;
+  UJ_UINT8* src;
   int len;
   
   SV_Buf result;
-  const unsigned char* src_end;
+  const UJ_UINT8* src_end;
   
   if( sv_str==&PL_sv_undef )
   {
     return newSVsv(&PL_sv_undef);
   }
   
-  src = (unsigned char*)SvPV(sv_str,src_len);
+  src = (UJ_UINT8*)SvPV(sv_str,src_len);
   len = sv_len(sv_str);
 #if DISP_S2U
   fprintf(stderr,"Unicode::Japanese::(xs)sjis_utf8_jsky2\n",len);
@@ -60,10 +60,10 @@ xs_sjis_jsky2_utf8(SV* sv_str)
 
   while( src<src_end )
   {
-    const unsigned char* ptr;
+    const UJ_UINT8* ptr;
     if( src[0]<0x80 )
     { /* ASCII */
-      unsigned char* begin;
+      UJ_UINT8* begin;
       int j1;
       const UJ_UINT32* table;
       ECHO_U2S((stderr,"ascii: %02x\n",src[0]));
@@ -119,28 +119,28 @@ xs_sjis_jsky2_utf8(SV* sv_str)
       {
 	/*fprintf(stderr," <%c%c:%04x>\n",begin[2],*ptr,j1+*ptr); */
 	/*fprintf(stderr,"   => %04x\n",g_ej2u2_table[j1+*ptr]); */
-	const unsigned char* str = (unsigned char*)&table[j1+*ptr];
+	const UJ_UINT8* str = (UJ_UINT8*)&table[j1+*ptr];
 	/*fprintf(stderr,"   len: %d\n",str[3]?4:strlen((char*)str)); */
-	SV_Buf_append_str(&result,str,str[3]?4:strlen((char*)str));
+	SV_Buf_append_mem(&result,str,str[3]?4:strlen((char*)str));
       }
       /*fprintf(stderr,"j-sky string done.\n"); */
       continue;
     }else if( 0xa1<=src[0] && src[0]<=0xdf )
     { /* half-width katakana (ja:半角カナ) */
       ECHO_U2S((stderr,"kana: %02x\n",src[0]));
-      ptr = (unsigned char*)&g_s2u_table[(src[0]-0xa1)*3];
+      ptr = (UJ_UINT8*)&g_s2u_table[(src[0]-0xa1)*3];
       ++src;
     }else if( src+1<src_end && 0x81<=src[0] && src[0]<=0x9f )
     { /* a double-byte letter (ja:2バイト文字) */
-      const unsigned short sjis = ntohs(*(unsigned short*)src);
+      const UJ_UINT16 sjis = (src[0]<<8)+src[1]; /* ntohs */
       ECHO_U2S((stderr,"sjis.dbcs#1: %04x\n",sjis));
-      ptr = (unsigned char*)&g_s2u_table[(sjis - 0x8100 + 0x3f)*3];
+      ptr = (UJ_UINT8*)&g_s2u_table[(sjis - 0x8100 + 0x3f)*3];
       src += 2;
     }else if( src+1<src_end && 0xe0<=src[0] && src[0]<=0xfc )
     { /* a double-byte letter (ja:2バイト文字) */
-      const unsigned short sjis = ntohs(*(unsigned short*)src);
+      const UJ_UINT16 sjis = (src[0]<<8)+src[1]; /* ntohs */
       ECHO_U2S((stderr,"sjis.dbcs#2: %04x\n",sjis));
-      ptr = (unsigned char*)&g_s2u_table[(sjis- 0xe000 + 0x1f3f)*3];
+      ptr = (UJ_UINT8*)&g_s2u_table[(sjis- 0xe000 + 0x1f3f)*3];
       src += 2;
     }else
     { /* unknown */
@@ -155,11 +155,11 @@ xs_sjis_jsky2_utf8(SV* sv_str)
     if( ptr[2] )
     {
       /*fprintf(stderr,"utf8-len: [%d]\n",3); */
-      SV_Buf_append_ch3(&result,*(int*)ptr);
+      SV_Buf_append_mem(&result, ptr, 3);
     }else if( ptr[1] )
     {
       /*fprintf(stderr,"utf8-len: [%d]\n",2); */
-      SV_Buf_append_ch2(&result,*(short*)ptr);
+      SV_Buf_append_mem(&result, ptr, 2);
     }else if( ptr[0] )
     {
       /*fprintf(stderr,"utf8-len: [%d]\n",1); */
@@ -182,16 +182,16 @@ EXTERN_C
 SV*
 xs_utf8_sjis_jsky2(SV* sv_str)
 {
-  unsigned char* src;
+  UJ_UINT8* src;
   int len;
   SV_Buf result;
-  const unsigned char* src_end;
+  const UJ_UINT8* src_end;
 
   if( sv_str==&PL_sv_undef )
   {
     return newSVsv(&PL_sv_undef);
   }
-  src = (unsigned char*)SvPV(sv_str,PL_na);
+  src = (UJ_UINT8*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
 
   ECHO_U2S((stderr,"Unicode::Japanese::(xs)utf8_sjis_jsky2\n"));
@@ -213,7 +213,7 @@ xs_utf8_sjis_jsky2(SV* sv_str)
       {
         ++len;
       }
-      SV_Buf_append_str(&result,src,len);
+      SV_Buf_append_mem(&result,src,len);
       src+=len;
       continue;
     }
@@ -221,9 +221,9 @@ xs_utf8_sjis_jsky2(SV* sv_str)
     /* non-ascii */
     if( 0xe0<=*src && *src<=0xef )
     { /* 3byte range. mostly enter here. */
-      const int          utf8_len = 3;
-      const unsigned int ucs_min  = 0x800;
-      const unsigned int ucs_max  = 0xffff;
+      const int       utf8_len = 3;
+      const UJ_UINT32 ucs_min  = 0x800;
+      const UJ_UINT32 ucs_max  = 0xffff;
       ECHO_U2S((stderr,"utf8-len: [%d]\n",utf8_len));
       /* check length */
       if( src+utf8_len<=src_end )
@@ -257,9 +257,9 @@ xs_utf8_sjis_jsky2(SV* sv_str)
       /* ok. */
     }else if( 0xf0<=*src && *src<=0xf7 )
     {
-      const int          utf8_len = 4;
-      const unsigned int ucs_min  = 0x010000;
-      const unsigned int ucs_max  = 0x10ffff;
+      const int       utf8_len = 4;
+      const UJ_UINT32 ucs_min  = 0x010000;
+      const UJ_UINT32 ucs_max  = 0x10ffff;
       ECHO_U2S((stderr,"utf8-len: [%d]\n",utf8_len));
       /* check length */
       if( src+utf8_len<=src_end )
@@ -295,7 +295,7 @@ xs_utf8_sjis_jsky2(SV* sv_str)
       /* private area: block emoji */ 
       if( 0x0f0000<=ucs && ucs<=0x0fffff )
       {
-        const unsigned char* sjis;
+        const UJ_UINT8* sjis;
         if( ucs<0x0fe000 )
         { /* unknown area. */
 	  SV_Buf_append_ch(&result,'?');
@@ -311,14 +311,14 @@ xs_utf8_sjis_jsky2(SV* sv_str)
         }else if( sjis[3]!=0 )
         { /* 4 bytes. */
 	  assert("not reach here" && 0);
-	  SV_Buf_append_ch4(&result,*(const int*)(sjis));
+	  SV_Buf_append_mem(&result, sjis, 4);
         }else if( sjis[2]!=0 )
         { /* 3 bytes. */
 	  assert("not reach here" && 0);
-	  SV_Buf_append_ch3(&result,*(const int*)(sjis));
+	  SV_Buf_append_mem(&result, sjis, 3);
         }else if( sjis[1]!=0 )
         { /* 2 bytes. */
-	  SV_Buf_append_ch2(&result,*(const unsigned short*)(sjis));
+	  SV_Buf_append_mem(&result, sjis, 2);
         }else if( sjis[0]!=0 )
         { /* 1 byte. */
 	  SV_Buf_append_ch(&result,*sjis);
@@ -337,9 +337,9 @@ xs_utf8_sjis_jsky2(SV* sv_str)
       }
     }else if( 0xc0<=*src && *src<=0xdf )
     {
-      const int          utf8_len = 2;
-      const unsigned int ucs_min  =  0x80;
-      const unsigned int ucs_max  = 0x7ff;
+      const int       utf8_len = 2;
+      const UJ_UINT32 ucs_min  =  0x80;
+      const UJ_UINT32 ucs_max  = 0x7ff;
       ECHO_U2S((stderr,"utf8-len: [%d]\n",utf8_len));
       /* check length */
       if( src+utf8_len<=src_end )
@@ -448,23 +448,23 @@ xs_utf8_sjis_jsky2(SV* sv_str)
       sjis_ptr = g_u2s_table + (ucs - 0xF900 + 0xA000)*2;
     }else if( 0x0FE000<=ucs && ucs<=0x0FFFFF )
     {
-      sjis_ptr = "?"; /* exactly 2byte: "?\0" */
+      sjis_ptr = (UJ_UINT8*)"?"; /* exactly 2byte: "?\0" */
     }else
     {
-      sjis_ptr = "\0"; /* exactly 2byte: "\0\0" */
+      sjis_ptr = (UJ_UINT8*)"\0"; /* exactly 2byte: "\0\0" */
     }
-    if( *(const UJ_UINT16*)sjis_ptr != 0 )
+    if( sjis_ptr[0]!=0 || sjis_ptr[1]!=0 )
     { /* mapping dest exists. */
       if( sjis_ptr[1]!=0 )
       {
-        SV_Buf_append_ch2(&result,*(UJ_UINT16*)sjis_ptr);
+        SV_Buf_append_mem(&result, sjis_ptr, 2);
       }else
       {
         SV_Buf_append_ch(&result,sjis_ptr[0]);
       }
     }else if( ucs<=0x7F )
     {
-      SV_Buf_append_ch(&result,(unsigned char)ucs);
+      SV_Buf_append_ch(&result,(UJ_UINT8)ucs);
     }else
     {
       SV_Buf_append_ch(&result,'?');
@@ -478,8 +478,8 @@ xs_utf8_sjis_jsky2(SV* sv_str)
   {
   /* packing J-SKY emoji escapes */
   SV_Buf pack;
-  unsigned char* ptr;
-  unsigned char tmpl[5] = { '\x1b','$',0,0,'\x0f',};
+  UJ_UINT8* ptr;
+  UJ_UINT8 tmpl[5] = { '\x1b','$',0,0,'\x0f',};
   
   SV_Buf_init(&pack,SV_Buf_getLength(&result));
   src = SV_Buf_getBegin(&result);
@@ -487,7 +487,7 @@ xs_utf8_sjis_jsky2(SV* sv_str)
   ptr = src;
   for( ; src+5*2-1<src_end; ++src )
   {
-    unsigned char ch1;
+    UJ_UINT8 ch1;
     /* E_JSKY_START  "\x1b\$", */
     if( src[0]!='\x1b' ) continue;
     if( src[1]!='$' ) continue;
@@ -511,7 +511,7 @@ xs_utf8_sjis_jsky2(SV* sv_str)
 
     /*fprintf(stderr,"  found first emoji [%02x:%c]\n",ch1,ch1); */
     src += 5;
-    SV_Buf_append_str(&pack,ptr,(src-1)-ptr);
+    SV_Buf_append_mem(&pack,ptr,(src-1)-ptr);
     tmpl[2] = ch1;
     for( ; src_end-src>=5; src+= 5 )
     {
@@ -528,7 +528,7 @@ xs_utf8_sjis_jsky2(SV* sv_str)
   /*fprintf(stderr,"  append len %0d\n",src_end-ptr); */
   if( ptr!=src_end )
   {
-    SV_Buf_append_str(&pack,ptr,src_end-ptr);
+    SV_Buf_append_mem(&pack,ptr,src_end-ptr);
   }
 
   ON_U2S( bin_dump("out",SV_Buf_getBegin(&pack),SV_Buf_getLength(&pack)) );

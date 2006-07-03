@@ -38,7 +38,7 @@ xs_sjis_eucjp(SV* sv_str)
       {
 	const unsigned char* start = src;
 	while( ++src<src_end && chk_sjis[*src]==CHK_SJIS_THROUGH );
-	SV_Buf_append_str(&result,start,src-start);
+	SV_Buf_append_mem(&result,start,src-start);
 	continue;
       }
     case CHK_SJIS_C:
@@ -151,14 +151,14 @@ xs_eucjp_sjis(SV* sv_str)
       {
 	const unsigned char* start = src;
 	while( ++src<src_end && chk_eucjp[*src]==CHK_EUCJP_THROUGH );
-	SV_Buf_append_str(&result,start,src-start);
+	SV_Buf_append_mem(&result,start,src-start);
 	continue;
       }
     case CHK_EUCJP_0212:
       {
 	if( src+3-1<src_end )
 	{
-	  SV_Buf_append_str(&result,UNDEF_SJIS,UNDEF_SJIS_LEN);
+	  SV_Buf_append_mem(&result,UNDEF_SJIS,UNDEF_SJIS_LEN);
 	  src += 3;
 	  continue;
 	}

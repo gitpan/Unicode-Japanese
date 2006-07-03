@@ -2,7 +2,7 @@
 #ifndef UNICODE__JAPANESE_H__
 #define UNICODE__JAPANESE_H__
 
-/* $Id: Japanese.h,v 1.25 2006/04/14 05:18:55 pho Exp $ */
+/* $Id: Japanese.h,v 1.26 2006/07/03 01:23:13 hio Exp $ */
 
 #if !defined(__cplusplus) && !defined(bool)
 #define bool char
@@ -35,11 +35,6 @@
 #  else
 #    define EXTERN_C
 #  endif
-#endif
-
-#ifndef u_char
-/* typedef unsigned char u_char; */
-#define u_char unsigned char
 #endif
 
 /* misc. */

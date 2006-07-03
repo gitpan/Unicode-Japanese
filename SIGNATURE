@@ -1,0 +1,88 @@
+This file contains message digests of all files listed in MANIFEST,
+signed via the Module::Signature module, version 0.54.
+
+To verify the content in this distribution, first make sure you have
+Module::Signature installed, then type:
+
+    % cpansign -v
+
+It will check each file's integrity, as well as the signature's
+validity.  If "==> Signature verified OK! <==" is not displayed,
+the distribution may already have been compromised, and you should
+not run its Makefile.PL or Build.PL.
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+SHA1 6aa81f666e9288c9f4c1f5943d444e58ebde4b19 Changes
+SHA1 9f603b3468a3e1b0812814230cede5feab6d9322 Japanese.h
+SHA1 3c72ce5fcaf673415428242ef64ea49423e9bc64 Japanese.xs
+SHA1 bb18413cf69a8e72f183f84741efe2a4165e1193 MANIFEST
+SHA1 e0058b2b2480bb9143a9804ed936f8d39721b64f MANIFEST.en
+SHA1 156cdda11b962094ca6c0f2fee14710235d9f55e MANIFEST.noxs
+SHA1 9ab7a94ac3deda98cd5ab3fb97d2153fd9a46658 META.yml
+SHA1 a09f3fd623e5f360b5c19d0c2a55d575f7747853 Makefile.PL
+SHA1 3f07d2c6c97d6f06de33ca8183e39f3de58447b7 README
+SHA1 f26607a9e170bf1863cab4eec6ef59ac94811bfc bin/ujconv
+SHA1 509049614bfc9e0ecb55245611343289bcf018c1 bin/ujguess
+SHA1 390acb75d3253b98debe157b20769cda398dae01 conv.c
+SHA1 2784fba53f09ab25437fc34f8a5809110fff1f6e eucjp.c
+SHA1 041fabafbb48f5dea4c56aad94697b77ca354b50 getcode.c
+SHA1 cdda4bc4e99171d513212837edfa981cc1b782e2 getcode.h
+SHA1 f53369ac8163ffa4803f2a66301f4124cf434424 getcode_map.c
+SHA1 c4c840f2f85dfaad39032429e86cc5d4ea707822 hints/MSWin32.pl
+SHA1 557f2ede42f57b21717760fabbfffcc14988de6c hints/freebsd.pl
+SHA1 e324966e955fa89e7ab9002386c9d415e0df8e5a hints/linux.pl
+SHA1 968c48aa9b0b989fd9f647187b54829fbf093a08 hints/solaris.pl
+SHA1 b54729e4ce5de2e2ef2884bc712de8b5108e4a35 hints/sunos.pl
+SHA1 529203e544fb27ab9ab48dfd3a4a594ab99cc471 jis.c
+SHA1 5814ebe5ca0c58a71ffa21ac82657d8df6cfe98d lib/Unicode/Japanese.pm
+SHA1 0a045bdbb875080bad291f366b9642775f30e56c lib/Unicode/Japanese/JA.pod
+SHA1 09ef6e9cb0dfb8a234ec5148542f1cc3e5b27d0c memmap_common.c
+SHA1 3f2141ef5160ce59c299528ad0785ac6eb7f5d40 memmap_unix.c
+SHA1 7d61109428f22ec154f35a17f0999f8b603366fd memmap_win32.c
+SHA1 5765be49f4504d48ea2bd0888a41f921138821be sjis.c
+SHA1 db08df38b85f4328b322d549bd175a4dcdcce804 sjis.h
+SHA1 7e55b3231b7162b119be3b7fc062f9dcfeea114a sjis_doti.c
+SHA1 b8c8a7c154812392f1592c3dbbbb3577032ac129 sjis_imode1.c
+SHA1 5c8dae3764113ab41a05feff0e4dd6b595bf33e2 sjis_imode2.c
+SHA1 e695d1a52f9355dc76b84a1686261854e7de0305 sjis_jsky1.c
+SHA1 cd736fe1e0792dcc1d1ac4a3dc755a33d3d79208 sjis_jsky2.c
+SHA1 b2f996e1e76f7ea40779e284a8c8040f619e37e5 str.h
+SHA1 40a8d1e09592690c0d4d73e11193f98a54634e17 t/0.loadxs.t
+SHA1 7b51690b0ff0c4df72690496779e520f528b7cfe t/00-load.t
+SHA1 bde3c1c70fe3ebd850ab392a7a9007d60acb371b t/allchar_utf8.pl
+SHA1 c384de880d4de7c2f617663a30ddc6bad354d46c t/base.t
+SHA1 bdbc14b8278480593144dc9a095f2b027b4989c5 t/emoji.t
+SHA1 50f3cb9917971abd9fdfa589cdaa47a65af34b86 t/esc.pl
+SHA1 0f0561f145439ca1f674196211cf53a9d336dd97 t/fromutf8.t
+SHA1 897b6d3ec42cbccd6b66e031b8f27e23be1f404e t/getcode.t
+SHA1 cc492575eba45a6a06e5c6ee26613b9d031d7cd9 t/hirakata.t
+SHA1 412f2f30e743019ddeae26392322a83a696ff6ec t/illegal.t
+SHA1 cf045a5b375172fed69d60e782cd03818f85770a t/illlet.t
+SHA1 c1c1a1bf0d1a6b5c0dd4d8ca0abb6b34b2a690fb t/jis.t
+SHA1 de2e5f5eaa8fe66dd75af241204605b340a1c25a t/outrange.t
+SHA1 c33b4ae44ac5ba9d629cc6db5af79fddf62166d4 t/pod-coverage.t
+SHA1 985b80b89114a77a30081e9b9455ce22606e6055 t/pod.t
+SHA1 d3a1a133a0a90f36dc7f11f66c61200a0e20c840 t/random.pl
+SHA1 6c4df6d110c5c414419d62253eb0019c4080802b t/random_redo.pl
+SHA1 8c08859ae60867980d248364118a8e191cd7d362 t/toutf8.t
+SHA1 19b16c10faed33cf886689eaae4783cfc73106f1 t/ucs2_utf8.pl
+SHA1 7189ddf9f23d7ff805256c908eff99a8eb2053c7 t/utf16.t
+SHA1 3a54e80a5f9c3fef2fe6e83f3499cfd56003c47a t/utf8flag.t
+SHA1 0f6f939aaf0a9b63b2d9d9f2708e487c606a6447 t/util.t
+SHA1 f66debf56c0ac6dca1a5914025b440463fa05083 t/v031_getcode_jiskana.t
+SHA1 13f4e49b7772da4ea39e21a7164335f1eecbd3dd t/verify_sjis_ucs2.pl
+SHA1 44895dce947f98f2d42e6c927149f3aeb053a042 t/z2h.t
+SHA1 88d26aa544d7ffa9df2b6d48aa100ed70c03caa0 ucs2_utf8.c
+SHA1 ec76f8ae1ac2bce4c4f78a794ef81b02fbe42911 utf16.c
+SHA1 7a910688589af5e27f9de686be40c74cd990e309 utf8.c
+SHA1 112ede78f8e157143d5e497c5a5820f3047f9f63 wordsize.c
+SHA1 7194082213d268c10fb1bc3a9a42ecea288d4070 xs_test.c
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD4DBQFEqHX0ewjCT38k4dkRAgNAAJd/ylyOLasDqpMM/iRtjlEY/JkNAJ9lkWfm
+F3KE4BBkdQw30DZfMtt1qQ==
+=LVYn
+-----END PGP SIGNATURE-----

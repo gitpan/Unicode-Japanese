@@ -3,7 +3,7 @@
  * ----------------------------------------------------------------------------
  * Mastering programed by YAMASHINA Hio
  * ----------------------------------------------------------------------------
- * $Id: utf16.c,v 1.5 2005/05/15 10:00:22 hio Exp $
+ * $Id: utf16.c,v 1.6 2006/07/03 01:33:15 hio Exp $
  * ------------------------------------------------------------------------- */
 
 
@@ -18,18 +18,18 @@ EXTERN_C
 SV*
 xs_utf16_utf8(SV* sv_str)
 {
-  unsigned char* src;
+  UJ_UINT8* src;
   int len;
   SV_Buf result;
-  const unsigned char* src_end;
-  unsigned char buf[4];
+  const UJ_UINT8* src_end;
+  UJ_UINT8 buf[4];
 
   if( sv_str==&PL_sv_undef )
   {
     return newSVpvn("",0);
   }
   
-  src = (unsigned char*)SvPV(sv_str,PL_na);
+  src = (UJ_UINT8*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
   src_end = src+(len&~1);
   /*fprintf(stderr,"Unicode::Japanese::(xs)utf16_utf8\n",len);*/
@@ -43,26 +43,26 @@ xs_utf16_utf8(SV* sv_str)
 
   for(; src<src_end; src+=2 )
   {
-    const unsigned short utf16 = ntohs(*(unsigned short*)src);
+    const UJ_UINT16 utf16 = (src[0]<<8)+src[1]; /* ntohs */
     if( utf16<0x80 )
     {
-      SV_Buf_append_ch(&result,(unsigned char)utf16);
+      SV_Buf_append_ch(&result,(UJ_UINT8)utf16);
     }else if( utf16<0x800 )
     {
       buf[0] = 0xC0 | (utf16 >> 6);
       buf[1] = 0x80 | (utf16 & 0x3F);
-      SV_Buf_append_ch2(&result,*(unsigned short*)buf);
+      SV_Buf_append_ch2(&result, *(UJ_UINT16*)buf);
     }else if( !(0xd800 <= utf16 && utf16 <= 0xdfff) )
     { /* normal char (non surrogate pair) */
       buf[0] = 0xE0 | (utf16 >> 12);
       buf[1] = 0x80 | ((utf16 >> 6) & 0x3F);
       buf[2] = 0x80 | (utf16 & 0x3F);
-      SV_Buf_append_ch3(&result,*(unsigned int*)buf);
+      SV_Buf_append_ch3(&result,*(UJ_UINT32*)buf);
     }else
     { /* surrogate pair */
       if( src+2<src_end )
       {
-        const unsigned short utf16a = ntohs(*(unsigned short*)(src+2));
+        const UJ_UINT16 utf16a = (src[2]<<8)+src[3]; /* ntohs */
         if( utf16<=0xdbff && 0xdc00 <= utf16a && utf16a <= 0xdfff )
         {
 #if ENABLE_SURROGATE_PAIR
@@ -74,7 +74,7 @@ xs_utf16_utf8(SV* sv_str)
             buf[1] = 0x80 | ((ucs4>>12) & 0x3F);
             buf[2] = 0x80 | ((ucs4>>6) & 0x3F);
             buf[3] = 0x80 | (ucs4 & 0x3F);
-            SV_Buf_append_ch4(&result,*(unsigned int*)buf);
+            SV_Buf_append_ch4(&result,*(UJ_UINT32*)buf);
           }else
           {
             /* utf8 not support >= U+10FFFF */
@@ -113,17 +113,17 @@ EXTERN_C
 SV*
 xs_utf8_utf16(SV* sv_str)
 {
-  unsigned char* src;
+  UJ_UINT8* src;
   int len;
   SV_Buf result;
-  const unsigned char* src_end;
+  const UJ_UINT8* src_end;
 
   if( sv_str==&PL_sv_undef )
   {
     return newSVpvn("",0);
   }
   
-  src = (unsigned char*)SvPV(sv_str,PL_na);
+  src = (UJ_UINT8*)SvPV(sv_str,PL_na);
   len = sv_len(sv_str);
   src_end = src+len;
   /*fprintf(stderr,"Unicode::Japanese::(xs)utf8_utf16\n",len); */
@@ -132,7 +132,7 @@ xs_utf8_utf16(SV* sv_str)
   
   while( src<src_end )
   {
-    unsigned int ucs;
+    UJ_UINT32 ucs;
     if( *src<=0x7f )
     {
       SV_Buf_append_ch2(&result,htons(*src));
@@ -141,9 +141,9 @@ xs_utf8_utf16(SV* sv_str)
     }
     if( 0xc0<=*src && *src<=0xdf )
     { /* length [2] */
-      const int utf8_len          = 2;
-      const unsigned int ucs_min  = 0x80;
-      const unsigned int ucs_max  = 0x7ff;
+      const int       utf8_len = 2;
+      const UJ_UINT32 ucs_min  = 0x80;
+      const UJ_UINT32 ucs_max  = 0x7ff;
       if( src+1>=src_end ||
           src[1]<0x80 || 0xbf<src[1] )
       {
@@ -166,9 +166,9 @@ xs_utf8_utf16(SV* sv_str)
       /* ok. */
     }else if( 0xe0<=*src && *src<=0xef )
     { /* length [3] */
-      const int          utf8_len = 3;
-      const unsigned int ucs_min  = 0x800;
-      const unsigned int ucs_max  = 0xffff;
+      const int       utf8_len = 3;
+      const UJ_UINT32 ucs_min  = 0x800;
+      const UJ_UINT32 ucs_max  = 0xffff;
       if( src+2>=src_end ||
           src[1]<0x80 || 0xbf<src[1] ||
           src[2]<0x80 || 0xbf<src[2] )
@@ -200,9 +200,9 @@ xs_utf8_utf16(SV* sv_str)
       /* ok. */
     }else if( 0xf0<=*src && *src<=0xf7 )
     { /* length [4] */
-      const int          utf8_len = 4;
-      const unsigned int ucs_min  = 0x010000;
-      const unsigned int ucs_max  = 0x10ffff;
+      const int       utf8_len = 4;
+      const UJ_UINT32 ucs_min  = 0x010000;
+      const UJ_UINT32 ucs_max  = 0x10ffff;
       if( src+3>=src_end ||
           src[1]<0x80 || 0xbf<src[1] ||
           src[2]<0x80 || 0xbf<src[2] ||
