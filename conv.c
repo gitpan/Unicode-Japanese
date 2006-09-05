@@ -4,7 +4,7 @@
  * ----------------------------------------------------------------------------
  * Mastering programed by YAMASHINA Hio
  * ----------------------------------------------------------------------------
- * $Id: conv.c,v 1.11 2006/07/03 01:33:15 hio Exp $
+ * $Id: conv.c,v 1.12 2006/09/05 05:56:20 hio Exp $
  * ------------------------------------------------------------------------- */
 
 #ifdef _MSC_VER
@@ -18,9 +18,6 @@
 
 #include "Japanese.h"
 #include <stdio.h>
-#ifndef _MSC_VER
-#include <netinet/in.h>
-#endif
 
 #define DISP_S2U 0
 #define DISP_U2S 0

@@ -1,5 +1,5 @@
 
-/* $Id: memmap_win32.c,v 1.9 2005/08/05 06:24:59 hio Exp $ */
+/* $Id: memmap_win32.c,v 1.10 2006/08/18 04:22:07 hio Exp $ */
 
 #include "Japanese.h"
 #include <windows.h>
@@ -43,7 +43,6 @@ do_memmap(void)
 {
   int fd_pmfile;
   DWORD dwFileSizeLow, dwFileSizeHigh;
-  struct stat st_pmfile;
   
   {
     /* (ja)初期化を確認 */
