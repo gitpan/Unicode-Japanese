@@ -1,15 +1,10 @@
-
-=encoding euc-jp
+=encoding utf-8
 
 =head1 NAME
 
-Unicode::Japanese::JA - Japanese Character Encoding Handler (ja-doc)
+Unicode::Japanese::JA - 日本語文字コード変換
 
-=head1 NAME (ja)
-
-Unicode::Japanese::JA - ���ܸ�ʸ���������Ѵ�
-
-=head1 SYNOPSIS
+=head1 概要
 
  use Unicode::Japanese;
  use Unicode::Japanese qw(unijp);
@@ -31,537 +26,602 @@ Unicode::Japanese::JA - ���ܸ�ʸ���������Ѵ�
  
  print Unicode::Japanese->new($str)->z2h->get;
 
-=head1 DESCRIPTION
+=head1 説明
 
-Unicode::Japanese �ϡ����ܸ��ʸ�������ɤ�����Ѵ���Ԥ��⥸�塼��Ǥ���
+Unicode::Japanese は，日本語の文字コードの相互変換を行うモジュールです．
 
-=head2 FEATURES
-
-�ʲ��Τ褦����ħ������ޤ���
+=head2 機能
 
 =over 2
 
 =item *
 
-Unicode::Japanese �Υ��󥹥��󥹤ϡ�UTF-8 ��ʸ������ݻ����ޤ���
+
+
+Unicode::Japanese のインスタンスは，UTF-8 で文字列を保持します．
 
 =item *
 
-XS ����/�Ի��Ѥ򶦤˥��ݡ��Ȥ��Ƥ��ޤ���
-XS �Ǥϥѥե����ޥ󥹤�ɬ�פʾ��ˡ� No-XS �Ǥϼ�ڤ˻��Ѥ��������˻��Ѥ��Ʋ�����
-(Japanese.pm �򥳥ԡ����������ư��ޤ�)��
+
+
+XS 使用/不使用を共にサポートしています．
+XS 版はパフォーマンスが必要な場合に，
+No-XS 版は手軽に使用したい場合に使用して下さい
+(Japanese.pm をコピーするだけで動作します)．
 
 =item *
 
-����Ⱦ���Ѵ����������ʤҤ餬���Ѵ��򥵥ݡ��Ȥ��Ƥ��ޤ���
+
+
+全角半角変換，カタカナひらがな変換をサポートしています．
 
 =item *
 
-�������� (DoCoMo i-mode��ASTEL dot-i��J-PHONE J-Sky) �γ�ʸ����
-Unicode �����ΰ�˥ޥåԥ󥰤��뤳�Ȥǡ�DB ���ǰ����˰������Ȥ��Ǥ��ޤ���
+
+
+携帯電話 (DoCoMo i-mode，KDDI AU, Softbank Mobile, ASTEL dot-i) の絵文字を
+Unicode 私用領域にマッピングすることで，DB 等で安全に扱うことができます．
 
 =item *
 
-�ۤʤ��������Ʊ�Τǡ�Ʊ�����᡼���γ�ʸ��������Ѵ����뤳�Ȥ���ǽ�Ǥ���
+
+
+異なる携帯電話同士で，同じイメージの絵文字は相互変換することが可能です．
 
 =item *
 
-SJIS �ϡ� MS-CP932 �Ȥߤʤ��� Unicode �ȥޥåԥ󥰤�Ԥ��ޤ���
+
+
+SJIS は， MS-CP932 とみなして Unicode とマッピングを行います．
 
 =item *
 
-Unicode -> SJIS�ʵڤ�EUC-JP/JIS�� �Υޥåԥ󥰻���SJIS ��ɽ���Ǥ��ʤ�ʸ����
-&#dddd; �������Ѵ����ޤ��� ������Unicode�����ΰ�ˤ�����Ƥ��볨ʸ����
-'?'�ˤʤ�ޤ�. �ޤ�, �������ø������Ѵ����ˤ�, ���٤Ƥ��б����ʤ�ʸ����'?'�ˤʤ�ޤ�.
+
+
+Unicode -> SJIS（及びEUC-JP/JIS） のマッピング時，SJIS で表現できない文字は
+&#dddd; 形式に変換します． ただしUnicode私用領域におかれている絵文字は
+'?'になります. また, 携帯電話向けの変換時には, すべての対応しない文字は'?'になります.
 
 =item *
 
-Perl-5.8.0 �ʹߤˤ�����, utf8 �ե饰�����������Ԥ��ޤ�.
-utf-8 `�Х���'�� �μ����ˤ� utf8() �᥽�åɤ�, 
-utf-8 `ʸ��'�� �μ����ˤ� getu() �᥽�åɤ�Ȥ��ޤ�.
 
-get() �᥽�åɤϸ������Ǥ� utf-8 `�Х���'�� ���֤��ޤ�
-(����Ū���ѹ�������ǽ���⤢��ޤ�).
 
-sjis(), jis(), utf8(), etc.. �᥽�åɤǤϥХ�������֤��ޤ�.
-new, set, getcode �᥽�åɤ����Ϥˤ�, utf8/bytes ���䤤�ޤ���.
+Perl-5.8.0 以降において, utf8 フラグの設定処理を行います.
+utf-8 `バイト'列 の取得には utf8() メソッドを, 
+utf-8 `文字'列 の取得には getu() メソッドを使います.
+
+get() メソッドは現時点では utf-8 `バイト'列 を返します
+(将来的に変更される可能性もあります).
+
+sjis(), jis(), utf8(), etc.. メソッドではバイト列を返します.
+new, set, getcode メソッドの入力には, utf8-flaged/bytes を問いません.
 
 =back
 
+=head1 メソッド
 
-=head1 METHODS
-
-=over 2
+=over 4
 
 =item $s = Unicode::Japanese->new($str [, $icode [, $encode]])
 
-������ Unicode::Japanese ���󥹥��󥹤���ꤷ�ޤ���
-�ѥ�᡼������ꤹ��ȡ�set �᥽�åɤ��Ϥ���ޤ���
+新しい Unicode::Japanese インスタンスを指定します．
+
+パラメータを指定すると，set メソッドに渡されます．
 
 =item unijp($str [, $icode [, $encode]])
 
-Unicode::Janaese->new(...) ��Ʊ��.
+Unicode::Janaese->new(...) と同義.
 
 =item $s->set($str [, $icode [, $encode]])
 
 =over 2
 
-=item $str: ʸ����
+=item $str: 文字列
 
-=item $icode: ʸ�������ɻ��ꡥ��ά�ġ���ά���� 'utf8'
+=item $icode: 文字コード指定．省略可．省略時は 'utf8'
 
-=item $encode: ʸ�����󥳡��ɡ���ά�ġ�
+=item $encode: 文字エンコード．省略可．
 
 =back
 
-���󥹥��󥹤�ʸ����򥻥åȤ��ޤ���
-ʸ�������ɻ�����ά����� UTF-8 �ȸ��ʤ���ޤ���
+インスタンスに文字列をセットします．
+文字コード指定を省略すると UTF-8 と見なされます．
 
-ʸ�������ɤ���ꤹ����ϡ�'jis', 'sjis', 'euc', 'utf8',
+文字コードを指定する場合は，'jis', 'sjis', 'euc', 'utf8',
 'ucs2', 'ucs4', 'utf16', 'utf16-be', 'utf16-le',
 'utf32', 'utf32-be', 'utf32-le', 'ascii', 'binary',
-'sjis-imode', 'sjis-doti', 'sjis-jsky'.
+'sjis-imode', 'sjis-doti', 'sjis-jsky', 'sjis-icon-au'.
 
+文字コードを自動判別する場合は，'auto' を指定しなくてはいけません．
+'auto' 時の文字コード自動判別は，getcode() メソッドにより
+行われます．
 
-ʸ�������ɤ�ưȽ�̤�����ϡ�'auto' ����ꤷ�ʤ��ƤϤ����ޤ���
+文字エンコードには，'base64' のみ指定可能です．
+base64 を指定した場合は，base64 デコードされてから
+String クラスの文字列となります．
 
-ʸ�����󥳡��ɤˤϡ�'base64' �Τ߻����ǽ�Ǥ���
-base64 ����ꤷ�����ϡ�base64 �ǥ����ɤ���Ƥ���
-String ���饹��ʸ����Ȥʤ�ޤ���
+バイナリをデコードする場合は，文字エンコードタイプとして
+'binary' を指定します．
 
-�Х��ʥ��ǥ����ɤ�����ϡ�ʸ�����󥳡��ɥ����פȤ���
-'binary' ����ꤷ�ޤ���
-
-'auto' ����ʸ�������ɼ�ưȽ�̤ϡ�getcode() �᥽�åɤˤ��
-�Ԥ��ޤ���
-
-sjis-imode��sjis-doti���ξ�硤ʸ������� &#dddd; ��
-��ʸ�����Ѵ�����ޤ���
+sjis-imode，sjis-doti，の場合，文字列中の &#dddd; は
+絵文字に変換されます．
 
 =item $str = $s->get
 
 =over 2
 
-=item $str: ʸ����(UTF-8)
+=item $str: 文字列(UTF-8)
 
 =back
 
-ʸ����� UTF-8 �����ɤǼ��Ф��ޤ���
+文字列を UTF-8 コードで取り出します．
 
-���ߤ� `�Х���' �� ���֤��ޤ���, ����Ū���ѹ�������ǽ���⤢��ޤ�.
-�Х�����ɬ�פʤ� utf8() �᥽�åɤ�, 
-ʸ����ɬ�פʤ� getu() �᥽�åɤ�Ȥ����Ȥ򥪥����ᤷ�ޤ�.
+現在は `バイト' 列 を返しますが, 将来的に変更される可能性もあります.
+
+バイト列が必要なら utf8() メソッドを, 
+文字列が必要なら getu() メソッドを使うことをオススメします.
 
 =item $str = $s->getu
 
 =over 2
 
-=item $str: ʸ����(UTF-8)
+=item $str: 文字列(UTF-8)
 
 =back
 
-ʸ����� UTF-8 �����ɤǼ��Ф��ޤ���
+文字列を UTF-8 コードで取り出します．
 
-Perl-5.8.0 �ʹߤˤ����Ƥ�, utf-8 �ե饰�ΤĤ��� utf-8 ʸ����Ȥ���
-�֤��ޤ�.
+Perl-5.8.0 以降においては, utf-8 フラグのついた utf-8 文字列として
+返します.
 
 =item $code = $s->getcode($str)
 
 =over 2
 
-=item $str: ʸ����
+=item $str: 文字列
 
-=item $code: ʸ�������ɤ�ɽ��ʸ����
+=item $code: 文字コードを表す文字列
 
 =back
 
-�Ϥ��줿ʸ����(I<$str>)��ʸ�������ɤ�ưȽ�̤��ޤ���
-���δؿ��Ǥ�, �㳰Ū��, ���󥹥��󥹤��ݻ�����Ƥ���ʸ����Υ����ɤ�Ƚ�̤���ΤǤϤʤ����Ȥ����դ��Ƥ���������
+渡された文字列(I<$str>)の文字コードを自動判別します．
 
-ʸ�������ɼ�ưȽ�̻��ϡ��ʲ��Υ��르�ꥺ��ˤ��Ƚ�꤬�Ԥ��ޤ���
+この関数では, 例外的に, インスタンスに保持されている
+文字列のコードを判別するのではないことに注意してください．
 
-(PurePerl��)
+文字コード自動判別時は，以下のアルゴリズムにより判定が行われます．
+
+(PurePerl時)
 
 =over 4
 
 =item 1
 
-UTF-32 �� BOM ������С�utf32 ��Ƚ�ꤷ�ޤ���
+
+
+UTF-32 の BOM があれば，utf32 と判定します．
 
 =item 2
 
-UTF-16 �� BOM ������С�utf16 ��Ƚ�ꤷ�ޤ���
+
+
+UTF-16 の BOM があれば，utf16 と判定します．
 
 =item 3
 
-UTF-32BE �Ȥ��������������ʤ顤utf32-be ��Ƚ�ꤷ�ޤ���
+
+
+UTF-32BE として正しい形式なら，utf32-be と判定します．
 
 =item 4
 
-UTF-32LE �Ȥ��������������ʤ顤utf32-le ��Ƚ�ꤷ�ޤ���
+
+
+UTF-32LE として正しい形式なら，utf32-le と判定します．
 
 =item 5
 
-�� ASCII ʸ�����ޤޤ�Ƥ��ʤ���С� ascii ��Ƚ�ꤷ�ޤ���
-���� ASCII ʸ���ˤϡ����������ץ������󥹰ʳ��Υ���ȥ����륳���ɤϴޤޤ�ޤ��󡥡�
+
+
+非 ASCII 文字が含まれていなければ， ascii と判定します．
+（非 ASCII 文字には，エスケープシーケンス以外のコントロールコードは含まれません．）
 
 =item 6
 
-JIS���������ץ������󥹤��ޤޤ�Ƥ���С�jis ��Ƚ�ꤷ�ޤ���
+
+
+JISエスケープシーケンスが含まれていれば，jis と判定します．
 
 =item 7
 
-J-PHONE �γ�ʸ�����ޤޤ�Ƥ���С�sjis-jsky ��Ƚ�̤��ޤ���
+
+
+J-PHONE の絵文字が含まれていれば，sjis-jsky と判別します．
 
 =item 8
 
-EUC-JP �����ɤȤ��������������ʤ顤euc ��Ƚ�ꤷ�ޤ���
+
+
+EUC-JP コードとして正しい形式なら，euc と判定します．
 
 =item 9
 
-SJIS �����ɤȤ��������������ʤ顤sjis ��Ƚ�ꤷ�ޤ���
+
+
+SJIS コードとして正しい形式なら，sjis と判定します．
 
 =item 10
 
-SJIS �� i-mode �γ�ʸ���Ȥ��������������ʤ顤sjis-imode ��Ƚ�̤��ޤ���
+
+
+SJIS と i-mode の絵文字として正しい形式なら，sjis-imode と判別します．
 
 =item 11
 
-SJIS �� dot-i �γ�ʸ���Ȥ��������������ʤ顤sjis-doti ��Ƚ�̤��ޤ���
+
+
+SJIS と dot-i の絵文字として正しい形式なら，sjis-doti と判別します．
 
 =item 12
 
-UTF-8 �Ȥ��������������ʤ顤utf8 ��Ƚ�ꤷ�ޤ���
+
+
+UTF-8 として正しい形式なら，utf8 と判定します．
 
 =item 13
 
-������ˤ����ƤϤޤ�ʤ���硤unknown ��Ƚ�ꤷ�ޤ���
+
+
+いずれにも当てはまらない場合，unknown と判定します．
 
 =back
 
-(XS��)
+(XS時)
 
 =over 4
 
 =item 1
 
-UTF-32 �� BOM ������С�utf32 ��Ƚ�ꤷ�ޤ���
+
+
+UTF-32 の BOM があれば，utf32 と判定します．
 
 =item 2
 
-UTF-16 �� BOM ������С�utf16 ��Ƚ�ꤷ�ޤ���
+
+
+UTF-16 の BOM があれば，utf16 と判定します．
 
 =item 3
 
-�ʲ��Υ����ɤˤĤ���, ������ʸ�������ɤǤ��뤳�Ȥ�������ܤ��Ѥ���Ĵ�٤ޤ�.
+
+
+以下のコードについて, 正しい文字コードであることを状態遷移を用いて調べます.
 
 ascii / euc-jp / sjis / jis / utf8 / utf32-be / utf32-le / sjis-jsky /
 sjis-imode / sjis-doti
 
+
 =item 4
 
-�Ǹ�ޤ��������ä���Τ��椫��, �ʲ���ͥ���ǣ��Ĥ򤨤���, �����Ƚ�ꤷ�ޤ�.
+
+
+最後まで正しかったものの中から, 以下の優先順で１つをえらんで, それと判定します.
 
 utf32-be / utf32-le / ascii / jis / euc-jp / sjis / sjis-jsky / sjis-imode /
 sjis-doti / utf8
 
+
 =item 5
 
-������ˤ����ƤϤޤ�ʤ���硤unknown ��Ƚ�ꤷ�ޤ���
+
+
+いずれにも当てはまらない場合，unknown と判定します．
 
 =back
 
-�ʾ�Υ��르�ꥺ��Τ��ᡤ�ʲ����������դ��Ƥ���������
+以上のアルゴリズムのため，以下の点に注意してください．
 
 =over 2
 
 =item *
 
-UTF-8 ʸ����Ǥ⡤SJIS�����ɤȸ��ʤ�����ǽ��������ޤ���
+
+
+UTF-8 文字列でも，SJISコードと見なされる可能性があります．
 
 =item *
 
-UCS2 �μ�ưȽ�̤ϤǤ��ޤ���
+
+
+UCS2 の自動判別はできません．
 
 =item *
 
-UTF-16 �� BOM ��������Τ߼�ưǧ�����ޤ���
+
+
+UTF-16 は BOM がある場合のみ自動認識します．
 
 =item *
 
-���ӳ�ʸ���ϡ��Х��ʥ��ľ�ܳ�ʸ����������Τ�ǧ���Ǥ��ޤ���
- &#dddd; �����ǵ��Ҥ���Ƥ�����ϡ����ӳ�ʸ���μ�ưȽ�̤ϹԤ��ޤ���
-��&#dddd; �Τߤξ�硤�����褬�ۤʤ뤿�ᡤ���θ� getcode() �η�̤�
-����Ѵ���Ԥ��ȡ���ʸ���������ޤ�����
+
+
+携帯絵文字は，バイナリで直接絵文字がある場合のみ認識できます．
+ &#dddd; 形式で記述されている場合は，携帯絵文字の自動判別は行われません．
+（&#dddd; のみの場合，参照先が異なるため，その後 getcode() の結果を
+基に変換を行うと，絵文字が化けます．）
 
 =back
 
-XS��PurePerl�Ǥ�, Ƚ�̤Υ��르�ꥺ��˰㤤�����뤿��, �ۤʤ��̤ˤʤ��ǽ��������ޤ�.
-�ä�, ����������ʸ����ޤ�Ǥ���sjis�ξ��, PurePerl�Ǥ�sjis��ǧ�����ޤ���
-XS�Ǥ�ǧ�����ޤ���. �����sjis-jsky�ȶ��̤Ǥ��ʤ��ʤ뤿��Ǥ�. �ޤ�, ����
-���Ѥˤ���ǧ�����ɤ�����, euc-jp�ˤ����Ƥ�, Ʊ�ͤ˥���������ʸ��������դ��ʤ�
-�ʤäƤ��ޤ�.
+XSとPurePerlでは, 判別のアルゴリズムに違いがあるため, 異なる結果になる可能性があります.
+特に, エスケープ文字を含んでいるsjisの場合, PurePerlではsjisと認識しますが
+XSでは認識しません. これはsjis-jskyと区別できなくなるためです. また, この
+作用による誤認識を防ぐため, euc-jpにおいても, 同様にエスケープ文字を受け付けなく
+なっています.
 
 =item $str = $s->conv($ocode, $encode)
 
 =over 2
 
-=item $ocode: ���ϥ�����
-    'jis', 'sjis', 'euc', 'utf8', 'ucs2', 'ucs4', 'utf16', 'binary', ���椫����ꡥ
+=item $ocode: 出力コード ('jis', 'sjis', 'euc', 'utf8', 'ucs2', 'ucs4', 'utf16', 'binary', の中から指定．)
 
-=item $encode: ʸ�����󥳡��ɡ���ά�ġ�
+=item $encode: 文字エンコード．省略可．
 
-=item $str: ʸ����
+=item $str: 文字列
 
 =back
 
-ʸ�������ꤷ��ʸ�������ɤ��Ѵ����Ƥ�����Ф��ޤ���
+文字列を指定した文字コードに変換してから取り出します．
 
-ʸ�����󥳡��ɤˤϡ�'base64' �Τ߻����ǽ�Ǥ���
-base64 ����ꤷ�����ϡ�base64 ���󥳡��ɤ��줿
-ʸ�����֤���ޤ���
+文字エンコードには，'base64' のみ指定可能です．
+base64 を指定した場合は，base64 エンコードされた
+文字列が返されます．
 
-perl-5.8.0 �ʹߤˤ�����, ���Ϥ� utf-8 �ե饰������ʤ��Х�����ˤʤ�ޤ�.
+perl-5.8.0 以降において, 出力は utf-8 フラグを持たないバイト列になります.
 
 =item $s->tag2bin
 
-ʸ������˴ޤޤ�� &#dddd; ������ʸ����򡤤��줬ɽ��ʸ�����Τ��֤������ޤ���
+文字列中に含まれる &#dddd; 形式の文字列を，それが表す文字自体に置き換えます．
 
 =item $s->z2h
 
-���Ѥ�Ⱦ�Ѥ��Ѵ����ޤ���
+全角を半角に変換します．
 
 =item $s->h2z
 
-Ⱦ�Ѥ����Ѥ��Ѵ����ޤ���
+半角を全角に変換します．
 
 =item $s->hira2kata
 
-�Ҥ餬�ʤ򥫥����ʤ��Ѵ����ޤ���
+ひらがなをカタカナに変換します．
 
 =item $s->kata2hira
 
-�������ʤ�Ҥ餬�ʤ��Ѵ����ޤ���
+カタカナをひらがなに変換します．
 
 =item $str = $s->jis
 
-$str: JIS ���󥳡��ǥ��󥰷����ΥХ�����
+$str: JIS エンコーディング形式のバイト列
 
-ʸ����� JIS��ISO-2022-JP�� �����ɤǼ��Ф��ޤ���
+文字列を JIS（ISO-2022-JP） コードで取り出します．
 
 =item $str = $s->euc
 
-$str: euc-jp ���󥳡��ǥ��󥰷����ΥХ�����
+$str: euc-jp エンコーディング形式のバイト列
 
-ʸ����� EUC-JP �����ɤǼ��Ф��ޤ���
+文字列を EUC-JP コードで取り出します．
 
 =item $str = $s->utf8
 
-$str: utf-8 ���󥳡��ǥ��󥰷����ΥХ�����
+$str: utf-8 エンコーディング形式のバイト列
 
-ʸ����� UTF-8 �����ɤǼ��Ф��ޤ���
+文字列を UTF-8 コードで取り出します．
 
-perl-5.8.0 �ʹߤˤ����Ƥ�, �Х�������֤��ޤ�.
+perl-5.8.0 以降においても, バイト列を返します.
 
 =item $str = $s->ucs2
 
-$str: ucs2 ���󥳡��ǥ��󥰷����ΥХ�����
+$str: ucs2 エンコーディング形式のバイト列
 
-ʸ����� UCS2 �����ɤǼ��Ф��ޤ���
+文字列を UCS2 コードで取り出します．
 
 =item $str = $s->ucs4
 
-$str: ucs4 ���󥳡��ǥ��󥰷����ΥХ�����
+$str: ucs4 エンコーディング形式のバイト列
 
-ʸ����� UCS4 �����ɤǼ��Ф��ޤ���
+文字列を UCS4 コードで取り出します．
 
 =item $str = $s->utf16
 
-$str: ucs-16 ���󥳡��ǥ��󥰷����ΥХ�����
+$str: ucs-16 エンコーディング形式のバイト列
 
-ʸ����� UTF-16 �����ɤǼ��Ф��ޤ���
-BOM���դ��ޤ���
-�ӥå�����ǥ�����������֤���ޤ���
+文字列を UTF-16 コードで取り出します．
+BOMは付きません．
+ビックエンディアン形式で返されます．
 
 =item $str = $s->sjis
 
-$str: sjis ���󥳡��ǥ��󥰷����ΥХ�����
+$str: sjis エンコーディング形式のバイト列
 
-ʸ����� SJIS��MS-CP932�� �����ɤǼ��Ф��ޤ���
+文字列を SJIS（MS-CP932） コードで取り出します．
 
 =item $str = $s->sjis_imode
 
-$str: sjis/imode��ʸ�� ���󥳡��ǥ��󥰷����ΥХ�����
+$str: sjis/imode絵文字 エンコーディング形式のバイト列
 
-ʸ����� i-modeü�������� SJIS �����ɤǼ��Ф��ޤ���
-�ǿ���imode��ʸ��(VERSION 0.15 �Ǥ�, imode2)����̾�Ǥ�.
-
-=item $str = $s->sjis_imode2
-
-$str: sjis/imode��ʸ�� ���󥳡��ǥ��󥰷����ΥХ�����
-
-ʸ����� i-modeü�������� SJIS �����ɤǼ��Ф��ޤ���
-���ܳ�ʸ��, ��ĥ��ʸ����ޤߤޤ�.
+文字列を i-mode 端末向けの SJIS コードで取り出します．
+最新のimode絵文字(imode2)の別名です.
 
 =item $str = $s->sjis_imode1
 
-$str: sjis/imode��ʸ�� ���󥳡��ǥ��󥰷����ΥХ�����
+$str: sjis/imode 絵文字 エンコーディング形式のバイト列
 
-ʸ����� i-modeü�������� SJIS �����ɤǼ��Ф��ޤ���
-���ܳ�ʸ��������������ޤ�.
+文字列を i-mode 端末向けの SJIS コードで取り出します．
+基本絵文字だけから成ります.
+
+=item $str = $s->sjis_imode2
+
+$str: sjis/imode 絵文字 エンコーディング形式のバイト列
+
+文字列を i-mode 端末向けの SJIS コードで取り出します．
+基本絵文字, 拡張絵文字を含みます.
 
 =item $str = $s->sjis_doti
 
-$str: sjis/dot-i��ʸ�� ���󥳡��ǥ��󥰷����ΥХ�����
+$str: sjis/dot-i 絵文字 エンコーディング形式のバイト列
 
-ʸ����� dot-iü�������� SJIS �����ɤǼ��Ф��ޤ���
+文字列を dot-i 端末向けの SJIS コードで取り出します．
 
 =item $str = $s->sjis_jsky
 
-$str: sjis/j-sky��ʸ�� ���󥳡��ǥ��󥰷����ΥХ�����
+$str: sjis/j-sky 絵文字 エンコーディング形式のバイト列
 
-ʸ����� j-skyü�������� SJIS �����ɤǼ��Ф��ޤ���
-�ǿ���j-sky��ʸ��(VERSION 0.15 �Ǥ�, jsky2)����̾�Ǥ�.
-
-=item $str = $s->sjis_jsky2
-
-$str: sjis/j-sky��ʸ�� ���󥳡��ǥ��󥰷����ΥХ�����
-
-ʸ����� j-skyü�������� SJIS �����ɤǼ��Ф��ޤ���
-Page 1��6 �γ�ʸ����ޤߤޤ�.
+文字列を j-sky 端末向けの SJIS コードで取り出します．
+最新のj-sky絵文字(VERSION 0.15 では, jsky2)の別名です.
 
 =item $str = $s->sjis_jsky1
 
-$str: sjis/j-sky��ʸ�� ���󥳡��ǥ��󥰷����ΥХ�����
-Page 1��3 �Τߤγ�ʸ����ޤߤޤ�.
+$str: sjis/j-sky 絵文字 エンコーディング形式のバイト列
 
-ʸ����� j-skyü�������� SJIS �����ɤǼ��Ф��ޤ���
+文字列を j-sky 端末向けの SJIS コードで取り出します．
+Page 1～3 のみの絵文字を含みます.
+
+=item $str = $s->sjis_jsky
+
+$str: sjis/j-sky 絵文字 エンコーディング形式のバイト列
+
+文字列を j-sky 端末向けの SJIS コードで取り出します．
+Page 1～6 の絵文字を含みます.
+
+=item $str = $s->sjis_icon_au
+
+$str: sjis/AU iconタグ エンコーディング形式のバイト列
+
+文字列を AU 端末向けの SJIS コードで取り出します．
 
 =item @str = $s->strcut($len)
 
 =over 2
 
-=item $len: ʬ�䤹��ʸ����
+=item $len: 分割する文字数
 
-=item @STR: ʸ����
+=item @STR: 文字列
 
 =back
 
-I<$len>�ǻ��ꤵ�줿ʸ�����ʲ���ʸ����������ʬ�䤷�ޤ���
+I<$len>で指定された文字数以下の文字列の配列に分割します．
 
-����γ����Ǥ�, utf-8 �ե饰����ä�utf-8ʸ����Ǥ�.
+配列の各要素は, utf-8 フラグを持ったutf-8文字列です.
 
 =item $len = $s->strlen
 
-=over 2
+$len: 文字列の表示幅
 
-=item $len: ʸ�����ɽ����
-
-=back
-
-UTF-8 ʸ�����Ф��� length() ��Ȥ�������ʸ���ϣ�ʸ��������Ĺ�� 3 �ˤʤäƤ��ޤ��ޤ�����
-���Υ᥽�åɤ���Ѥ���ȡ������ SJIS �Τ褦�ˡ�����ʸ���ϣ�ʸ��������Ĺ�� 2 ���֤��ޤ���
+UTF-8 文字に対して length() を使うと全角文字は１文字あたり長さ 3 になってしまいますが，
+このメソッドを使用すると，従来の SJIS のように，全角文字は１文字あたり長さ 2 を返します．
 
 =item $s->join_csv(@values);
 
-=over 2
+@values: データ配列
 
-=item @values: �ǡ�������
-
-=back
-
-����� CSV ʸ������Ѵ��������󥹥��󥹤˳�Ǽ���ޤ���
-ʸ����κǸ�ˤϲ���("\n")���ɲä���ޤ���
+配列を CSV 文字列に変換し，インスタンスに格納します．
+文字列の最後には改行("\n")が追加されます．
 
 =item @values = $s->split_csv;
 
-=over 2
+@values: データ配列
 
-=item @values: �ǡ�������
+インスタンスに格納されている文字列を CSV と見なし，配列に分割します．
+文字列の最後にある改行("\n")は取り除かれてから分割されます．
 
-=back
-
-���󥹥��󥹤˳�Ǽ����Ƥ���ʸ����� CSV �ȸ��ʤ��������ʬ�䤷�ޤ���
-ʸ����κǸ�ˤ������("\n")�ϼ�������Ƥ���ʬ�䤵��ޤ���
-
-���Ϥ� binary �Ǥʤ���� utf-8 ʸ������֤��ޤ�.
-binary ���ä��Ȥ��ϥХ�������֤��ޤ�.
+入力が binary でなければ utf-8 文字列を返します.
+binary だったときはバイト列を返します.
 
 =back
 
+=head1 DESCRIPTION OF UNICODE MAPPING
 
-=head1 UNICODE MAPPING
-
-Unicode �ȤΥޥåԥ󥰤ϰʲ��Τ褦�˹Ԥ��ޤ���
+Unicode とのマッピングは以下のように行われます．
 
 =over 2
 
 =item SJIS
 
-MS-CP932 �Ȥ��� Unicode �إޥåԥ󥰤�Ԥ��ޤ���
-�ޥåԥ󥰥ơ��֥�ϰʲ���URL�Τ�Τ���Ѥ��Ƥ��ޤ���
+MS-CP932 として Unicode へマッピングを行います．
+マッピングテーブルは以下のURLのものを使用しています．
 
 ftp://ftp.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP932.TXT
 
-Unicode ���� SJIS �إޥåԥ󥰤�����ˡ�ɽ���Ǥ��ʤ�ʸ��������ȡ�
-����ʸ���� &#dddd; �������Ѵ����ޤ��������������ӳ�ʸ���ϡ�?�פ��Ѵ�����ޤ���
 
-�ޤ������Ӹ����� SJIS ���Ѵ�����Ȥ��ϡ����Ƥ�ɽ���Ǥ��ʤ�ʸ���ϡ�?�פ��Ѵ�����ޤ���
+Unicode から SJIS へマッピングする場合に，表現できない文字があると，
+その文字は &#dddd; 形式に変換します．
+ただし，携帯絵文字は「?」に変換されます．
+
+また，携帯向けの SJIS へ変換するときは，全ての表現できない文字は「?」に変換されます．
 
 =item EUC-JP/JIS
 
-����SJIS�����ɤ��Ѵ����Ƥ��顤Unicode �إޥåԥ󥰤��ޤ���
-���ΤȤ���SJIS ��ɽ���Ǥ��ʤ�ʸ�����ޤޤ�Ƥ�����硤
-����ʸ�����������ޥåԥ󥰤Ǥ��ޤ���
+一度SJISコードに変換してから，Unicode へマッピングします．
+このとき，SJIS で表現できない文字が含まれていた場合，
+その文字は正しくマッピングできません．
 
 =item DoCoMo i-mode
 
-F800 - F9FF ���ΰ�Τ�����ʸ����¸�ߤ�����ʬ��U+0FF800 - U+0FF9FF
-���ΰ�˥ޥåԥ󥰤��ޤ���
+F800 - F9FF の領域のうち絵文字が存在する部分を，U+0FF800 - U+0FF9FF
+の領域にマッピングします．
 
 =item ASTEL dot-i
 
-F000 - F4FF ���ΰ�Τ�����ʸ����¸�ߤ�����ʬ��U+0FF000 - U+0FF4FF
-���ΰ�˥ޥåԥ󥰤��ޤ���
+F000 - F4FF の領域のうち絵文字が存在する部分を，U+0FF000 - U+0FF4FF
+の領域にマッピングします．
 
 =item J-PHONE J-SKY
 
-J-SKY �γ�ʸ���ϡ����������ץ������� "\e\$" �θ�ˡ���ʸ��1�Х����ܡ�
-1�İʾ�γ�ʸ��2�Х����ܡ�"\x0f"����³���ޤ���
-1�Х����ܤ�Ʊ����ʸ����³�����ϡ�2�Х����ܤΤߤ�Ϣ³���ƽ񤯤��Ȥǰ��̤��뤳�Ȥ��Ǥ��ޤ���
+J-SKY の絵文字は，エスケープシーケンス "\e\$" の後に，絵文字1バイト目，
+1つ以上の絵文字2バイト目，"\x0f"，と続きます．
+1バイト目が同じ絵文字が続く場合は，2バイト目のみを連続して書くことで
+圧縮することができます．
 
-����1�Х����ܤ�2�Х����ܤΥڥ���1ʸ���ȸ��ʤ��ơ�4500 - 47FF ���ΰ��
-U+0FFB00 - U+0FFDFF ���ΰ�˥ޥåԥ󥰤��ޤ���
+この1バイト目と2バイト目のペアを1文字と見なして，4500 - 47FF の領域を，
+U+0FFB00 - U+0FFDFF の領域にマッピングします．
 
-Unicode::Japanese �Ǥϡ�Unicode ���� J-SKY ��ʸ���˥ޥåԥ󥰤���Ȥ���
-�Х����ܤ�Ʊ����ʸ����Ϣ³���Ƥ�����ϡ����̽�����ưŪ�˹Ԥ��ޤ���
+Unicode::Japanese では，Unicode から J-SKY 絵文字にマッピングするとき，
+バイト目が同じ絵文字が連続している場合は，圧縮処理を自動的に行います．
 
 =back
 
 =head1 PurePerl mode
 
-use Unicode::Japanese qw(PurePerl);
- �Ȱ�����Ϳ���뤳�Ȥ�, XS��Ȥ�ʤ����Ȥ�����Ū������Ǥ��ޤ�.
+   use Unicode::Japanese qw(PurePerl);
 
-=head1 BUGS
+use 時の引数に C<'PurePerl'> を与えることで, 
+XSを使わないことを明示的に宣言できます.
+
+=head1 バグ
 
 =over 2
 
 =item *
 
-EUC-JP��JIS �����ɤϡ�SJIS ���Ѵ�����Ƥ��� UTF-8 ���Ѵ�����뤿�ᡤ
-SJIS ��ɽ���Ǥ��ʤ�ʸ������������Ѵ����뤳�ȤϤǤ��ޤ���
+
+
+EUC-JP，JIS コードは，SJIS に変換されてから UTF-8 へ変換されるため，
+SJIS で表現できない文字列は正しく変換することはできません．
 
 =item *
 
-XS����Ѥ��Ƥ����硤EUC-JP��SJIS(��ʸ���ޤ�)�����ɤ�ʸ�������
-\e ���ޤޤ��ȡ�EUC-JP��SJIS �����ɤ�Ƚ��˼��Ԥ���
-��������ưȽ�̤��Ѵ���Ԥ����Ȥ�����ޤ���
+
+
+XSを使用している場合，EUC-JP，SJIS(絵文字含む)コードの文字列中に
+\e が含まれると，EUC-JP，SJIS コードの判定に失敗し，
+正しく自動判別や変換を行うことが出来ません．
 
 =item *
 
-Japanese.pm �ϥե������Ⱦ�˥Х��ʥ��ޤि�ᡤFTP �� ASCII �⡼�ɤ�
-ž������ȥե����뤬����ޤ���
+
+
+Japanese.pm はファイル後半にバイナリを含むため，FTP の ASCII モードで
+転送するとファイルが壊れます．
 
 =back
 
@@ -569,21 +629,35 @@ Japanese.pm �ϥե������Ⱦ�˥Х��ʥ��ޤि�ᡤFTP �� ASCII �⡼�ɤ�
 
 Copyright 2001-2004
 SANO Taku (SAWATARI Mikage) and YAMASHINA Hio.
-All right resreved.
+All right reserved.
+
 
 This library is free software; you can redistribute it
 and/or modify it under the same terms as Perl itself.
 
+
 Bug reports and comments to: mikage@cpan.org.
 Thank you.
+
 
 =head1 CREDITS
 
 Thanks very much to:
 
+
 NAKAYAMA Nao
+
 
 SUGIURA Tatsuki & Debian JP Project
 
-=cut
+
+=head1 著作権及びライセンス
+
+Copyright 2001-2007
+SANO Taku (SAWATARI Mikage) and YAMASHINA Hio,
+all rights reserved.
+
+
+このプログラムはフリーソフトウェアです。あなたは Perl と同じ
+ライセンスの 元で再配布及び変更を行うことが出来ます.
 

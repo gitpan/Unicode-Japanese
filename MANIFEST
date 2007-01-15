@@ -20,6 +20,7 @@ hints/freebsd.pl      hints ファイル (FreeBSD)
 hints/linux.pl        hints ファイル (Linux)
 hints/solaris.pl      hitns ファイル (Solaris 8 以降)
 hints/sunos.pl        hints ファイル (SunOS 及び Solaris 2.6 以前)
+inc/ExtUtils/MY_Metafile.pm
 jis.c                 sjis<=>jis 変換コード
 lib/Unicode/Japanese.pm           Unicode::Japanese パッケージ
 lib/Unicode/Japanese/JA.pod       Unicode::Japanese 日本語ドキュメント
@@ -57,6 +58,7 @@ t/utf16.t
 t/utf8flag.t
 t/util.t
 t/v031_getcode_jiskana.t
+t/v038_guess_imode2.t
 t/verify_sjis_ucs2.pl
 t/z2h.t
 ucs2_utf8.c

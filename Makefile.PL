@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Makefile.PL for Unicode-Japanese.
 # -----------------------------------------------------------------------------
-# $Id: Makefile.PL,v 1.55 2006/06/26 05:39:11 hio Exp $
+# $Id: Makefile.PL,v 1.56 2007/01/15 09:05:47 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::MakeMaker;
 
@@ -12,6 +12,7 @@ use ExtUtils::Manifest;
 use ExtUtils::MakeMaker;
 use ExtUtils::Embed;
 use File::Spec;
+use inc::ExtUtils::MY_Metafile qw(my_metafile);
 
 my $MANIFEST_bak = $ExtUtils::Manifest::MANIFEST;
 
@@ -99,6 +100,11 @@ if( @arg )
 #   and hints, configure().
 
 print " >> invoke WriteMakefile\n";
+my_metafile 'Unicode::Japanese' => {
+	requires => {},
+	build_requires => {},
+	license => 'Perl',
+};
 WriteMakefile(%param);
 
 $ExtUtils::Manifest::MANIFEST = $MANIFEST_bak;
