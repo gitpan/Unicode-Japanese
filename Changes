@@ -1,5 +1,8 @@
 Revision history for Perl extension Unicode::Japanese.
 
+0.40 Tue Jan 16 09:54:13 JST 2007
+        - fix, pod.
+
 0.39 Fri Jan 12 18:33:54 JST 2007
         - fix, getcode could not detect imode-pictgrams extend 61st-63rd.
 

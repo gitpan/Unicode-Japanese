@@ -52,6 +52,7 @@ t/pod-coverage.t
 t/pod.t
 t/random.pl
 t/random_redo.pl
+t/sjis_extras.t
 t/toutf8.t
 t/ucs2_utf8.pl
 t/utf16.t

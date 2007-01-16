@@ -6,11 +6,11 @@
 #
 # Copyright 2006 YAMASHINA Hio
 # -----------------------------------------------------------------------------
-# $Id: v038_guess_imode2.t,v 1.1 2007/01/15 09:05:55 hio Exp $
+# $Id: v038_guess_imode2.t,v 1.2 2007/01/16 01:01:08 hio Exp $
 # -----------------------------------------------------------------------------
 use strict;
 use strict;
-use Test::More tests => 76*2;
+use Test::More tests => 1+76*2;
 
 use Unicode::Japanese;
 
@@ -22,11 +22,11 @@ use Unicode::Japanese;
 #
 sub check
 {
-	diag("Unicode::Japanese [$Unicode::Japanese::VERSION]");
+	#diag("Unicode::Japanese [$Unicode::Japanese::VERSION]");
 	Unicode::Japanese->new();
 	my $xs_loaderror = $Unicode::Japanese::xs_loaderror;
 	defined($xs_loaderror) or $xs_loaderror = '{undef}';
-	diag("xs_loaderror [$xs_loaderror]");
+	is($xs_loaderror, '', "load success");
 }
 
 # -----------------------------------------------------------------------------
