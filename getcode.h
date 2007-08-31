@@ -2,7 +2,7 @@
 #ifndef GETCODE_H
 #define GETCODE_H
 
-/* $Id: getcode.h,v 1.6 2006/06/26 05:41:21 hio Exp $ */
+/* $Id: getcode.h,v 1.7 2007/08/30 09:19:57 hio Exp $ */
 
 #ifdef TEST
 #define DECL_MAP_MODE(name,num) const char* mode_##name[num]
@@ -30,6 +30,7 @@ EXTERN_DECL_MAP(utf32_le,4);
 EXTERN_DECL_MAP(sjis_jsky,5);
 EXTERN_DECL_MAP(sjis_imode,4);
 EXTERN_DECL_MAP(sjis_doti,7);
+EXTERN_DECL_MAP(sjis_au,3);
 
 #define map_invalid 0x7f
 

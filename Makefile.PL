@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Makefile.PL for Unicode-Japanese.
 # -----------------------------------------------------------------------------
-# $Id: Makefile.PL,v 1.56 2007/01/15 09:05:47 hio Exp $
+# $Id: Makefile.PL,v 1.57 2007/01/16 02:01:35 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::MakeMaker;
 
@@ -102,7 +102,10 @@ if( @arg )
 print " >> invoke WriteMakefile\n";
 my_metafile 'Unicode::Japanese' => {
 	requires => {},
-	build_requires => {},
+	build_requires => {
+		'Test'       => 0,
+		'Test::More' => 0,
+	},
 	license => 'Perl',
 };
 WriteMakefile(%param);

@@ -21,6 +21,7 @@ hints/solaris.pl      hitns file (Solaris 8 and later)
 hints/sunos.pl        hints file (SunOS, Solaris 2.6 and prior)
 inc/ExtUtils/MY_Metafile.pm
 jis.c                 sjis<=>jis conversion
+lib/Unicode/Japanese.mlpod        Unicode::Japanese multilingual pod
 lib/Unicode/Japanese.pm           Unicode::Japanese perl module
 lib/Unicode/Japanese/JA.pod       Unicode::Japanese pod in Japanese.
 memmap_common.c       mmapping of mapping table

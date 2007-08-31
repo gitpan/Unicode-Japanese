@@ -1,5 +1,12 @@
 Revision history for Perl extension Unicode::Japanese.
 
+0.41 Fri Aug 31 18:11:40 JST 2007
+	- add sjis-au, sjis-au1, sjis-au2 encodings.
+	- add utf8-jsky, utf8-jsky1, utf8-jsky2 encodings.
+
+0.40_01
+        - fix, brokwn on perl-5.6.1.
+
 0.40 Tue Jan 16 09:54:13 JST 2007
         - fix, pod.
 

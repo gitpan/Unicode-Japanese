@@ -22,6 +22,7 @@ hints/solaris.pl      hitns ファイル (Solaris 8 以降)
 hints/sunos.pl        hints ファイル (SunOS 及び Solaris 2.6 以前)
 inc/ExtUtils/MY_Metafile.pm
 jis.c                 sjis<=>jis 変換コード
+lib/Unicode/Japanese.mlpod        Unicode::Japanese 多言語POD
 lib/Unicode/Japanese.pm           Unicode::Japanese パッケージ
 lib/Unicode/Japanese/JA.pod       Unicode::Japanese 日本語ドキュメント
 memmap_common.c       データファイルの振り分け
@@ -40,6 +41,7 @@ t/00-load.t
 t/allchar_utf8.pl
 t/base.t
 t/emoji.t
+t/emoji-jsky-utf8.t
 t/esc.pl              制御文字をエスケープする関数. t/*.t 用.
 t/fromutf8.t
 t/getcode.t

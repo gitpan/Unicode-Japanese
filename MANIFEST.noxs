@@ -7,6 +7,7 @@ SIGNATURE             you can verify with cpansign
 bin/ujconv            iconv like tool with Unicode::Japanese
 bin/ujguess           charset detection tool
 inc/ExtUtils/MY_Metafile.pm
+lib/Unicode/Japanese.mlpod        Unicode::Japanese multilingual pod
 lib/Unicode/Japanese.pm           Unicode::Japanese perl module
 lib/Unicode/Japanese/JA.pod       Unicode::Japanese pod in Japanese.
 t/00-load.t

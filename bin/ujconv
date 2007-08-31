@@ -6,7 +6,7 @@
 #
 # Copyright 2005 YAMASHINA Hio
 # -----------------------------------------------------------------------------
-# $Id: ujconv,v 1.2 2006/06/19 05:58:33 hio Exp $
+# $Id: ujconv,v 1.3 2007/01/16 02:01:36 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::UJConv;
 use strict;
@@ -186,6 +186,10 @@ ujconv -- iconv(1), reinvented in Unicode::Japanese
   ujconv -h
   ujconv -V
 
+=head1 VERSION
+
+ujconv 0.02
+
 =head1 DESCRIPTION
 
 B<ujconv> is Unicode::Japanese (written in perl) version of B<iconv>.
@@ -226,7 +230,8 @@ Show usage.
 
 L<Unicode::Japanese>,
 L<piconv(1)>,
-L<iconv(1)>
+L<iconv(1)>,
+L<ujguess>
 
 =cut
 

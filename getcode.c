@@ -1,10 +1,15 @@
 
-/* $Id: getcode.c,v 1.6 2006/06/14 06:34:57 hio Exp $ */
+/* $Id: getcode.c,v 1.8 2007/08/30 09:19:57 hio Exp $ */
 
 #include "Japanese.h"
 #include "getcode.h"
 
-#define GC_DISP 0
+#ifndef dAX
+/* 5.6.x? */
+#define dAX I32 ax = MARK - PL_stack_base + 1
+#endif
+
+#define GC_DISP 1
 
 /* 文字コード定数 */
 enum charcode_t
@@ -24,6 +29,7 @@ enum charcode_t
   cc_sjis_jsky,
   cc_sjis_imode,
   cc_sjis_doti,
+  cc_sjis_au,
   cc_last,
 };
 typedef enum charcode_t charcode_t;
@@ -44,6 +50,7 @@ typedef enum charcode_t charcode_t;
 #define new_CC_SJIS_JSKY()  newSVpvn("sjis-jsky",9)
 #define new_CC_SJIS_IMODE() newSVpvn("sjis-imode",10)
 #define new_CC_SJIS_DOTI()  newSVpvn("sjis-doti",9)
+#define new_CC_SJIS_AU()    newSVpvn("sjis-au",7)
 
 /* */
 #define RE_BOM2_BE  "\xfe\xff"
@@ -71,6 +78,7 @@ static const char* charcodeToStr(charcode_t code)
   case cc_sjis_jsky:  return "sjis-jsky";
   case cc_sjis_imode: return "sjis-imode";
   case cc_sjis_doti:  return "sjis-doti";
+  case cc_sjis_au:    return "sjis-au";
   default: return NULL;
   }
 }
@@ -123,6 +131,11 @@ DECL_MAP_MODE(sjis_doti,7) =
   "sjis","c:2.1",
   "doti1:1", "doti2:1", "doti3:1", "doti4:1", "doti5:1",
 };
+DECL_MAP_MODE(sjis_au,3) =
+{
+  "sjis","c:2.1",
+  "au:1",
+};
 #endif
 
 /* 文字コード判定時に使用する構造体. */
@@ -145,8 +158,8 @@ typedef struct CodeCheck CodeCheck;
 #define GEN_CODE(name) \
   { cc_##name, (const unsigned char*)map_##name, (const unsigned char*)map_##name, mode_##name, }
 #endif
-#define cc_tmpl_max 12
-const CodeCheck cc_tmpl[] = 
+#define cc_tmpl_max 13
+const CodeCheck cc_tmpl[cc_tmpl_max] = 
 {
   GEN_CODE(utf32_be),
   GEN_CODE(utf32_le),
@@ -158,6 +171,7 @@ const CodeCheck cc_tmpl[] =
   GEN_CODE(sjis),
   GEN_CODE(sjis_jsky),
   GEN_CODE(sjis_imode),
+  GEN_CODE(sjis_au),
   GEN_CODE(sjis_doti),
   GEN_CODE(utf8),
 };
@@ -334,6 +348,7 @@ SV* xs_getcode(SV* sv_str)
     case cc_sjis_jsky:  return new_CC_SJIS_JSKY();
     case cc_sjis_imode: return new_CC_SJIS_IMODE();
     case cc_sjis_doti:  return new_CC_SJIS_DOTI();
+    case cc_sjis_au:    return new_CC_SJIS_AU();
     
     default:
 #ifdef TEST

@@ -1,12 +1,11 @@
 ## ----------------------------------------------------------------------------
 # t/getcode.t
 # -----------------------------------------------------------------------------
-# $Id: getcode.t,v 1.7 2005/08/02 09:16:42 hio Exp $
+# $Id: getcode.t,v 1.9 2007/08/30 09:20:04 hio Exp $
 # -----------------------------------------------------------------------------
 
 use strict;
-use Test;
-BEGIN { plan tests => 17*2 }
+use Test::More tests => 20*2;
 
 # -----------------------------------------------------------------------------
 # load module
@@ -39,6 +38,8 @@ test("\e\$Bx4u0u1vE\x7a\x78\x7b\x50\x7a\x70\e(B",'jis-au');
 
 test("\x88\xa4\e\$EE\x0f",'sjis-jsky');
 
+test("\xf6\x63",'sjis-au');
+
 test("\x1b\x24\x42\x30\x26\x1b\x28\x42\e\$EE\x0f",'jis-jsky');
 
 test("\xb0\xa6",'euc');
@@ -53,6 +54,9 @@ test("\xe6\x84\x9b",'utf8');
 
 test("\xcd\x10\x89\x01",'unknown');
 
+test("\xf3\x40",'sjis-au');
+test("\x81\xf3\x40\x41",'sjis');
+
 # -----------------------------------------------------------------------------
 # test($str,$charset)
 #   test if $str is Charset $charset.
@@ -66,8 +70,8 @@ sub test
   my $caller = "$file at $line";
   
   my $code = Unicode::Japanese->getcode($src);
-  ok($code, $icode, 'src:'.unpack('H*',$src)." (xs) $caller");
+  is($code, $icode, "$icode(xs)") or diag('src:'.unpack('H*',$src)." (xs) $caller");
   
   $code = Unicode::Japanese::PurePerl->getcode($src);
-  ok($code, $icode, 'src:'.unpack('H*',$src)." (pp) $caller");
+  is($code, $icode, "$icode(pp)") or diag('src:'.unpack('H*',$src)." (pp) $caller");
 }

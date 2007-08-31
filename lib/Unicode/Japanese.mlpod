@@ -1,10 +1,12 @@
+
 =encoding utf-8
 
 =head1 NAME
 
-Unicode::Japanese::JA - 日本語文字コード変換
+Unicode::Japanese - Japanese Character Encoding Handler
+J<< ja; Unicode::Japanese::JA - 日本語文字コード変換 >>
 
-=head1 概要
+=head1 SYNOPSIS
 
  use Unicode::Japanese;
  use Unicode::Japanese qw(unijp);
@@ -26,107 +28,164 @@ Unicode::Japanese::JA - 日本語文字コード変換
  
  print Unicode::Japanese->new($str)->z2h->get;
 
-=head1 説明
+=head1 DESCRIPTION
 
+Module for conversion among Japanese character encodings.
+J<< ja;
 Unicode::Japanese は，日本語の文字コードの相互変換を行うモジュールです．
+>>
 
-=head2 機能
+=head2 FEATURES
 
 =over 2
 
 =item *
 
-
-
+The instance stores internal strings in UTF-8.
+J<< ja;
 Unicode::Japanese のインスタンスは，UTF-8 で文字列を保持します．
+>>
 
 =item *
 
-
-
+Supports both XS and Non-XS.
+Use XS for high performance,
+or No-XS for ease to use (only by copying Japanese.pm).
+J<< ja;
 XS 使用/不使用を共にサポートしています．
 XS 版はパフォーマンスが必要な場合に，
 No-XS 版は手軽に使用したい場合に使用して下さい
 (Japanese.pm をコピーするだけで動作します)．
+>>
 
 =item *
 
-
-
+Supports conversion between ZENKAKU and HANKAKU.
+J<< ja;
 全角半角変換，カタカナひらがな変換をサポートしています．
+>>
 
 =item *
 
-
-
+Safely handles "EMOJI" of the mobile phones (DoCoMo i-mode, ASTEL dot-i
+and J-PHONE J-Sky) by mapping them on Unicode Private Use Area.
+J<< ja;
 携帯電話 (DoCoMo i-mode，KDDI AU, Softbank Mobile, ASTEL dot-i) の絵文字を
 Unicode 私用領域にマッピングすることで，DB 等で安全に扱うことができます．
+>>
 
 =item *
 
-
-
+Supports conversion of the same image of EMOJI
+between different mobile phone's standard mutually.
+J<< ja;
 異なる携帯電話同士で，同じイメージの絵文字は相互変換することが可能です．
+>>
 
 =item *
 
-
-
+Considers Shift_JIS(SJIS) as MS-CP932.
+(Shift_JIS on MS-Windows (MS-SJIS/MS-CP932) differ from
+generic Shift_JIS encodings.)
+J<< ja;
 SJIS は， MS-CP932 とみなして Unicode とマッピングを行います．
+>>
 
 =item *
 
-
-
+On converting Unicode to SJIS (and EUC-JP/JIS), those encodings that cannot
+be converted to SJIS (except "EMOJI") are escaped in "&#dddd;" format.
+"EMOJI" on Unicode Private Use Area is going to be '?'.
+When converting strings from Unicode to SJIS of mobile phones,
+any characters not up to their standard is going to be '?'
+J<< ja;
 Unicode -> SJIS（及びEUC-JP/JIS） のマッピング時，SJIS で表現できない文字は
 &#dddd; 形式に変換します． ただしUnicode私用領域におかれている絵文字は
 '?'になります. また, 携帯電話向けの変換時には, すべての対応しない文字は'?'になります.
+>>
 
 =item *
 
-
-
+On perl-5.8.0 and later, setting of utf-8 flag is performed properly.
+utf8() method returns utf-8 `bytes' string and
+getu() method returns utf-8 `char' string.
+J<< ja;
 Perl-5.8.0 以降において, utf8 フラグの設定処理を行います.
 utf-8 `バイト'列 の取得には utf8() メソッドを, 
 utf-8 `文字'列 の取得には getu() メソッドを使います.
+>>
 
+get() method returns utf-8 `bytes' string in current release.
+in future, the behavior of get() maybe change.
+J<< ja;
 get() メソッドは現時点では utf-8 `バイト'列 を返します
 (将来的に変更される可能性もあります).
+>>
 
+sjis(), jis(), utf8(), etc.. methods return bytes string.
+The input of new, set, and a getcode method is not asked about utf8-flaged/bytes.
+J<< ja;
 sjis(), jis(), utf8(), etc.. メソッドではバイト列を返します.
 new, set, getcode メソッドの入力には, utf8-flaged/bytes を問いません.
+>>
 
 =back
 
-=head1 メソッド
+=head1 METHODS
 
 =over 4
 
 =item $s = Unicode::Japanese->new($str [, $icode [, $encode]])
 
+Creates a new instance of Unicode::Japanese.
+J<< ja;
 新しい Unicode::Japanese インスタンスを指定します．
+>>
 
+If arguments are specified, passes through to set method.
+J<< ja;
 パラメータを指定すると，set メソッドに渡されます．
+>>
 
 =item unijp($str [, $icode [, $encode]])
 
+Same as Unicode::Janaese->new(...).
+J<< ja;
 Unicode::Janaese->new(...) と同義.
+>>
 
 =item $s->set($str [, $icode [, $encode]])
 
 =over 2
 
-=item $str: 文字列
+=item $str: string
+J<< ja; $str: 文字列 >>
 
-=item $icode: 文字コード指定．省略可．省略時は 'utf8'
+=item $icode: character encodings, may be omitted (default = 'utf8')
+J<< ja; $icode: 文字コード指定．省略可．省略時は 'utf8' >>
 
-=item $encode: 文字エンコード．省略可．
+=item $encode: ASCII encoding, may be omitted.
+J<< ja; $encode: 文字エンコード．省略可． >>
 
 =back
 
+Set a string in the instance.
+If '$icode' is omitted, string is considered as UTF-8.
+J<< ja;
 インスタンスに文字列をセットします．
 文字コード指定を省略すると UTF-8 と見なされます．
+>>
 
+To specify a encodings, choose from the following;
+'auto', 'utf8', 'ucs2', 'ucs4', 'utf16-be', 'utf16-le', 'utf16',
+'utf32-be', 'utf32-le', 'utf32', 'jis', 'euc', 'euc-jp',
+'sjis', 'cp932', 'sjis-imode', 'sjis-imode1', 'sjis-imode2',
+'sjis-doti', 'sjis-doti1', 'sjis-jsky', 'sjis-jsky1', 'sjis-jsky2',
+'jis-jsky', 'jis-jsky1', 'jis-jsky2', 'jis-au', 'jis-au1', 'jis-au2',
+'sjis-au', 'sjis-au1', 'sjis-au2', 'sjis-icon-au', 'sjis-icon-au1', 'sjis-icon-au2', 
+'euc-icon-au', 'euc-icon-au1', 'euc-icon-au2', 'jis-icon-au', 'jis-icon-au1', 'jis-icon-au2',
+'utf8-icon-au', 'utf8-icon-au1', 'utf8-icon-au2', 'ascii', 'binary'
+J<< ja;
 文字コードを指定する場合は，
 'auto', 'utf8', 'ucs2', 'ucs4', 'utf16-be', 'utf16-le', 'utf16',
 'utf32-be', 'utf32-le', 'utf32', 'jis', 'euc', 'euc-jp',
@@ -136,503 +195,836 @@ Unicode::Janaese->new(...) と同義.
 'sjis-au', 'sjis-au1', 'sjis-au2', 'sjis-icon-au', 'sjis-icon-au1', 'sjis-icon-au2', 
 'euc-icon-au', 'euc-icon-au1', 'euc-icon-au2', 'jis-icon-au', 'jis-icon-au1', 'jis-icon-au2',
 'utf8-icon-au', 'utf8-icon-au1', 'utf8-icon-au2', 'ascii', 'binary'
+>>
 
+For auto encoding detection, you MUST specify 'auto'
+so as to call getcode() method automatically.
+J<< ja;
 文字コードを自動判別する場合は，'auto' を指定しなくてはいけません．
 'auto' 時の文字コード自動判別は，getcode() メソッドにより
 行われます．
+>>
 
+For ASCII encoding, only 'base64' may be specified.
+With it, the string will be decoded before storing.
+J<< ja;
 文字エンコードには，'base64' のみ指定可能です．
 base64 を指定した場合は，base64 デコードされてから
 String クラスの文字列となります．
+>>
 
+To decode binary, specify 'binary' as the encoding.
+J<< ja;
 バイナリをデコードする場合は，文字エンコードタイプとして
 'binary' を指定します．
+>>
 
+'&#dddd' will be converted to "EMOJI", when specified 'sjis-imode'
+or 'sjis-doti'.
+J<< ja;
 sjis-imode，sjis-doti，の場合，文字列中の &#dddd; は
 絵文字に変換されます．
+>>
 
+In some cases, character encoding detection is 
+misleaded because more than one encodings have
+same code points.
+J<< ja;
 文字コードは領域が重なっている場合があるため，
 自動判別は確実ではありません．
+>>
 
+sjis is returned if a string is valid for both sjis and utf8.
+And sjis-au is return if a string is valid for both
+sjis-au and sjis-doti.
+J<< ja;
 sjis, utt8 の両方に解釈できる文字列の場合は，sjis，
 sjis-au，sjis-doti の両方に解釈できる文字列の場合は，sjis-au，
 を返します．
+>>
 
 =item $str = $s->get
 
 =over 2
 
-=item $str: 文字列(UTF-8)
+=item $str: string (UTF-8)
+J<< ja; $str: 文字列(UTF-8) >>
 
 =back
 
+Gets a string with UTF-8.
+J<< ja;
 文字列を UTF-8 コードで取り出します．
+>>
 
+return `bytes' string in current release,
+this behavior will be changed.
+J<< ja;
 現在は `バイト' 列 を返しますが, 将来的に変更される可能性もあります.
+>>
 
+utf8() method for `character' string or
+getu() method for `bytes' string seems better.
+J<< ja;
 バイト列が必要なら utf8() メソッドを, 
 文字列が必要なら getu() メソッドを使うことをオススメします.
+>>
 
 =item $str = $s->getu
 
 =over 2
 
-=item $str: 文字列(UTF-8)
+=item $str: string (UTF-8)
+J<< ja; $str: 文字列(UTF-8) >>
 
 =back
 
+Gets a string with UTF-8.
+J<< ja;
 文字列を UTF-8 コードで取り出します．
+>>
 
+On perl-5.8.0 and later, return value is with utf-8 flag.
+J<< ja;
 Perl-5.8.0 以降においては, utf-8 フラグのついた utf-8 文字列として
 返します.
+>>
 
 =item $code = $s->getcode($str)
 
 =over 2
 
-=item $str: 文字列
+=item $str: string
+J<< ja; $str: 文字列 >>
 
-=item $code: 文字コードを表す文字列
+=item $code: character encoding name
+J<< ja; $code: 文字コードを表す文字列 >>
 
 =back
 
+Detects the character encodings of I<$str>.
+J<< ja;
 渡された文字列(I<$str>)の文字コードを自動判別します．
+>>
 
+Notice: This method detects B<NOT> encoding of the string in the instance
+but I<$str>.
+J<< ja;
 この関数では, 例外的に, インスタンスに保持されている
 文字列のコードを判別するのではないことに注意してください．
+>>
 
+Character encodings are distinguished by the following algorithm:
+J<< ja;
 文字コード自動判別時は，以下のアルゴリズムにより判定が行われます．
+>>
 
+(In case of PurePerl)
+J<< ja;
 (PurePerl時)
+>>
 
 =over 4
 
 =item 1
 
-
-
+If BOM of UTF-32 is found, the encoding is utf32.
+J<< ja;
 UTF-32 の BOM があれば，utf32 と判定します．
+>>
+
 
 =item 2
 
-
-
+If BOM of UTF-16 is found, the encoding is utf16.
+J<< ja;
 UTF-16 の BOM があれば，utf16 と判定します．
+>>
 
 =item 3
 
-
-
+If it is in proper UTF-32BE, the encoding is utf32-be.
+J<< ja;
 UTF-32BE として正しい形式なら，utf32-be と判定します．
+>>
 
 =item 4
 
-
-
+If it is in proper UTF-32LE, the encoding is utf32-le.
+J<< ja;
 UTF-32LE として正しい形式なら，utf32-le と判定します．
+>>
 
 =item 5
 
-
-
+Without NON-ASCII characters, the encoding is ascii.
+(control codes except escape sequences has been included in ASCII)
+J<< ja;
 非 ASCII 文字が含まれていなければ， ascii と判定します．
 （非 ASCII 文字には，エスケープシーケンス以外のコントロールコードは含まれません．）
+>>
 
 =item 6
 
-
-
+If it includes ISO-2022-JP(JIS) escape sequences, the encoding is jis.
+J<< ja;
 JISエスケープシーケンスが含まれていれば，jis と判定します．
+>>
 
 =item 7
 
-
-
+If it includes "J-PHONE EMOJI", the encoding is sjis-sky.
+J<< ja;
 J-PHONE の絵文字が含まれていれば，sjis-jsky と判別します．
+>>
 
 =item 8
 
-
-
+If it is in proper EUC-JP, the encoding is euc.
+J<< ja;
 EUC-JP コードとして正しい形式なら，euc と判定します．
+>>
 
 =item 9
 
-
-
+If it is in proper SJIS, the encoding is sjis.
+J<< ja;
 SJIS コードとして正しい形式なら，sjis と判定します．
+>>
 
+If it is in proper SJIS and "EMOJI" of au, the encoding is sjis-au.
+J<< ja;
 SJIS コードと au の絵文字として正しい形式なら，sjis-au と判定します．
+>>
 
 =item 10
 
-
-
+If it is in proper SJIS and "EMOJI" of i-mode, the encoding is sjis-imode.
+J<< ja;
 SJIS と i-mode の絵文字として正しい形式なら，sjis-imode と判別します．
+>>
 
 =item 11
 
-
-
+If it is in proper SJIS and "EMOJI" of dot-i,the encoding is sjis-doti.
+J<< ja;
 SJIS と dot-i の絵文字として正しい形式なら，sjis-doti と判別します．
+>>
 
 =item 12
 
-
-
+If it is in proper UTF-8, the encoding is utf8.
+J<< ja;
 UTF-8 として正しい形式なら，utf8 と判定します．
+>>
 
 =item 13
 
-
-
+If none above is true, the encoding is unknown.
+J<< ja;
 いずれにも当てはまらない場合，unknown と判定します．
+>>
 
 =back
 
+(In case of XS)
+J<< ja;
 (XS時)
+>>
 
 =over 4
 
 =item 1
 
-
-
+If BOM of UTF-32 is found, the encoding is utf32.
+J<< ja;
 UTF-32 の BOM があれば，utf32 と判定します．
+>>
 
 =item 2
 
-
-
+If BOM of UTF-16 is found, the encoding is utf16.
+J<< ja;
 UTF-16 の BOM があれば，utf16 と判定します．
+>>
 
 =item 3
 
-
-
+String is checked by State Transition if it is applicable
+for any listed encodings below. 
+J<< ja;
 以下のコードについて, 正しい文字コードであることを状態遷移を用いて調べます.
+>>
 
 ascii / euc-jp / sjis / jis / utf8 / utf32-be / utf32-le / sjis-jsky /
 sjis-imode / sjis-au / sjis-doti
 
-
 =item 4
 
-
-
+The listed order below is applied for a final determination.
+J<< ja;
 最後まで正しかったものの中から, 以下の優先順で１つをえらんで, それと判定します.
+>>
 
 utf32-be / utf32-le / ascii / jis / euc-jp / sjis / sjis-jsky / sjis-imode /
 sjis-au / sjis-doti / utf8
 
-
 =item 5
 
-
-
+If none above is true, the encoding is unknown.
+J<< ja;
 いずれにも当てはまらない場合，unknown と判定します．
+>>
 
 =back
 
+Regarding the algorithm, pay attention to the following:
+J<< ja;
 以上のアルゴリズムのため，以下の点に注意してください．
+>>
 
 =over 2
 
 =item *
 
-
-
+UTF-8 is occasionally detected as SJIS.
+J<< ja;
 UTF-8 文字列でも，SJISコードと見なされる可能性があります．
+>>
 
 =item *
 
-
-
+Can NOT detect UCS2 automatically.
+J<< ja;
 UCS2 の自動判別はできません．
+>>
 
 =item *
 
-
-
+Can detect UTF-16 only when the string has BOM.
+J<< ja;
 UTF-16 は BOM がある場合のみ自動認識します．
+>>
 
 =item *
 
-
-
+Can detect "EMOJI" when it is stored in binary, not in "&#dddd;"
+format. (If only stored in "&#dddd;" format, getcode() will
+return incorrect result. In that case, "EMOJI" will be crashed.)
+J<< ja;
 携帯絵文字は，バイナリで直接絵文字がある場合のみ認識できます．
  &#dddd; 形式で記述されている場合は，携帯絵文字の自動判別は行われません．
 （&#dddd; のみの場合，参照先が異なるため，その後 getcode() の結果を
 基に変換を行うと，絵文字が化けます．）
+>>
 
 =back
 
+Because each of XS and PurePerl has a different algorithm, A result of
+the detection would be possibly different.  In case that the string is
+SJIS with escape characters, it would be considered as SJIS on
+PurePerl.  However, it can't be detected as S-JIS on XS. This is
+because by using Algorithm, the string can't be distinguished between
+SJIS and SJIS-Jsky.  This exclusion of escape characters on XS from
+the detection is suppose to be the same for EUC-JP.
+J<< ja;
 XSとPurePerlでは, 判別のアルゴリズムに違いがあるため, 異なる結果になる可能性があります.
 特に, エスケープ文字を含んでいるsjisの場合, PurePerlではsjisと認識しますが
 XSでは認識しません. これはsjis-jskyと区別できなくなるためです. また, この
 作用による誤認識を防ぐため, euc-jpにおいても, 同様にエスケープ文字を受け付けなく
 なっています.
-
+>>
+  
 =item $code = $s->getcodelist($str)
 
 =over 2
 
-=item $str: 文字列
+=item $str: string
+J<< ja; $str: 文字列 >>
 
-=item $code: 文字コードを表す文字列
+=item $code: character encoding name
+J<< ja; $code: 文字コードを表す文字列 >>
 
 =back
 
+Detects the character encodings of I<$str>.
+J<< ja;
 渡された文字列(I<$str>)の文字コードを自動判別します．
+>>
 
+This function returns all acceptable character encodings.
+J<< ja;
 getcode とは違い, すべての受理可能な文字コードの
-一覧を返します.
+一覧を返します. 
+>>
 
 =item $str = $s->conv($ocode, $encode)
 
 文字コードを変換します．
 
-
 =over 2
 
-=item $ocode: 出力コード ('utf8', 'euc', 'euc-jp', 'jis', 'sjis', 'cp932',
+=item $ocode: output character encoding (Choose from 'utf8', 'euc', 'euc-jp', 'jis', 'sjis', 'cp932',
 'sjis-imode', 'sjis-imode1', 'sjis-imode2', 'sjis-doti', 'sjis-doti1', 'sjis-jsky', 'sjis-jsky1', 'sjis-jsky2',
 'jis-jsky', 'jis-jsky1', 'jis-jsky2', 'jis-au', 'jis-au1', 'jis-au2', 'sjis-au', 'sjis-au1', 'sjis-au2',
 'sjis-icon-au', 'sjis-icon-au1', 'sjis-icon-au2', 'euc-icon-au', 'euc-icon-au1', 'euc-icon-au2',
 'jis-icon-au', 'jis-icon-au1', 'jis-icon-au2', 'utf8-icon-au', 'utf8-icon-au1', 'utf8-icon-au2',
-'ucs2', 'ucs4', 'utf16', 'binary'), の中から指定．)
+'ucs2', 'ucs4', 'utf16', 'binary')
+J<< ja; $ocode: 出力コード ('utf8', 'euc', 'euc-jp', 'jis', 'sjis', 'cp932',
+'sjis-imode', 'sjis-imode1', 'sjis-imode2', 'sjis-doti', 'sjis-doti1', 'sjis-jsky', 'sjis-jsky1', 'sjis-jsky2',
+'jis-jsky', 'jis-jsky1', 'jis-jsky2', 'jis-au', 'jis-au1', 'jis-au2', 'sjis-au', 'sjis-au1', 'sjis-au2',
+'sjis-icon-au', 'sjis-icon-au1', 'sjis-icon-au2', 'euc-icon-au', 'euc-icon-au1', 'euc-icon-au2',
+'jis-icon-au', 'jis-icon-au1', 'jis-icon-au2', 'utf8-icon-au', 'utf8-icon-au1', 'utf8-icon-au2',
+'ucs2', 'ucs4', 'utf16', 'binary'), の中から指定．) >>
 
+Number at end of encoding names means emoji set version.
+Larger number is newer set.
+No number is same as newest set.
+Generally you may use without digits.
+J<< ja;
 携帯向け文字コードのうち，末尾に数字がついているものは，数字が大きいほど
 大きな絵文字セット（最新機種の絵文字セット）を表しています．
 数字なしのものは，もっとも数字が大きい文字コードと同一です．
 通常は数字なしの文字コードを指定してください．
+>>
 
-=item $encode: 文字エンコード．省略可．
+=item $encode: encoding, may be omitted.
+J<< ja; $encode: 文字エンコード．省略可． >>
 
-=item $str: 文字列
+=item $str: string
+J<< ja; $str: 文字列 >>
 
 =back
 
+Gets a string converted to I<$ocode>.
+J<< ja;
 文字列を指定した文字コードに変換してから取り出します．
+>>
 
+For ASCII encoding, only 'base64' may be specified. With it, the string
+encoded in base64 will be returned.
+J<< ja;
 文字エンコードには，'base64' のみ指定可能です．
 base64 を指定した場合は，base64 エンコードされた
 文字列が返されます．
+>>
 
+On perl-5.8.0 and later, return value is not with utf-8 flag, and is 
+bytes string.
+J<< ja;
 perl-5.8.0 以降において, 出力は utf-8 フラグを持たないバイト列になります.
+>>
 
 =item $s->tag2bin
 
+Replaces the substrings "&#dddd;" in the string with the binary entity
+they mean.
+J<< ja;
 文字列中に含まれる &#dddd; 形式の文字列を，それが表す文字自体に置き換えます．
+>>
 
 =item $s->z2h
 
+Converts ZENKAKU to HANKAKU.
+J<< ja;
 全角を半角に変換します．
+>>
 
 =item $s->h2z
 
+Converts HANKAKU to ZENKAKU.
+J<< ja;
 半角を全角に変換します．
+>>
 
 =item $s->hira2kata
 
+Converts HIRAGANA to KATAKANA.
+J<< ja;
 ひらがなをカタカナに変換します．
+>>
 
 =item $s->kata2hira
 
+Converts KATAKANA to HIRAGANA.
+J<< ja;
 カタカナをひらがなに変換します．
+>>
 
 =item $str = $s->jis
 
+$str: string (JIS)
+J<< ja;
 $str: JIS エンコーディング形式のバイト列
+>>
 
+Gets the string converted to ISO-2022-JP(JIS).
+J<< ja;
 文字列を JIS（ISO-2022-JP） コードで取り出します．
+>>
 
 =item $str = $s->euc
 
+$str: string (EUC-JP)
+J<< ja;
 $str: euc-jp エンコーディング形式のバイト列
+>>
 
+Gets the string converted to EUC-JP.
+J<< ja;
 文字列を EUC-JP コードで取り出します．
+>>
 
 =item $str = $s->utf8
 
+$str: `bytes' string (UTF-8)
+J<< ja;
 $str: utf-8 エンコーディング形式のバイト列
+>>
 
+Gets the string converted to UTF-8.
+J<< ja;
 文字列を UTF-8 コードで取り出します．
+>>
 
+On perl-5.8.0 and later, return value is not with utf-8 flag, and is
+bytes string.
+J<< ja;
 perl-5.8.0 以降においても, バイト列を返します.
+>>
 
 =item $str = $s->ucs2
 
+$str: string (UCS2)
+J<< ja;
 $str: ucs2 エンコーディング形式のバイト列
+>>
 
+Gets the string converted to UCS2.
+J<< ja;
 文字列を UCS2 コードで取り出します．
+>>
 
 =item $str = $s->ucs4
 
+$str: string (UCS4)
+J<< ja;
 $str: ucs4 エンコーディング形式のバイト列
+>>
 
+Gets the string converted to UCS4.
+J<< ja;
 文字列を UCS4 コードで取り出します．
+>>
 
 =item $str = $s->utf16
 
+$str: string (UTF-16)
+J<< ja;
 $str: ucs-16 エンコーディング形式のバイト列
+>>
 
+Gets the string converted to UTF-16(big-endian).
+BOM is not added.
+J<< ja;
 文字列を UTF-16 コードで取り出します．
 BOMは付きません．
 ビックエンディアン形式で返されます．
+>>
 
 =item $str = $s->sjis
 
+$str: string (SJIS)
+J<< ja;
 $str: sjis エンコーディング形式のバイト列
+>>
 
+Gets the string converted to Shift_JIS(MS-SJIS/MS-CP932).
+J<< ja;
 文字列を SJIS（MS-CP932） コードで取り出します．
+>>
 
 =item $str = $s->sjis_imode
 
+$str: string (SJIS/imode_EMOJI)
+J<< ja;
 $str: sjis/imode絵文字 エンコーディング形式のバイト列
+>>
 
+Gets the string converted to SJIS for i-mode.
+This method is alias of sjis_imode2.
+J<< ja;
 文字列を i-mode 端末向けの SJIS コードで取り出します．
 最新のimode絵文字(imode2)の別名です.
+>>
 
 =item $str = $s->sjis_imode1
 
+$str: string (SJIS/imode_EMOJI)
+J<< ja;
 $str: sjis/imode 絵文字 エンコーディング形式のバイト列
+>>
 
+Gets the string converted to SJIS for i-mode.
+$str includes only basic pictgraphs, and is without extended pictgraphs.
+J<< ja;
 文字列を i-mode 端末向けの SJIS コードで取り出します．
 基本絵文字だけから成ります.
+>>
 
 =item $str = $s->sjis_imode2
 
+$str: string (SJIS/imode_EMOJI)
+J<< ja;
 $str: sjis/imode 絵文字 エンコーディング形式のバイト列
+>>
 
+Gets the string converted to SJIS for i-mode.
+$str includes both basic pictgraphs, and extended ones.
+J<< ja;
 文字列を i-mode 端末向けの SJIS コードで取り出します．
 基本絵文字, 拡張絵文字を含みます.
+>>
 
 =item $str = $s->sjis_doti
 
+$str: string (SJIS/dot-i_EMOJI)
+J<< ja;
 $str: sjis/dot-i 絵文字 エンコーディング形式のバイト列
+>>
 
+Gets the string converted to SJIS for dot-i.
+J<< ja;
 文字列を dot-i 端末向けの SJIS コードで取り出します．
+>>
 
 =item $str = $s->sjis_jsky
 
+$str: string (SJIS/J-SKY_EMOJI)
+J<< ja;
 $str: sjis/j-sky 絵文字 エンコーディング形式のバイト列
+>>
 
+Gets the string converted to SJIS for j-sky.
+This method is alias of sjis_jsky2 on VERSION 0.15.
+J<< ja;
 文字列を j-sky 端末向けの SJIS コードで取り出します．
 最新のj-sky絵文字(VERSION 0.15 では, jsky2)の別名です.
+>>
 
 =item $str = $s->sjis_jsky1
 
+$str: string (SJIS/J-SKY_EMOJI)
+J<< ja;
 $str: sjis/j-sky 絵文字 エンコーディング形式のバイト列
+>>
 
+Gets the string converted to SJIS for j-sky.
+$str includes from Page 1 to Page 3.
+J<< ja;
 文字列を j-sky 端末向けの SJIS コードで取り出します．
 Page 1～3 のみの絵文字を含みます.
+>>
 
 =item $str = $s->sjis_jsky
 
+$str: string (SJIS/J-SKY_EMOJI)
+J<< ja;
 $str: sjis/j-sky 絵文字 エンコーディング形式のバイト列
+>>
 
+Gets the string converted to SJIS for j-sky.
+$str includes from Page 1 to Page 6.
+J<< ja;
 文字列を j-sky 端末向けの SJIS コードで取り出します．
 Page 1～6 の絵文字を含みます.
+>>
 
 =item $str = $s->sjis_icon_au
 
+$str: string (SJIS/AU-ICON-TAG)
+J<< ja;
 $str: sjis/AU iconタグ エンコーディング形式のバイト列
+>>
 
+Gets the string converted to SJIS for au.
+J<< ja;
 文字列を AU 端末向けの SJIS コードで取り出します．
+>>
 
 =item @str = $s->strcut($len)
 
 =over 2
 
-=item $len: 分割する文字数
+=item $len: number of characters
+J<< ja; $len: 分割する文字数 >>
 
-=item @STR: 文字列
+=item @str: strings
+J<< ja; @STR: 文字列 >>
 
 =back
 
+Splits the string by length(I<$len>).
+J<< ja;
 I<$len>で指定された文字数以下の文字列の配列に分割します．
+>>
 
+On perl-5.8.0 and later, each element in return array
+is with utf-8 flag.
+J<< ja;
 配列の各要素は, utf-8 フラグを持ったutf-8文字列です.
+>>
 
 =item $len = $s->strlen
 
+$len: `visual width' of the string
+J<< ja;
 $len: 文字列の表示幅
+>>
 
+Gets the length of the string. This method has been offered to
+substitute for perl build-in length(). ZENKAKU characters are
+assumed to have lengths of 2, regardless of the coding being
+SJIS or UTF-8.
+J<< ja;
 UTF-8 文字に対して length() を使うと全角文字は１文字あたり長さ 3 になってしまいますが，
 このメソッドを使用すると，従来の SJIS のように，全角文字は１文字あたり長さ 2 を返します．
+>>
 
 =item $s->join_csv(@values);
 
+@values: data array
+J<< ja;
 @values: データ配列
+>>
 
+Converts the array to a string in CSV format, then stores into the instance.
+In the meantime, adds a newline("\n") at the end of string.
+J<< ja;
 配列を CSV 文字列に変換し，インスタンスに格納します．
 文字列の最後には改行("\n")が追加されます．
+>>
 
 =item @values = $s->split_csv;
 
+@values: data array
+J<< ja;
 @values: データ配列
+>>
 
+Splits the string, accounting it is in CSV format.
+Each newline("\n") is removed before split.
+J<< ja;
 インスタンスに格納されている文字列を CSV と見なし，配列に分割します．
 文字列の最後にある改行("\n")は取り除かれてから分割されます．
+>>
 
+on perl-5.8.0 and later, utf-8 flag of return value depends on
+icode of set method. if $s contains binary, return value is bytes
+too. if $s contains any string, return value is with utf-8 flag.
+J<< ja;
 入力が binary でなければ utf-8 文字列を返します.
 binary だったときはバイト列を返します.
+>>
 
 =back
 
+
 =head1 DESCRIPTION OF UNICODE MAPPING
 
+Translation is proceedede as follows.
+J<< ja;
 Unicode とのマッピングは以下のように行われます．
+>>
 
 =over 2
 
 =item SJIS
 
+Mapped as MS-CP932. Mapping table in the following URL is used.
+J<< ja;
 MS-CP932 として Unicode へマッピングを行います．
 マッピングテーブルは以下のURLのものを使用しています．
+>>
 
 ftp://ftp.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP932.TXT
 
-
+If a character cannot be mapped to SJIS from Unicode,
+it will be converted to &#dddd; format.
+Pictgraphs are converted to "?";
+J<< ja;
 Unicode から SJIS へマッピングする場合に，表現できない文字があると，
 その文字は &#dddd; 形式に変換します．
 ただし，携帯絵文字は「?」に変換されます．
+>>
 
+Also, any unmapped character will be converted into "?" when converting
+to SJIS for mobile phones.
+J<< ja;
 また，携帯向けの SJIS へ変換するときは，全ての表現できない文字は「?」に変換されます．
+>>
 
 =item EUC-JP/JIS
 
+Converted to SJIS and then mapped to Unicode. Any non-SJIS character
+in the string will not be mapped correctly.
+J<< ja;
 一度SJISコードに変換してから，Unicode へマッピングします．
 このとき，SJIS で表現できない文字が含まれていた場合，
 その文字は正しくマッピングできません．
+>>
 
 =item DoCoMo i-mode
 
+Portion of involving "EMOJI" in F800 - F9FF is maapped
+ to U+0FF800 - U+0FF9FF.
+J<< ja;
 F800 - F9FF の領域のうち絵文字が存在する部分を，U+0FF800 - U+0FF9FF
 の領域にマッピングします．
+>>
 
 =item ASTEL dot-i
 
+Portion of involving "EMOJI" in F000 - F4FF is mapped
+ to U+0FF000 - U+0FF4FF.
+J<< ja;
 F000 - F4FF の領域のうち絵文字が存在する部分を，U+0FF000 - U+0FF4FF
 の領域にマッピングします．
+>>
 
 =item J-PHONE J-SKY
 
+"J-SKY EMOJI" are mapped down as follows: "\e\$"(\x1b\x24) escape
+sequences, the first byte, the second byte and "\x0f".
+With sequential "EMOJI"s of identical first bytes,
+it may be compressed by arranging only the second bytes.
+J<< ja;
 J-SKY の絵文字は，エスケープシーケンス "\e\$" の後に，絵文字1バイト目，
 1つ以上の絵文字2バイト目，"\x0f"，と続きます．
 1バイト目が同じ絵文字が続く場合は，2バイト目のみを連続して書くことで
 圧縮することができます．
+>>
 
+4500 - 47FF is mapped to U+0FFB00 - U+0FFDFF, accounting the first
+and the second bytes make one EMOJI character.
+J<< ja;
 この1バイト目と2バイト目のペアを1文字と見なして，4500 - 47FF の領域を，
 U+0FFB00 - U+0FFDFF の領域にマッピングします．
+>>
 
+Unicode::Japanese will compress "J-SKY_EMOJI" automatically when
+the first bytes of a sequence of "EMOJI" are identical.
+J<< ja;
 Unicode::Japanese では，Unicode から J-SKY 絵文字にマッピングするとき，
 バイト目が同じ絵文字が連続している場合は，圧縮処理を自動的に行います．
+>>
 
 =item AU
 
+Portion of involving "EMOJI" is mapped to U+0FF500 - U+0FF6FF.
+J<< ja;
 絵文字が存在する部分を，U+0FF500 - U+0FF6FF の領域にマッピングします．
+>>
 
 =back
 
@@ -640,67 +1032,97 @@ Unicode::Japanese では，Unicode から J-SKY 絵文字にマッピングす�
 
    use Unicode::Japanese qw(PurePerl);
 
+If module was loaded with 'PurePerl' keyword,
+it works on Non-XS mode.
+J<< ja;
 use 時の引数に C<'PurePerl'> を与えることで, 
 XSを使わないことを明示的に宣言できます.
+>>
 
-=head1 バグ
+=head1 BUGS
 
 =over 2
 
 =item *
 
-
-
+EUC-JP, JIS strings cannot be converted correctly when they include
+non-SJIS characters because they are converted to SJIS before
+being converted to UTF-8.
+J<< ja;
 EUC-JP，JIS コードは，SJIS に変換されてから UTF-8 へ変換されるため，
 SJIS で表現できない文字列は正しく変換することはできません．
+>>
 
 =item *
 
-
-
+When using XS, character encoding detection of EUC-JP and
+SJIS(included all EMOJI) strings when they include "\e" will
+fail. Also, getcode() and all convert method will not work.
+J<< ja;
 XSを使用している場合，EUC-JP，SJIS(絵文字含む)コードの文字列中に
 \e が含まれると，EUC-JP，SJIS コードの判定に失敗し，
 正しく自動判別や変換を行うことが出来ません．
+>>
 
 =item *
 
-
-
+The Japanese.pm file will collapse if sent via ASCII mode of FTP,
+as it has a trailing binary data.
+J<< ja;
 Japanese.pm はファイル後半にバイナリを含むため，FTP の ASCII モードで
 転送するとファイルが壊れます．
+>>
 
 =back
 
-=head1 作者情報
+=head1 AUTHOR INFORMATION
+J<< ja; 作者情報 >>
 
 Copyright 2001-2007
 SANO Taku (SAWATARI Mikage) and YAMASHINA Hio.
 All right reserved.
 
-
 This library is free software; you can redistribute it
 and/or modify it under the same terms as Perl itself.
 
+=head1 BUGS
 
-=head1 バグ
-
+Bug reports and comments to: mikage@cpan.org.
+Thank you.
+J<< ja;
 バグ報告やコメントは mikage@cpan.org まで.
 よろしくお願いします.
+>>
 
+Or, report any bugs or feature requests to
+C<bug-unicode-japanese at rt.cpan.org>, or through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Unicode-Japanese>.
+I will be notified, and then you'll automatically be notified of progress on
+your bug as I make changes.
+J<< ja;
 バグや要望は C<bug-unicode-japanese at rt.cpan.org> 宛に
 報告してください. 若しくは
 L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Unicode-Japanese>.
 にある web インターフェースからでもかまいません.
 そこから私に通知され, そして私が変更を行うことで報告頂いたバグの進捗は
 自動的にあなたに伝わります.
+>>
 
-=head1 サポート
 
+=head1 SUPPORT
+
+You can find documentation for this module with the perldoc command.
+J<< ja;
 このモジュールのドキュメントは perldoc コマンドで見ることが出来ます.
+>>
 
     perldoc Unicode::Japanese
 
+You can also look for information at:
+J<< ja;
 また, 以下の場所でも見ることが出来ます:
+>>
+
 
 =over 4
 
@@ -708,21 +1130,17 @@ L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Unicode-Japanese>.
 
 L<http://annocpan.org/dist/Unicode-Japanese>
 
-
 =item * CPAN Ratings
 
 L<http://cpanratings.perl.org/d/Unicode-Japanese>
-
 
 =item * RT: CPAN's request tracker
 
 L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Unicode-Japanese>
 
-
 =item * Search CPAN
 
 L<http://search.cpan.org/dist/Unicode-Japanese>
-
 
 =back
 
@@ -730,20 +1148,22 @@ L<http://search.cpan.org/dist/Unicode-Japanese>
 
 Thanks very much to:
 
-
 NAKAYAMA Nao
-
 
 SUGIURA Tatsuki & Debian JP Project
 
-
-=head1 著作権及びライセンス
+=head1 COPYRIGHT & LICENSE
 
 Copyright 2001-2007
 SANO Taku (SAWATARI Mikage) and YAMASHINA Hio,
 all rights reserved.
 
-
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+J<< ja;
 このプログラムはフリーソフトウェアです。あなたは Perl と同じ
 ライセンスの 元で再配布及び変更を行うことが出来ます.
+>>
+
+=cut
 

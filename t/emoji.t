@@ -1,11 +1,11 @@
 ## ----------------------------------------------------------------------------
 # t/emoji.t
 # -----------------------------------------------------------------------------
-# $Id: emoji.t,v 1.16 2006/06/19 08:19:06 hio Exp $
+# $Id: emoji.t,v 1.17 2007/08/30 07:42:46 mikage Exp $
 # -----------------------------------------------------------------------------
 
 use strict;
-use Test::More tests => 24 + 25 *22 +6*4 + 15*2;
+use Test::More tests => 24 + 25 *22 +6*4 + 17*2;
 
 # -----------------------------------------------------------------------------
 # load module
@@ -301,7 +301,7 @@ test( 'jis-au2', 0x0FE05D, '?',
   my $s = "\x81\x99";
   my $j = Unicode::Japanese->new($s,'sjis')->jis();
   my $u = "\x26\x06";
-  foreach my $code (qw(sjis sjis-imode1 sjis-imode2 sjis-doti sjis-jsky1 sjis-jsky2 sjis-icon-au1 sjis-icon-au2))
+  foreach my $code (qw(sjis sjis-imode1 sjis-imode2 sjis-doti sjis-jsky1 sjis-jsky2 sjis-au1 sjis-au2 sjis-icon-au1 sjis-icon-au2))
   {
     is(escfull($xs->set($s,$code)->ucs2),escfull($u),"WHITE STAR: $code:ucs2");
     is(escfull($xs->set($u,"ucs2")->conv($code)),escfull($s),"WHITE STAR: ucs2:$code");

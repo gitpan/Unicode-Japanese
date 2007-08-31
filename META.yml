@@ -1,20 +1,22 @@
 # http://module-build.sourceforge.net/META-spec.html
 name:         Unicode-Japanese
-version:      0.40
+version:      0.41
 version_from: lib/Unicode/Japanese.pm
 installdirs:  site
 author:       SANO Taku (SAWATARI Mikage) and YAMASHINA Hio
 abstract: Japanese Character Encoding Handler
 license: Perl
 #requires:
-#build_requires:
+build_requires:
+  Test:       0
+  Test::More: 0
 no_index:
   directory:
     - inc
     - t
 
 distribution_type: module
-generated_by: ExtUtils::MY_Metafile version 0.07, EUMM-6.17.
+generated_by: ExtUtils::MY_Metafile version 0.07, EUMM-6.30.
 meta-spec:
   version: 1.2
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
