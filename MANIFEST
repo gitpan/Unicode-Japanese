@@ -62,6 +62,7 @@ t/utf8flag.t
 t/util.t
 t/v031_getcode_jiskana.t
 t/v038_guess_imode2.t
+t/v041_sjisau.t
 t/verify_sjis_ucs2.pl
 t/z2h.t
 ucs2_utf8.c

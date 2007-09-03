@@ -392,7 +392,6 @@ getcode とは違い, すべての受理可能な文字コードの
 
 文字コードを変換します．
 
-
 =over 2
 
 =item $ocode: 出力コード ('utf8', 'euc', 'euc-jp', 'jis', 'sjis', 'cp932',

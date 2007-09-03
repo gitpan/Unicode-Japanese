@@ -560,7 +560,10 @@ getcode とは違い, すべての受理可能な文字コードの
 
 =item $str = $s->conv($ocode, $encode)
 
+This function returns copy of contained string in $ocode encoding.
+J<< ja;
 文字コードを変換します．
+>>
 
 =over 2
 

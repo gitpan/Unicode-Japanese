@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Makefile.PL for Unicode-Japanese.
 # -----------------------------------------------------------------------------
-# $Id: Makefile.PL,v 1.57 2007/01/16 02:01:35 hio Exp $
+# $Id: Makefile.PL,v 1.58 2007/09/03 07:47:19 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::MakeMaker;
 
@@ -141,7 +141,7 @@ sub configure
     use Config;
     use ExtUtils::Embed;
     my $cc = exists $argv{CC} ? $argv{CC} : $Config{cc};
-    my $ccopts = $param_xs{'CCFLAGS'}||ExtUtils::Embed::ccopts();
+    my $ccopts = exists $argv{CCFLAGS} ? $argv{CCFLAGS} : exists $param_xs{CCFLAGS} ? $param_xs{CCFLAGS} : ExtUtils::Embed::ccopts();
     
     my $xstest_src = $^O eq 'MSWin32' ? 'memmap_win32.c' : 'memmap_unix.c';
     my $xstest_out = $^O eq 'MSWin32' ? 'memmap_win32.obj' : 'memmap_unix.o';

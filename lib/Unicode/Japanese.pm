@@ -2,14 +2,14 @@
 # Unicode::Japanese
 # Unicode::Japanese::PurePerl
 # -----------------------------------------------------------------------------
-# $Id: Japanese_stub.pm,v 1.73 2007/08/31 08:12:50 hio Exp $
+# $Id: Japanese.pm,v 1.20 2007/09/03 07:52:00 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::PurePerl;
 package Unicode::Japanese;
 
 use strict;
 use vars qw($VERSION $PurePerl $xs_loaderror);
-$VERSION = '0.41';
+$VERSION = '0.42';
 
 # `use bytes' and `use Encode' if on perl-5.8.0 or later.
 if( $] >= 5.008 )
@@ -1022,7 +1022,7 @@ This function returns all acceptable character encodings.
 
 =item $str = $s->conv($ocode, $encode)
 
-文字コードを変換します．
+This function returns copy of contained string in $ocode encoding.
 
 
 =over 2
@@ -1458,7 +1458,7 @@ under the same terms as Perl itself.
 
 
 __DATA__
-  �{'joinCsv'=>{'length'=>939,'offset'=>0},'_decodeBase64'=>{'length'=>609,'offset'=>939},'z2hNum'=>{'length'=>284,'offset'=>1548},'_utf16le_utf16'=>{'length'=>179,'offset'=>3074},'kata2hira'=>{'length'=>1242,'offset'=>1832},'jcode/emoji2/ea2u.dat'=>{'length'=>1320,'offset'=>372932},'_u2ai2'=>{'length'=>1062,'offset'=>3253},'z2hAlpha'=>{'length'=>836,'offset'=>4315},'_ucs4_utf8'=>{'length'=>936,'offset'=>5151},'h2zSym'=>{'length'=>316,'offset'=>6087},'utf8_icon_au1'=>{'length'=>73,'offset'=>6403},'h2z'=>{'length'=>114,'offset'=>6476},'jcode/emoji2/ea2u2s.dat'=>{'length'=>4096,'offset'=>430788},'sjis'=>{'length'=>177,'offset'=>6590},'euc_icon_au2'=>{'length'=>98,'offset'=>6767},'_u2si1'=>{'length'=>1619,'offset'=>6865},'_sj2u1'=>{'length'=>1144,'offset'=>8484},'euc_icon_au'=>{'length'=>97,'offset'=>9956},'tag2bin'=>{'length'=>328,'offset'=>9628},'z2hSym'=>{'length'=>596,'offset'=>10053},'ucs2'=>{'length'=>183,'offset'=>10649},'jis_au2'=>{'length'=>80,'offset'=>10832},'jcode/emoji2/ei2u2.dat'=>{'length'=>2048,'offset'=>244932},'_si2u1'=>{'length'=>1228,'offset'=>10912},'_utf8_utf16'=>{'length'=>950,'offset'=>12140},'jis_icon_au1'=>{'length'=>98,'offset'=>13090},'sjis_icon_au1'=>{'length'=>86,'offset'=>13188},'sjis_jsky2'=>{'length'=>70,'offset'=>13274},'jcode/emoji2/ei2u.dat'=>{'length'=>2048,'offset'=>226500},'getcode'=>{'length'=>2026,'offset'=>13344},'_j2s2'=>{'length'=>469,'offset'=>15370},'jcode/emoji2/ea2us.dat'=>{'length'=>4096,'offset'=>410308},'sjis_au2'=>{'length'=>95,'offset'=>15839},'h2zKanaD'=>{'length'=>810,'offset'=>15934},'sjis_imode1'=>{'length'=>71,'offset'=>16744},'eucjp'=>{'length'=>32,'offset'=>16815},'utf8'=>{'length'=>187,'offset'=>16847},'_s2e'=>{'length'=>244,'offset'=>17034},'jcode/emoji2/ea2u2.dat'=>{'length'=>3288,'offset'=>390636},'utf8_jsky'=>{'length'=>189,'offset'=>17278},'_uj2u2'=>{'length'=>833,'offset'=>17467},'utf8_jsky1'=>{'length'=>70,'offset'=>18300},'jcode/emoji2/eu2a2.dat'=>{'length'=>16384,'offset'=>393924},'jcode/s2u.dat'=>{'length'=>48573,'offset'=>177927},'conv'=>{'length'=>3663,'offset'=>18370},'_utf16be_utf16'=>{'length'=>71,'offset'=>22033},'jcode/emoji2/eu2j.dat'=>{'length'=>40960,'offset'=>266436},'hira2kata'=>{'length'=>1242,'offset'=>22104},'splitCsvu'=>{'length'=>197,'offset'=>23346},'sjis_doti1'=>{'length'=>69,'offset'=>23543},'_s2j'=>{'length'=>272,'offset'=>23612},'_sa2j2'=>{'length'=>389,'offset'=>23884},'_j2sa'=>{'length'=>179,'offset'=>24273},'sjis_au1'=>{'length'=>95,'offset'=>24452},'join_csv'=>{'length'=>29,'offset'=>24547},'_ai2u1'=>{'length'=>458,'offset'=>24576},'jcode/emoji2/eu2as.dat'=>{'length'=>16384,'offset'=>414404},'_s2u'=>{'length'=>988,'offset'=>25034},'jis_jsky1'=>{'length'=>82,'offset'=>26022},'jis_icon_au2'=>{'length'=>98,'offset'=>26104},'_j2sa3'=>{'length'=>434,'offset'=>26202},'sjis_jsky'=>{'length'=>189,'offset'=>26636},'_u2uj2'=>{'length'=>788,'offset'=>26825},'jis'=>{'length'=>179,'offset'=>27613},'jis_au1'=>{'length'=>80,'offset'=>27792},'_utf8_ucs4'=>{'length'=>1149,'offset'=>27872},'get'=>{'length'=>162,'offset'=>29021},'z2h'=>{'length'=>114,'offset'=>29183},'getu'=>{'length'=>266,'offset'=>29297},'_loadConvTable'=>{'length'=>18009,'offset'=>29563},'unijp'=>{'length'=>137,'offset'=>47572},'_u2uj1'=>{'length'=>806,'offset'=>47709},'jcode/emoji2/eu2a2s.dat'=>{'length'=>16384,'offset'=>434884},'_u2ja1'=>{'length'=>1639,'offset'=>48515},'_ja2u1'=>{'length'=>1136,'offset'=>50154},'_j2s'=>{'length'=>177,'offset'=>51290},'utf16'=>{'length'=>187,'offset'=>51467},'utf8_jsky2'=>{'length'=>70,'offset'=>51654},'_u2ai1'=>{'length'=>1203,'offset'=>51724},'sjis_icon_au2'=>{'length'=>86,'offset'=>52927},'_u2si2'=>{'length'=>1620,'offset'=>53013},'jcode/emoji2/eu2i.dat'=>{'length'=>16384,'offset'=>228548},'splitCsv'=>{'length'=>350,'offset'=>54633},'jcode/emoji2/eu2i2.dat'=>{'length'=>16384,'offset'=>246980},'sjis_jsky1'=>{'length'=>70,'offset'=>54983},'_s2j3'=>{'length'=>355,'offset'=>55053},'_u2s'=>{'length'=>2320,'offset'=>55408},'_sa2j3'=>{'length'=>455,'offset'=>57728},'_utf16_utf8'=>{'length'=>769,'offset'=>58183},'h2zNum'=>{'length'=>174,'offset'=>58952},'h2zKanaK'=>{'length'=>979,'offset'=>59126},'strlen'=>{'length'=>360,'offset'=>60105},'strcutu'=>{'length'=>195,'offset'=>60465},'sjis_imode2'=>{'length'=>71,'offset'=>60660},'_validate_utf8'=>{'length'=>855,'offset'=>60731},'jcode/emoji2/eu2a.dat'=>{'length'=>16384,'offset'=>374252},'set'=>{'length'=>5325,'offset'=>61586},'_ucs2_utf8'=>{'length'=>549,'offset'=>66911},'_utf16_utf16'=>{'length'=>300,'offset'=>67460},'h2zAlpha'=>{'length'=>264,'offset'=>67760},'z2hKanaK'=>{'length'=>979,'offset'=>68024},'getcodelist'=>{'length'=>2241,'offset'=>69003},'_sj2u2'=>{'length'=>1503,'offset'=>71244},'jcode/emoji2/ed2u.dat'=>{'length'=>5120,'offset'=>351428},'jis_icon_au'=>{'length'=>97,'offset'=>72747},'_utf32_ucs4'=>{'length'=>312,'offset'=>72844},'_ai2u2'=>{'length'=>410,'offset'=>73156},'utf8_icon_au2'=>{'length'=>73,'offset'=>73566},'_uj2u1'=>{'length'=>559,'offset'=>73639},'_sa2j'=>{'length'=>174,'offset'=>74198},'h2zKana'=>{'length'=>185,'offset'=>74372},'z2hKana'=>{'length'=>89,'offset'=>74557},'_si2u2'=>{'length'=>1227,'offset'=>74646},'_u2sj1'=>{'length'=>1772,'offset'=>75873},'_u2sj2'=>{'length'=>1794,'offset'=>77645},'utf8_icon_au'=>{'length'=>72,'offset'=>79439},'jis_jsky2'=>{'length'=>82,'offset'=>79511},'sjis_doti'=>{'length'=>188,'offset'=>79593},'_e2s'=>{'length'=>202,'offset'=>79781},'jcode/emoji2/ej2u2.dat'=>{'length'=>3072,'offset'=>307396},'euc'=>{'length'=>175,'offset'=>79983},'_j2s3'=>{'length'=>337,'offset'=>80158},'jcode/emoji2/ej2u.dat'=>{'length'=>3072,'offset'=>263364},'_j2sa2'=>{'length'=>446,'offset'=>80495},'ucs4'=>{'length'=>183,'offset'=>80941},'_sd2u'=>{'length'=>1221,'offset'=>81124},'_u2ja2'=>{'length'=>1640,'offset'=>82345},'_s2e2'=>{'length'=>446,'offset'=>83985},'z2hKanaD'=>{'length'=>498,'offset'=>84431},'_u2sd'=>{'length'=>1615,'offset'=>84929},'sjis_au'=>{'length'=>94,'offset'=>86544},'jcode/emoji2/eu2j2.dat'=>{'length'=>40960,'offset'=>310468},'jcode/emoji2/eu2d.dat'=>{'length'=>16384,'offset'=>356548},'jcode/u2s.dat'=>{'length'=>85504,'offset'=>92423},'_ja2u2'=>{'length'=>1178,'offset'=>86638},'_utf8_ucs2'=>{'length'=>755,'offset'=>87816},'euc_icon_au1'=>{'length'=>98,'offset'=>88571},'jis_au'=>{'length'=>195,'offset'=>88669},'_utf32le_ucs4'=>{'length'=>178,'offset'=>88864},'sjis_imode'=>{'length'=>192,'offset'=>89042},'_e2s2'=>{'length'=>535,'offset'=>89234},'_s2j2'=>{'length'=>377,'offset'=>89769},'_encodeBase64'=>{'length'=>741,'offset'=>90146},'validate_utf8'=>{'length'=>129,'offset'=>90887},'sjis_icon_au'=>{'length'=>85,'offset'=>91016},'split_csv'=>{'length'=>131,'offset'=>91101},'jis_jsky'=>{'length'=>200,'offset'=>91232},'strcut'=>{'length'=>888,'offset'=>91432},'cp932'=>{'length'=>33,'offset'=>92320},'_utf32be_ucs4'=>{'length'=>70,'offset'=>92353}}sub joinCsv {
+  �{'joinCsv'=>{'length'=>939,'offset'=>0},'_decodeBase64'=>{'length'=>609,'offset'=>939},'z2hNum'=>{'length'=>284,'offset'=>1548},'_utf16le_utf16'=>{'length'=>179,'offset'=>3074},'kata2hira'=>{'length'=>1242,'offset'=>1832},'jcode/emoji2/ea2u.dat'=>{'length'=>1320,'offset'=>372970},'_u2ai2'=>{'length'=>1062,'offset'=>3253},'z2hAlpha'=>{'length'=>836,'offset'=>4315},'_ucs4_utf8'=>{'length'=>936,'offset'=>5151},'h2zSym'=>{'length'=>316,'offset'=>6087},'utf8_icon_au1'=>{'length'=>73,'offset'=>6403},'h2z'=>{'length'=>114,'offset'=>6476},'jcode/emoji2/ea2u2s.dat'=>{'length'=>4096,'offset'=>430826},'sjis'=>{'length'=>177,'offset'=>6590},'euc_icon_au2'=>{'length'=>98,'offset'=>6767},'_u2si1'=>{'length'=>1619,'offset'=>6865},'_sj2u1'=>{'length'=>1144,'offset'=>8484},'euc_icon_au'=>{'length'=>97,'offset'=>9956},'tag2bin'=>{'length'=>328,'offset'=>9628},'z2hSym'=>{'length'=>596,'offset'=>10053},'ucs2'=>{'length'=>183,'offset'=>10649},'jis_au2'=>{'length'=>80,'offset'=>10832},'jcode/emoji2/ei2u2.dat'=>{'length'=>2048,'offset'=>244970},'_si2u1'=>{'length'=>1228,'offset'=>10912},'_utf8_utf16'=>{'length'=>950,'offset'=>12140},'jis_icon_au1'=>{'length'=>98,'offset'=>13090},'sjis_icon_au1'=>{'length'=>86,'offset'=>13188},'sjis_jsky2'=>{'length'=>70,'offset'=>13274},'jcode/emoji2/ei2u.dat'=>{'length'=>2048,'offset'=>226538},'getcode'=>{'length'=>2026,'offset'=>13344},'_j2s2'=>{'length'=>469,'offset'=>15370},'jcode/emoji2/ea2us.dat'=>{'length'=>4096,'offset'=>410346},'sjis_au2'=>{'length'=>95,'offset'=>15839},'h2zKanaD'=>{'length'=>810,'offset'=>15934},'sjis_imode1'=>{'length'=>71,'offset'=>16744},'eucjp'=>{'length'=>32,'offset'=>16815},'utf8'=>{'length'=>187,'offset'=>16847},'_s2e'=>{'length'=>244,'offset'=>17034},'jcode/emoji2/ea2u2.dat'=>{'length'=>3288,'offset'=>390674},'utf8_jsky'=>{'length'=>189,'offset'=>17278},'_uj2u2'=>{'length'=>874,'offset'=>17467},'utf8_jsky1'=>{'length'=>70,'offset'=>18341},'jcode/emoji2/eu2a2.dat'=>{'length'=>16384,'offset'=>393962},'jcode/s2u.dat'=>{'length'=>48573,'offset'=>177965},'conv'=>{'length'=>3663,'offset'=>18411},'_utf16be_utf16'=>{'length'=>71,'offset'=>22074},'jcode/emoji2/eu2j.dat'=>{'length'=>40960,'offset'=>266474},'hira2kata'=>{'length'=>1242,'offset'=>22145},'splitCsvu'=>{'length'=>197,'offset'=>23387},'sjis_doti1'=>{'length'=>69,'offset'=>23584},'_s2j'=>{'length'=>272,'offset'=>23653},'_sa2j2'=>{'length'=>384,'offset'=>23925},'_j2sa'=>{'length'=>179,'offset'=>24309},'sjis_au1'=>{'length'=>95,'offset'=>24488},'join_csv'=>{'length'=>29,'offset'=>24583},'_ai2u1'=>{'length'=>458,'offset'=>24612},'jcode/emoji2/eu2as.dat'=>{'length'=>16384,'offset'=>414442},'_s2u'=>{'length'=>988,'offset'=>25070},'jis_jsky1'=>{'length'=>82,'offset'=>26058},'jis_icon_au2'=>{'length'=>98,'offset'=>26140},'_j2sa3'=>{'length'=>434,'offset'=>26238},'sjis_jsky'=>{'length'=>189,'offset'=>26672},'_u2uj2'=>{'length'=>788,'offset'=>26861},'jis'=>{'length'=>179,'offset'=>27649},'jis_au1'=>{'length'=>80,'offset'=>27828},'_utf8_ucs4'=>{'length'=>1149,'offset'=>27908},'get'=>{'length'=>162,'offset'=>29057},'z2h'=>{'length'=>114,'offset'=>29219},'getu'=>{'length'=>266,'offset'=>29333},'_loadConvTable'=>{'length'=>18009,'offset'=>29599},'unijp'=>{'length'=>137,'offset'=>47608},'_u2uj1'=>{'length'=>806,'offset'=>47745},'jcode/emoji2/eu2a2s.dat'=>{'length'=>16384,'offset'=>434922},'_u2ja1'=>{'length'=>1639,'offset'=>48551},'_j2s'=>{'length'=>177,'offset'=>50190},'utf16'=>{'length'=>187,'offset'=>50367},'utf8_jsky2'=>{'length'=>70,'offset'=>50554},'_u2ai1'=>{'length'=>1203,'offset'=>50624},'sjis_icon_au2'=>{'length'=>86,'offset'=>51827},'_u2si2'=>{'length'=>1620,'offset'=>51913},'jcode/emoji2/eu2i.dat'=>{'length'=>16384,'offset'=>228586},'splitCsv'=>{'length'=>350,'offset'=>53533},'jcode/emoji2/eu2i2.dat'=>{'length'=>16384,'offset'=>247018},'sjis_jsky1'=>{'length'=>70,'offset'=>53883},'_s2j3'=>{'length'=>355,'offset'=>53953},'_sa2u1'=>{'length'=>1137,'offset'=>54308},'_u2s'=>{'length'=>2320,'offset'=>55445},'_sa2j3'=>{'length'=>455,'offset'=>57765},'_utf16_utf8'=>{'length'=>769,'offset'=>58220},'h2zNum'=>{'length'=>174,'offset'=>58989},'h2zKanaK'=>{'length'=>979,'offset'=>59163},'strlen'=>{'length'=>360,'offset'=>60142},'strcutu'=>{'length'=>195,'offset'=>60502},'sjis_imode2'=>{'length'=>71,'offset'=>60697},'_validate_utf8'=>{'length'=>855,'offset'=>60768},'jcode/emoji2/eu2a.dat'=>{'length'=>16384,'offset'=>374290},'set'=>{'length'=>5325,'offset'=>61623},'_ucs2_utf8'=>{'length'=>549,'offset'=>66948},'_utf16_utf16'=>{'length'=>300,'offset'=>67497},'h2zAlpha'=>{'length'=>264,'offset'=>67797},'z2hKanaK'=>{'length'=>979,'offset'=>68061},'getcodelist'=>{'length'=>2241,'offset'=>69040},'_sj2u2'=>{'length'=>1503,'offset'=>71281},'jcode/emoji2/ed2u.dat'=>{'length'=>5120,'offset'=>351466},'jis_icon_au'=>{'length'=>97,'offset'=>72784},'_utf32_ucs4'=>{'length'=>312,'offset'=>72881},'_ai2u2'=>{'length'=>410,'offset'=>73193},'utf8_icon_au2'=>{'length'=>73,'offset'=>73603},'_uj2u1'=>{'length'=>600,'offset'=>73676},'_sa2j'=>{'length'=>174,'offset'=>74276},'h2zKana'=>{'length'=>185,'offset'=>74450},'z2hKana'=>{'length'=>89,'offset'=>74635},'_si2u2'=>{'length'=>1227,'offset'=>74724},'_u2sj1'=>{'length'=>1772,'offset'=>75951},'_u2sj2'=>{'length'=>1794,'offset'=>77723},'utf8_icon_au'=>{'length'=>72,'offset'=>79517},'jis_jsky2'=>{'length'=>82,'offset'=>79589},'sjis_doti'=>{'length'=>188,'offset'=>79671},'_e2s'=>{'length'=>202,'offset'=>79859},'jcode/emoji2/ej2u2.dat'=>{'length'=>3072,'offset'=>307434},'euc'=>{'length'=>175,'offset'=>80061},'_j2s3'=>{'length'=>337,'offset'=>80236},'jcode/emoji2/ej2u.dat'=>{'length'=>3072,'offset'=>263402},'_j2sa2'=>{'length'=>446,'offset'=>80573},'ucs4'=>{'length'=>183,'offset'=>81019},'_sd2u'=>{'length'=>1221,'offset'=>81202},'_u2ja2'=>{'length'=>1640,'offset'=>82423},'_s2e2'=>{'length'=>446,'offset'=>84063},'z2hKanaD'=>{'length'=>498,'offset'=>84509},'_u2sd'=>{'length'=>1615,'offset'=>85007},'sjis_au'=>{'length'=>94,'offset'=>86622},'jcode/emoji2/eu2j2.dat'=>{'length'=>40960,'offset'=>310506},'jcode/emoji2/eu2d.dat'=>{'length'=>16384,'offset'=>356586},'jcode/u2s.dat'=>{'length'=>85504,'offset'=>92461},'_utf8_ucs2'=>{'length'=>755,'offset'=>86716},'euc_icon_au1'=>{'length'=>98,'offset'=>87471},'jis_au'=>{'length'=>195,'offset'=>87569},'_utf32le_ucs4'=>{'length'=>178,'offset'=>87764},'sjis_imode'=>{'length'=>192,'offset'=>87942},'_e2s2'=>{'length'=>535,'offset'=>88134},'_s2j2'=>{'length'=>377,'offset'=>88669},'_encodeBase64'=>{'length'=>741,'offset'=>89046},'validate_utf8'=>{'length'=>129,'offset'=>89787},'sjis_icon_au'=>{'length'=>85,'offset'=>89916},'split_csv'=>{'length'=>131,'offset'=>90001},'_sa2u2'=>{'length'=>1138,'offset'=>90132},'jis_jsky'=>{'length'=>200,'offset'=>91270},'strcut'=>{'length'=>888,'offset'=>91470},'cp932'=>{'length'=>33,'offset'=>92358},'_utf32be_ucs4'=>{'length'=>70,'offset'=>92391}}sub joinCsv {
   my $this = shift;
   my $list;
   
@@ -2202,6 +2202,8 @@ sub _uj2u2 {
     $ej2u2 = $this->_getFile('jcode/emoji2/ej2u2.dat');
   }
 
+  $str = $this->_validate_utf8($str);
+  
   my @umap = (0x200, 0x000, 0x100);
   $str =~ s{($RE{E_JSKYv1_UTF8}+)}{
     join('',
@@ -2479,7 +2481,7 @@ sub _sa2j2 {
   my $this = shift;
   my $str = shift;
 
-  $str =~ s/((?:$RE{SJIS_DBCS})+|(?:$RE{E_SJIS_AU})+|(?:$RE{SJIS_KANA})+)/
+  $str =~ s/((?:$RE{SJIS_DBCS}|$RE{E_SJIS_AU})+|(?:$RE{SJIS_KANA})+)/
     my $s = $1;
   if($s =~ m,^$RE{SJIS_KANA},o)
     {
@@ -3208,68 +3210,6 @@ sub _u2ja1 {
 
   $str;
 }
-# jis-au1 => utf8
-sub _ja2u1 {
-  my $this = shift;
-  my $str = shift;
-
-  if(!defined($str))
-    {
-      return '';
-    }
-  
-  if(!defined($s2u_table))
-    {
-      $s2u_table = $this->_getFile('jcode/s2u.dat');
-    }
-
-  if(!defined($ea2u1s))
-  {
-    $ea2u1s = $this->_getFile('jcode/emoji2/ea2us.dat');
-  }
-
-  my $l;
-  my $uc;
-  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|[\x80-\xff])/
-    $SA2U1{$1}
-      or ($SA2U1{$1} =
-	  (
-	   $l = (unpack('n', $1) or unpack('C', $1)),
-	   (
-	    ($l >= 0xa1 and $l <= 0xdf)     ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0xa1) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0x8100 and $l <= 0x9fff) ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0x8100 + 0x3f) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0xeb00 and $l <= 0xeeff) ?
-	    (
-	     $uc = substr($ea2u1s, ($l - 0xeb00) * 4, 4),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0xe000 and $l <= 0xfcff) ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0xe000 + 0x1f3f) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l < 0x80) ?
-	    chr($l) :
-	    '?'
-	   )
-	  )
-	 )/eg;
-  
-  $str;
-  
-}
 sub _j2s {
   my $this = shift;
   my $str = shift;
@@ -3463,6 +3403,68 @@ sub _s2j3 {
     }
   
   $S2J[unpack('n', $c)] = pack('CC', $c1 - 0x80, $c2 - 0x80);
+}
+# sjis-au1 => utf8
+sub _sa2u1 {
+  my $this = shift;
+  my $str = shift;
+
+  if(!defined($str))
+    {
+      return '';
+    }
+  
+  if(!defined($s2u_table))
+    {
+      $s2u_table = $this->_getFile('jcode/s2u.dat');
+    }
+
+  if(!defined($ea2u1s))
+  {
+    $ea2u1s = $this->_getFile('jcode/emoji2/ea2us.dat');
+  }
+
+  my $l;
+  my $uc;
+  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|[\x80-\xff])/
+    $SA2U1{$1}
+      or ($SA2U1{$1} =
+	  (
+	   $l = (unpack('n', $1) or unpack('C', $1)),
+	   (
+	    ($l >= 0xa1 and $l <= 0xdf)     ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0xa1) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0x8100 and $l <= 0x9fff) ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0x8100 + 0x3f) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0xeb00 and $l <= 0xeeff) ?
+	    (
+	     $uc = substr($ea2u1s, ($l - 0xeb00) * 4, 4),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0xe000 and $l <= 0xfcff) ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0xe000 + 0x1f3f) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l < 0x80) ?
+	    chr($l) :
+	    '?'
+	   )
+	  )
+	 )/eg;
+  
+  $str;
+  
 }
 # -----------------------------------------------------------------------------
 # utf8 ==> sjis/��ʸ��
@@ -3853,27 +3855,27 @@ sub set
 	}
       elsif($icode eq 'jis-au')
 	{
-	  $this->{str} = $this->_ja2u2($this->_j2s($str));
+	  $this->{str} = $this->_sa2u2($this->_j2s($str));
 	}
       elsif($icode eq 'jis-au1')
 	{
-	  $this->{str} = $this->_ja2u1($this->_j2s($str));
+	  $this->{str} = $this->_sa2u1($this->_j2s($str));
 	}
       elsif($icode eq 'jis-au2')
 	{
-	  $this->{str} = $this->_ja2u2($this->_j2s($str));
+	  $this->{str} = $this->_sa2u2($this->_j2s($str));
 	}
       elsif($icode eq 'sjis-au')
 	{
-	  $this->{str} = $this->_ja2u2($this->_j2s($this->_sa2j($str)));
+	  $this->{str} = $this->_sa2u2($this->_j2s($this->_sa2j($str)));
 	}
       elsif($icode eq 'sjis-au1')
 	{
-	  $this->{str} = $this->_ja2u1($this->_j2s($this->_sa2j($str)));
+	  $this->{str} = $this->_sa2u1($this->_j2s($this->_sa2j($str)));
 	}
       elsif($icode eq 'sjis-au2')
 	{
-	  $this->{str} = $this->_ja2u2($this->_j2s($this->_sa2j($str)));
+	  $this->{str} = $this->_sa2u2($this->_j2s($this->_sa2j($str)));
 	}
       elsif($icode eq 'sjis-icon-au')
 	{
@@ -4275,6 +4277,8 @@ sub _uj2u1 {
     $ej2u1 = $this->_getFile('jcode/emoji2/ej2u.dat');
   }
 
+  $str = $this->_validate_utf8($str);
+  
   my @umap = (0x200, 0x000, 0x100);
   $str =~ s{($RE{E_JSKYv1_UTF8}+)}{
     join('',
@@ -4877,70 +4881,6 @@ sub sjis_au
   my $this = shift;
   $this->_j2sa($this->_s2j($this->_u2ja2($this->{str})));
 }
-# jis-au2 => utf8
-sub _ja2u2 {
-  my $this = shift;
-  my $str = shift;
-
-  if(!defined($str))
-    {
-      return '';
-    }
-  
-  if(!defined($s2u_table))
-    {
-      $s2u_table = $this->_getFile('jcode/s2u.dat');
-    }
-
-  if(!defined($ea2u2s))
-  {
-    $ea2u2s = $this->_getFile('jcode/emoji2/ea2u2s.dat');
-  }
-
-  $str = $this->_validate_utf8($str);
-  
-  my $l;
-  my $uc;
-  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|[\x80-\xff])/
-    $SA2U2{$1}
-      or ($SA2U2{$1} =
-	  (
-	   $l = (unpack('n', $1) or unpack('C', $1)),
-	   (
-	    ($l >= 0xa1 and $l <= 0xdf)     ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0xa1) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0x8100 and $l <= 0x9fff) ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0x8100 + 0x3f) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0xeb00 and $l <= 0xeeff) ?
-	    (
-	     $uc = substr($ea2u2s, ($l - 0xeb00) * 4, 4),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l >= 0xe000 and $l <= 0xfcff) ?
-	    (
-	     $uc = substr($s2u_table, ($l - 0xe000 + 0x1f3f) * 3, 3),
-	     $uc =~ tr,\0,,d,
-	     $uc
-	    ) :
-	    ($l < 0x80) ?
-	    chr($l) :
-	    '?'
-	   )
-	  )
-	 )/eg;
-  
-  $str;
-  
-}
 sub _utf8_ucs2 {
   my $this = shift;
   my $str = shift;
@@ -5096,6 +5036,68 @@ sub sjis_icon_au
 # 
 sub split_csv {
   &splitCsv;
+}
+# sjis-au2 => utf8
+sub _sa2u2 {
+  my $this = shift;
+  my $str = shift;
+
+  if(!defined($str))
+    {
+      return '';
+    }
+  
+  if(!defined($s2u_table))
+    {
+      $s2u_table = $this->_getFile('jcode/s2u.dat');
+    }
+
+  if(!defined($ea2u2s))
+  {
+    $ea2u2s = $this->_getFile('jcode/emoji2/ea2u2s.dat');
+  }
+
+  my $l;
+  my $uc;
+  $str =~ s/($RE{SJIS_KANA}|$RE{SJIS_DBCS}|[\x80-\xff])/
+    $SA2U2{$1}
+      or ($SA2U2{$1} =
+	  (
+	   $l = (unpack('n', $1) or unpack('C', $1)),
+	   (
+	    ($l >= 0xa1 and $l <= 0xdf)     ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0xa1) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0x8100 and $l <= 0x9fff) ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0x8100 + 0x3f) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0xeb00 and $l <= 0xeeff) ?
+	    (
+	     $uc = substr($ea2u2s, ($l - 0xeb00) * 4, 4),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l >= 0xe000 and $l <= 0xfcff) ?
+	    (
+	     $uc = substr($s2u_table, ($l - 0xe000 + 0x1f3f) * 3, 3),
+	     $uc =~ tr,\0,,d,
+	     $uc
+	    ) :
+	    ($l < 0x80) ?
+	    chr($l) :
+	    '?'
+	   )
+	  )
+	 )/eg;
+  
+  $str;
+  
 }
 # -----------------------------------------------------------------------------
 # $bytes_jsky = $unijp->jis_jsky();
