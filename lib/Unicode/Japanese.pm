@@ -2,14 +2,14 @@
 # Unicode::Japanese
 # Unicode::Japanese::PurePerl
 # -----------------------------------------------------------------------------
-# $Id: Japanese.pm,v 1.20 2007/09/03 07:52:00 hio Exp $
+# $Id: Japanese.pm,v 1.22 2007/09/10 07:18:04 hio Exp $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::PurePerl;
 package Unicode::Japanese;
 
 use strict;
 use vars qw($VERSION $PurePerl $xs_loaderror);
-$VERSION = '0.42';
+$VERSION = '0.43';
 
 # `use bytes' and `use Encode' if on perl-5.8.0 or later.
 if( $] >= 5.008 )
@@ -281,7 +281,7 @@ use vars qw(@J2S @S2J @S2E @E2S @U2T %T2U %S2U %U2S %SA2U1 %U2SA1 %SA2U2 %U2SA2)
      E_ICON_AU_START => '<IMG ICON="',
      E_ICON_AU_END   => '">',
      E_JSKY_START => quotemeta($ESC{E_JSKY_START}),
-     E_JSKY_END   => quotemeta($ESC{E_JSKY_END}),
+     E_JSKY_END   => '(?:'.quotemeta($ESC{E_JSKY_END}).'|\z)',
      E_JSKYv1_UTF8 => qr/\xee(?:\x80[\x81-\xbf]|\x81[\x80-\x9a]|\x84[\x81-\xbf]|\x85[\x80-\x9a]|\x88[\x81-\xbf]|\x89[\x80-\x9a])/,
      E_JSKYv2_UTF8 => qr/\xee(?:\x8c[\x81-\xbf]|\x8d[\x80-\x8d]|\x90[\x81-\xbf]|\x91[\x80-\x8c]|\x94[\x81-\xb7])/,
      );

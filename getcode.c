@@ -1,5 +1,5 @@
 
-/* $Id: getcode.c,v 1.8 2007/08/30 09:19:57 hio Exp $ */
+/* $Id: getcode.c,v 1.9 2007/09/07 10:10:18 hio Exp $ */
 
 #include "Japanese.h"
 #include "getcode.h"
@@ -9,7 +9,7 @@
 #define dAX I32 ax = MARK - PL_stack_base + 1
 #endif
 
-#define GC_DISP 1
+#define GC_DISP 0
 
 /* 文字コード定数 */
 enum charcode_t
@@ -185,6 +185,20 @@ struct CodeResult
 };
 typedef struct CodeResult CodeResult;
 
+static int _is_acceptable_state(const CodeCheck* check)
+{
+  /* special cases. */
+  if( check->table==map_jis_jsky[11] )
+  { /* jis-jsky, jis#j2 */
+    return true;
+  }
+  if( check->table==map_sjis_jsky[4] )
+  { /* sjis-jsky, sjis#j2 */
+    return true;
+  }
+  return false;
+}
+
 static int getcode_list(SV* sv_str, CodeCheck* check)
 {
   unsigned char* src;
@@ -286,7 +300,7 @@ static int getcode_list(SV* sv_str, CodeCheck* check)
     int i;
     for( i=0; i<cc_max; ++i )
     {
-      if( check[i].table == check[i].base )
+      if( check[i].table == check[i].base || _is_acceptable_state(&check[i]) )
       {
         if( wr!=i )
 	{

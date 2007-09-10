@@ -1,5 +1,5 @@
 
-/* $Id: sjis_jsky1.c,v 1.5 2006/07/03 01:33:15 hio Exp $ */
+/* $Id: sjis_jsky1.c,v 1.6 2007/09/07 10:10:18 hio Exp $ */
 
 #include "Japanese.h"
 #include <stdio.h>
@@ -52,7 +52,7 @@ xs_sjis_jsky1_utf8(SV* sv_str)
   src = (UJ_UINT8*)SvPV(sv_str,src_len);
   len = sv_len(sv_str);
 #if DISP_S2U
-  fprintf(stderr,"Unicode::Japanese::(xs)sjis_utf8_jsky1\n",len);
+  fprintf(stderr,"Unicode::Japanese::(xs)sjis_utf8_jsky1, len=%d\n",len);
   bin_dump("in ",src,len);
 #endif
   SV_Buf_init(&result,len*3/2+4);
@@ -90,7 +90,7 @@ xs_sjis_jsky1_utf8(SV* sv_str)
       begin = src;
       src += 3;
       /* E_JSKY_2 */
-      while( src+1<src_end )
+      while( src<src_end )
       {
 	if( '!'<=src[0] && src[0]<='z' )
 	{
@@ -99,16 +99,20 @@ xs_sjis_jsky1_utf8(SV* sv_str)
 	}
 	break;
       }
-      if( src[0]!=0x0f )
+      if( src<src_end && src[0]==0x0f )
       {
-	/*fprintf(stderr,"invalid\n"); */
-	src = begin;
-	SV_Buf_append_ch(&result,*src);
-	++src;
-	continue;
+        /* accept, normally. */
+      }else if( src==src_end )
+      {
+        /* accept, without terminator. */
+      }else
+      {
+        /* invalid, rollback. */
+        SV_Buf_append_ch(&result, '\x1b');
+        src = begin+1;
+        continue;
       }
-      ++src;
-      for( ptr = begin+3; ptr<src-1; ++ptr )
+      for( ptr = begin+3; ptr<src; ++ptr )
       {
 	/*fprintf(stderr," <%c%c:%04x>\n",begin[2],*ptr,j1+*ptr); */
 	/*fprintf(stderr,"   => %04x\n",g_ej2u1_table[j1+*ptr]); */
@@ -117,6 +121,11 @@ xs_sjis_jsky1_utf8(SV* sv_str)
 	SV_Buf_append_mem(&result,str,str[3]?4:strlen((char*)str));
       }
       /*fprintf(stderr,"j-sky string done.\n"); */
+      
+      /* '\x0f' をスキップ. */
+      /* src==src_end の時はバッファを超えるけど, */
+      /* その時はこれ以上はアクセスしないので気にしない. */
+      ++src;
       continue;
     }else if( 0xa1<=src[0] && src[0]<=0xdf )
     { /* half-width katakana (ja:半角カナ) */

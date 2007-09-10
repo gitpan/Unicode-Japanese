@@ -41,6 +41,7 @@ t/00-load.t
 t/allchar_utf8.pl
 t/base.t
 t/emoji.t
+t/emoji-jsky-chopped.t
 t/emoji-jsky-utf8.t
 t/esc.pl              制御文字をエスケープする関数. t/*.t 用.
 t/fromutf8.t
