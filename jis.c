@@ -1,5 +1,5 @@
 
-/* $Id: jis.c,v 1.11 2006/07/03 01:33:15 hio Exp $ */
+/* $Id: jis.c 4654 2006-07-03 01:33:16Z hio $ */
 
 #include "Japanese.h"
 #include "sjis.h"

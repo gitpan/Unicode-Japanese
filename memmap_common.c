@@ -4,7 +4,7 @@
  * ----------------------------------------------------------------------------
  * Mastering programed by YAMASHINA Hio
  * ----------------------------------------------------------------------------
- * $Id: memmap_common.c,v 1.2 2005/11/04 03:22:17 hio Exp $
+ * $Id: memmap_common.c 4697 2007-09-14 06:17:00Z pho $
  * ------------------------------------------------------------------------- */
 
 #include "Japanese.h"
@@ -147,13 +147,13 @@ do_memmap_set(const char* mmap_pmfile, int mmap_pmfile_size)
       sv_entryref = hv_fetch(hv_table,ptr->filename, strlen(ptr->filename), 0);
       if( sv_entryref==NULL )
       {
-        croak("Unicode::Japanese#do_memmap, embeded file [%s] not found",ptr->filename);
+        croak("Unicode::Japanese#do_memmap, embedded file [%s] not found",ptr->filename);
       }
       /* assert(isa(sv_entryref,"HASH")) */
       hv_entry = SvROK(*sv_entryref) ? (HV*)SvRV(*sv_entryref) : NULL;
       if( hv_entry!=NULL && SvTYPE((SV*)hv_entry)!=SVt_PVHV )
       {
-        croak("Unicode::Japanese#do_memmap, embeded file entry [%s] is not hashref",ptr->filename);
+        croak("Unicode::Japanese#do_memmap, embedded file entry [%s] is not hashref",ptr->filename);
       }
       /* sv_offset = $hv_entry{"offset"} */
       /* sv_length = $hv_entry{"length"} */
@@ -161,11 +161,11 @@ do_memmap_set(const char* mmap_pmfile, int mmap_pmfile_size)
       sv_length = hv_fetch(hv_entry,"length",6,0);
       if( sv_offset==NULL )
       {
-        croak("Unicode::Japanese#do_memmap, no offset for embeded file entry [%s]",ptr->filename);
+        croak("Unicode::Japanese#do_memmap, no offset for embedded file entry [%s]",ptr->filename);
       }
       if( sv_length==NULL )
       {
-        croak("Unicode::Japanese#do_memmap, no length for embeded file entry [%s]",ptr->filename);
+        croak("Unicode::Japanese#do_memmap, no length for embedded file entry [%s]",ptr->filename);
       }
       offset = SvIV(*sv_offset);
       length = SvIV(*sv_length);

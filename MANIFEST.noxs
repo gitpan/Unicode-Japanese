@@ -3,9 +3,9 @@ MANIFEST
 MANIFEST.noxs
 Makefile.PL
 README
-SIGNATURE             you can verify with cpansign
-bin/ujconv            iconv like tool with Unicode::Japanese
-bin/ujguess           charset detection tool
+SIGNATURE             module signature; you can verify the module with cpansign
+bin/ujconv            iconv-like tool with Unicode::Japanese
+bin/ujguess           tool for charset detection
 inc/ExtUtils/MY_Metafile.pm
 lib/Unicode/Japanese.mlpod        Unicode::Japanese multilingual pod
 lib/Unicode/Japanese.pm           Unicode::Japanese perl module
@@ -14,7 +14,7 @@ t/00-load.t
 t/allchar_utf8.pl
 t/base.t
 t/emoji.t
-t/esc.pl              method that escapes controll char (like a quotemeta)
+t/esc.pl              method that escapes control characters (like quotemeta)
 t/fromutf8.t
 t/getcode.t
 t/hirakata.t

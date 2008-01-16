@@ -1,5 +1,5 @@
 
-/* $Id: memmap_win32.c,v 1.10 2006/08/18 04:22:07 hio Exp $ */
+/* $Id: memmap_win32.c 4659 2006-08-18 04:22:07Z hio $ */
 
 #include "Japanese.h"
 #include <windows.h>

@@ -6,7 +6,7 @@
 #
 # Copyright 2005 YAMASHINA Hio
 # -----------------------------------------------------------------------------
-# $Id: ujconv,v 1.3 2007/01/16 02:01:36 hio Exp $
+# $Id: ujconv 4697 2007-09-14 06:17:00Z pho $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::UJConv;
 use strict;
@@ -131,7 +131,7 @@ sub do_work
 sub print_usage
 {
   print "usage: ujconv [-f from_encode] [-t to_encode] [-s string] [files...]\n";
-  print "see \`perldoc ujconv' for detail.\n";
+  print "see \`perldoc ujconv' for details.\n";
 }
 
 # -----------------------------------------------------------------------------
@@ -177,7 +177,7 @@ __END__
 
 =head1 NAME
 
-ujconv -- iconv(1), reinvented in Unicode::Japanese
+ujconv -- reinvented iconv(1) using Unicode::Japanese
 
 =head1 SYNOPSIS
 
@@ -192,37 +192,41 @@ ujconv 0.02
 
 =head1 DESCRIPTION
 
-B<ujconv> is Unicode::Japanese (written in perl) version of B<iconv>.
+B<ujconv> is an iconv-like tool which is written in perl using
+Unicode::Japanese.
 
-ujconv converts the character encoding of either STDIN or files
-specified in the argument and prints out to STDOUT.
+B<ujconv> reads text from STDIN or files, convert them, and print them to
+STDOUT.
 
-Here is the list of options.  Each option can be in short format (-f)
-or long (--from).
+Available options are as follows. Each options can be in short form (-f) or long
+form (--from):
 
 =over 4
 
-=item -f,--from from_encoding
+=item -f,--from I<from_encoding>
 
-Specifies the encoding you are converting from.  Unlike B<iconv>,
-this option can be omitted.  In such cases, source encoding is 
-automatically guessed.
+Convert characters from I<from_encoding>. Unlike B<iconv> this option can be
+omitted. In that case, the encoding of the input is guessed by B<ujconv>.
 
-=item -t,--to to_encoding
+=item -t,--to I<to_encoding>
 
-Specifies the encoding you are converting to. 
+Convert characters to I<to_encoding>.
 
 =item -s,--string I<string>
 
-uses I<string> instead of file for the source of text.
+Input from the argument string instead of file or STDIN.
 
 =item -l,--list
 
-Lists all available encodings, one per line.
+List all available encodings, one name per each lines.
 
 =item -h,--help
 
-Show usage.
+Print a short help message.
+
+=item -V,--version
+
+Print the version of B<ujconv>.
 
 =back
 

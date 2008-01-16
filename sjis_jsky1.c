@@ -1,5 +1,5 @@
 
-/* $Id: sjis_jsky1.c,v 1.6 2007/09/07 10:10:18 hio Exp $ */
+/* $Id: sjis_jsky1.c 4692 2007-09-07 10:10:20Z hio $ */
 
 #include "Japanese.h"
 #include <stdio.h>

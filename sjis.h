@@ -2,7 +2,7 @@
 #ifndef SJIS_H__
 #define SJIS_H__
 
-/* $Id: sjis.h,v 1.2 2002/10/29 06:23:56 hio Exp $ */
+/* $Id: sjis.h 4494 2002-10-29 06:23:58Z hio $ */
 
 /* 変換ができなかったときの文字 */
 #define UNDEF_SJIS     ((const unsigned char*)"\x81\xac")

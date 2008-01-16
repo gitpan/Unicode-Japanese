@@ -1,5 +1,5 @@
 
-/* $Id: Japanese.xs,v 1.14 2006/04/14 05:18:54 pho Exp $ */
+/* $Id: Japanese.xs 4631 2006-04-14 05:18:55Z pho $ */
 
 #include "Japanese.h"
 

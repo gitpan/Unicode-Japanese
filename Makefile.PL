@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Makefile.PL for Unicode-Japanese.
 # -----------------------------------------------------------------------------
-# $Id: Makefile.PL,v 1.58 2007/09/03 07:47:19 hio Exp $
+# $Id: Makefile.PL 4697 2007-09-14 06:17:00Z pho $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::MakeMaker;
 
@@ -18,7 +18,7 @@ my $MANIFEST_bak = $ExtUtils::Manifest::MANIFEST;
 
 my %argv = map{ /^(\w+)=(.*)$/ } @ARGV;
 
-my $useXS; # 0:PurePerl,1:useXS,undef:not specified
+my $useXS; # 0:use PurePerl, 1:use XS, undef: unspecified
 
 unlink(qw(medaite.h mediate.c));
 
@@ -26,7 +26,7 @@ unlink(qw(medaite.h mediate.c));
 # create default parameter
 my %param = (
     'NAME'		=> 'Unicode::Japanese',
-    'VERSION_FROM'	=> 'lib/Unicode/Japanese.pm', # finds $VERSION
+    'VERSION_FROM'	=> 'lib/Unicode/Japanese.pm', # looks for $VERSION
     'ABSTRACT_FROM'     => 'lib/Unicode/Japanese.pm', #
     'AUTHOR'		=> 'SANO Taku (SAWATARI Mikage) and YAMASHINA Hio',
 
@@ -59,15 +59,15 @@ my @CCFLAGS;
 #add_ccflags('-Wall');
 
 # --------------------------------------------------------------------
-# check devel mode.
+# check if we are in the developer's environment.
 if( ! -e 'devel.PL' )
 {
-  # for Release.
+  # for release build.
   add_ccflags('-DNDEBUG');
 }else
 {
-  # for Development Environment.
-  print "for devel.\n";
+  # for development build.
+  print "We are going to build Unicode::Japanese in developer's environment.\n";
   if( open DEVEL_PL,'devel.PL' )
   {
     my $code = join('',<DEVEL_PL>);
@@ -82,7 +82,7 @@ if( ! -e 'devel.PL' )
 }
 
 # --------------------------------------------------------------------
-# check 'PurePerl'or'NoXS' from @ARGV, and remove if exists.
+# look for 'PurePerl' or 'NoXS' from @ARGV, and remove it if exists.
 my @arg;
 @ARGV = grep{ !(@arg-push(@arg,/^(PurePerl|NoXS)(=(0|1|yes|no|y|n))?$/i)) } @ARGV;
 if( @arg )
@@ -96,8 +96,7 @@ if( @arg )
 }
 
 # --------------------------------------------------------------------
-# run MakerMaker :: WriteMakefile
-#   and hints, configure().
+# run MakerMaker :: WriteMakefile, hints, and configure().
 
 print " >> invoke WriteMakefile\n";
 my_metafile 'Unicode::Japanese' => {
@@ -114,7 +113,7 @@ $ExtUtils::Manifest::MANIFEST = $MANIFEST_bak;
 
 
 # --------------------------------------------------------------------
-# follows are subroutins only.
+# code below here has only subroutines.
 
 sub configure
 {
@@ -130,14 +129,14 @@ sub configure
 
   if( !defined($useXS) )
   {
-    print " >> no hints ran (maybe no info on this platform [$^O])\n";
+    print " >> no hints ran (this platform may not be supported to run XS code [$^O])\n";
     enableXS('(no hints)',undef,undef);
   }
   
   flush_ccflags();
   if( $useXS )
   {
-    # compile check.
+    # compilation check.
     use Config;
     use ExtUtils::Embed;
     my $cc = exists $argv{CC} ? $argv{CC} : $Config{cc};
@@ -146,60 +145,60 @@ sub configure
     my $xstest_src = $^O eq 'MSWin32' ? 'memmap_win32.c' : 'memmap_unix.c';
     my $xstest_out = $^O eq 'MSWin32' ? 'memmap_win32.obj' : 'memmap_unix.o';
     my $cmd = "$cc $ccopts -c $xstest_src -o $xstest_out";
-    print "Checking XS Compiling... : $cmd\n";
+    print "Checking if we can actually compile a C source file... : $cmd\n";
     my $rc = 0xffff & system($cmd);
     unlink($xstest_out);
     if( $rc )
     {
       if( $rc == 0xffff )
       {
-	print " >> Here environment cannot use XS.\n";
-	print " >> Because : command failed : $!\n";
+	print " >> It seems we can't compile XS module in this environment.\n";
+	print " >> Reason : failed to execute the C compiler: $!\n";
 	return disableXS();
       }elsif( $rc > 0x80 )
       {
-        print " >> Here environment cannot use XS.\n";
-	print " >> Because : ran with non-zero exit status $rc\n";
+        print " >> It seems we can't compile XS module in this environment.\n";
+	print " >> Reason : the C compiler exited with non-zero status $rc\n";
 	return disableXS();
       }elsif( $rc & 0x80 )
       {
 	$rc &= ~0x80;
-	print " >> Compile failed..\n";
-	print " >> Because : ran with coredump from signal $rc\n";
+	print " >> Compilation failed..\n";
+	print " >> Reason : the C compiler coredumped because of signal $rc\n";
 	exit 1;
       }else
       {
-        print " >> Compile failed..\n";
-        print " >> Because : ran with signal $rc\n";
+        print " >> Compilation failed..\n";
+        print " >> Reason : the C compiler got killed with signal $rc\n";
 	exit 1;
       }
     }
-    print " >> ok, test succeed.\n";
+    print " >> ok, the compilation test succeeded.\n";
     
     my %SIZES;
-    print "check word sizes...\n";
+    print "checking for size of word...\n";
     {
       my $exe_ext = $^O eq 'MSWin32' ? '.exe' : '';
       $xstest_src = 'wordsize.c';
       ($xstest_out = $xstest_src) =~ s/\.c$/$exe_ext/;
       $cmd = "$cc $ccopts $xstest_src -o $xstest_out";
-      print "compile... : $cmd\n";
+      print "compiling... : $cmd\n";
       my $rc = 0xffff & system($cmd);
       if( $rc==-1 )
       {
-        print " >> compile failed: $!\n";
+        print " >> compilation failed: $!\n";
         return disableXS();
       }
       if( $rc!=0 )
       {
-        print " >> compile failed, exit status is: $rc\n";
+        print " >> compilation failed. exit status: $rc\n";
         return disableXS();
       }
       $cmd = File::Spec->catfile(".",$xstest_out);
       my @list  = `$cmd`;
       if( $? )
       {
-        print " >> check execute failed, is: $?\n";
+        print " >> execution failed: $?\n";
         return disableXS();
       }
       foreach(@list)
@@ -222,7 +221,7 @@ sub configure
     $param_xs{DEFINE} =~s/^ //;
   }else
   {
-    print "skip xs compile test\n";
+    print "skipping XS compilation test...\n";
   }
   
   \%param_xs;
@@ -257,7 +256,7 @@ sub enableXS
   my $cpp_on = $cpp && 1;
   if( !$cpp_on )
   {
-    $cpp = "/* nothing is needed, and will not be compiled. */\n";
+    $cpp = "/* This file will not be compiled. */\n";
   }
 
   if( $type eq 'MSWin32' )
@@ -268,11 +267,11 @@ sub enableXS
 
   !defined($useXS) and $useXS = 1;
   print " >> enableXS...\n";
-  $useXS or print " >> but XS was disabled previously... (keep disabled)\n";
+  $useXS or print " >> XS was disabled previously... (keeping it disabled)\n";
   $hdr = "/* from hints/$type.pl */\n\n".$hdr;
   $cpp = "/* from hints/$type.pl */\n\n".$cpp;
 
-  print " >> write mediate.c, mediate.h\n";
+  print " >> writing mediate.c, mediate.h\n";
   use FileHandle;
   my $fh_hdr = new FileHandle('>mediate.h');
   my $fh_cpp = new FileHandle('>mediate.c');

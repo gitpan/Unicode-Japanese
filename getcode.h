@@ -2,7 +2,7 @@
 #ifndef GETCODE_H
 #define GETCODE_H
 
-/* $Id: getcode.h,v 1.7 2007/08/30 09:19:57 hio Exp $ */
+/* $Id: getcode.h 4675 2007-08-30 09:20:04Z hio $ */
 
 #ifdef TEST
 #define DECL_MAP_MODE(name,num) const char* mode_##name[num]

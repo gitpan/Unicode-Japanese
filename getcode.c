@@ -1,5 +1,5 @@
 
-/* $Id: getcode.c,v 1.9 2007/09/07 10:10:18 hio Exp $ */
+/* $Id: getcode.c 4697 2007-09-14 06:17:00Z pho $ */
 
 #include "Japanese.h"
 #include "getcode.h"
@@ -294,7 +294,7 @@ static int getcode_list(SV* sv_str, CodeCheck* check)
     }
   }
 
-  /* check whether finished at valid state. */
+  /* check if we have stopped at a valid (final?) state */
   {
     int wr = 0;
     int i;

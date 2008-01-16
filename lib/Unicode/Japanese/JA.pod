@@ -12,7 +12,7 @@ Unicode::Japanese::JA - 日本語文字コード変換
  # convert utf8 -> sjis
  
  print Unicode::Japanese->new($str)->sjis;
- print unijp($str)->sjis; # same as avobe.
+ print unijp($str)->sjis; # same as above.
  
  # convert sjis -> utf8
  
@@ -22,7 +22,7 @@ Unicode::Japanese::JA - 日本語文字コード変換
  
  print Unicode::Japanese->new($str,'sjis-imode')->get;
  
- # convert ZENKAKU (utf8) -> HANKAKU (utf8)
+ # convert zenkaku (utf8) -> hankaku (utf8)
  
  print Unicode::Japanese->new($str)->z2h->get;
 
@@ -98,6 +98,33 @@ new, set, getcode メソッドの入力には, utf8-flaged/bytes を問いませ
 
 =back
 
+=head1 動作に必要なもの
+
+=over 4
+
+=item *
+
+
+
+perl 5.10.x, 5.8.x, etc. (5.005_03 以降).
+
+=item *
+
+
+
+(なくてもOK)
+C コンパイラ.
+このモジュールは XS と Pure Perl 両方に対応しています.
+
+=item *
+
+
+
+(なくてもOK)
+テスト用に Test.pm 及び Test::More.
+
+=back
+
 =head1 メソッド
 
 =over 4
@@ -120,7 +147,7 @@ Unicode::Janaese->new(...) と同義.
 
 =item $icode: 文字コード指定．省略可．省略時は 'utf8'
 
-=item $encode: 文字エンコード．省略可．
+=item $encode: バイナリ符号化方式．省略可．
 
 =back
 
@@ -141,11 +168,11 @@ Unicode::Janaese->new(...) と同義.
 'auto' 時の文字コード自動判別は，getcode() メソッドにより
 行われます．
 
-文字エンコードには，'base64' のみ指定可能です．
+バイナリ符号化方式には，'base64' のみ指定可能です．
 base64 を指定した場合は，base64 デコードされてから
-String クラスの文字列となります．
+Unicode::Japanese クラスの文字列となります．
 
-バイナリをデコードする場合は，文字エンコードタイプとして
+渡された文字列を変更せずそのまま格納して欲しい場合には，文字コードとして
 'binary' を指定します．
 
 sjis-imode，sjis-doti，の場合，文字列中の &#dddd; は
@@ -154,7 +181,7 @@ sjis-imode，sjis-doti，の場合，文字列中の &#dddd; は
 文字コードは領域が重なっている場合があるため，
 自動判別は確実ではありません．
 
-sjis, utt8 の両方に解釈できる文字列の場合は，sjis，
+sjis, utf8 の両方に解釈できる文字列の場合は，sjis，
 sjis-au，sjis-doti の両方に解釈できる文字列の場合は，sjis-au，
 を返します．
 
@@ -235,8 +262,9 @@ UTF-32LE として正しい形式なら，utf32-le と判定します．
 
 
 
-非 ASCII 文字が含まれていなければ， ascii と判定します．
-（非 ASCII 文字には，エスケープシーケンス以外のコントロールコードは含まれません．）
+ESC 文字 または 8 ビット目の立っている文字が含まれていなければ，ascii と判定しま
+す。ESC を除いた ASCII 制御文字 (0x00-0x1F 及び 0x7F) は ascii の範囲内と見做しま
+す。
 
 =item 6
 
@@ -362,8 +390,6 @@ UTF-16 は BOM がある場合のみ自動認識します．
 
 携帯絵文字は，バイナリで直接絵文字がある場合のみ認識できます．
  &#dddd; 形式で記述されている場合は，携帯絵文字の自動判別は行われません．
-（&#dddd; のみの場合，参照先が異なるため，その後 getcode() の結果を
-基に変換を行うと，絵文字が化けます．）
 
 =back
 
@@ -390,8 +416,6 @@ getcode とは違い, すべての受理可能な文字コードの
 
 =item $str = $s->conv($ocode, $encode)
 
-文字コードを変換します．
-
 =over 2
 
 =item $ocode: 出力コード ('utf8', 'euc', 'euc-jp', 'jis', 'sjis', 'cp932',
@@ -404,9 +428,8 @@ getcode とは違い, すべての受理可能な文字コードの
 携帯向け文字コードのうち，末尾に数字がついているものは，数字が大きいほど
 大きな絵文字セット（最新機種の絵文字セット）を表しています．
 数字なしのものは，もっとも数字が大きい文字コードと同一です．
-通常は数字なしの文字コードを指定してください．
 
-=item $encode: 文字エンコード．省略可．
+=item $encode: バイナリ符号化方式．省略可．
 
 =item $str: 文字列
 
@@ -491,7 +514,7 @@ $str: sjis エンコーディング形式のバイト列
 $str: sjis/imode絵文字 エンコーディング形式のバイト列
 
 文字列を i-mode 端末向けの SJIS コードで取り出します．
-最新のimode絵文字(imode2)の別名です.
+最新のimode絵文字の別名です.
 
 =item $str = $s->sjis_imode1
 
@@ -540,17 +563,17 @@ $str: sjis/AU iconタグ エンコーディング形式のバイト列
 
 文字列を AU 端末向けの SJIS コードで取り出します．
 
-=item @str = $s->strcut($len)
+=item $str_arrayref = $s->strcut($len)
 
 =over 2
 
-=item $len: 分割する文字数
+=item $len: 分割する文字数(全角相当)
 
-=item @STR: 文字列
+=item $str_arrayref: 文字列
 
 =back
 
-I<$len>で指定された文字数以下の文字列の配列に分割します．
+I<$len>で指定された文字数(全角)以下の文字列の配列に分割します．
 
 配列の各要素は, utf-8 フラグを持ったutf-8文字列です.
 
@@ -586,12 +609,12 @@ Unicode とのマッピングは以下のように行われます．
 
 =over 2
 
-=item SJIS
+=item Shift_JIS
 
 MS-CP932 として Unicode へマッピングを行います．
 マッピングテーブルは以下のURLのものを使用しています．
 
-ftp://ftp.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP932.TXT
+L<< ftp://ftp.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP932.TXT >>
 
 
 Unicode から SJIS へマッピングする場合に，表現できない文字があると，
@@ -600,7 +623,7 @@ Unicode から SJIS へマッピングする場合に，表現できない文字
 
 また，携帯向けの SJIS へ変換するときは，全ての表現できない文字は「?」に変換されます．
 
-=item EUC-JP/JIS
+=item EUC-JP/ISO-2022-JP
 
 一度SJISコードに変換してから，Unicode へマッピングします．
 このとき，SJIS で表現できない文字が含まれていた場合，
@@ -644,6 +667,13 @@ XSを使わないことを明示的に宣言できます.
 
 =head1 バグ
 
+バグや要望は C<bug-unicode-japanese at rt.cpan.org> 宛に
+報告してください. 若しくは
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Unicode-Japanese>.
+にある web インターフェースからでもかまいません.
+そこから私に通知され, そして私が変更を行うことで報告頂いたバグの進捗は
+自動的にあなたに伝わります.
+
 =over 2
 
 =item *
@@ -669,29 +699,6 @@ Japanese.pm はファイル後半にバイナリを含むため，FTP の ASCII 
 転送するとファイルが壊れます．
 
 =back
-
-=head1 作者情報
-
-Copyright 2001-2007
-SANO Taku (SAWATARI Mikage) and YAMASHINA Hio.
-All right reserved.
-
-
-This library is free software; you can redistribute it
-and/or modify it under the same terms as Perl itself.
-
-
-=head1 バグ
-
-バグ報告やコメントは mikage@cpan.org まで.
-よろしくお願いします.
-
-バグや要望は C<bug-unicode-japanese at rt.cpan.org> 宛に
-報告してください. 若しくは
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Unicode-Japanese>.
-にある web インターフェースからでもかまいません.
-そこから私に通知され, そして私が変更を行うことで報告頂いたバグの進捗は
-自動的にあなたに伝わります.
 
 =head1 サポート
 
@@ -738,7 +745,7 @@ SUGIURA Tatsuki & Debian JP Project
 
 =head1 著作権及びライセンス
 
-Copyright 2001-2007
+Copyright 2001-2008
 SANO Taku (SAWATARI Mikage) and YAMASHINA Hio,
 all rights reserved.
 

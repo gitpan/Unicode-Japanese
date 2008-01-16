@@ -2,7 +2,7 @@
 #ifndef UNICODE__JAPANESE_H__
 #define UNICODE__JAPANESE_H__
 
-/* $Id: Japanese.h,v 1.26 2006/07/03 01:23:13 hio Exp $ */
+/* $Id: Japanese.h 4653 2006-07-03 01:23:13Z hio $ */
 
 #if !defined(__cplusplus) && !defined(bool)
 #define bool char

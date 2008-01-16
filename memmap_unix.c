@@ -1,5 +1,5 @@
 
-/* $Id: memmap_unix.c,v 1.1 2005/08/05 05:22:03 hio Exp $ */
+/* $Id: memmap_unix.c 4599 2005-08-05 05:22:08Z hio $ */
 
 #include "Japanese.h"
 #include <unistd.h>   /* memmap */

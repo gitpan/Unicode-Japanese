@@ -1,5 +1,5 @@
 
-/* $Id: xs_test.c,v 1.2 2002/10/29 06:23:56 hio Exp $ */
+/* $Id: xs_test.c 4494 2002-10-29 06:23:58Z hio $ */
 
 #include "mediate.h"
 #include <unistd.h>   /* memmap */

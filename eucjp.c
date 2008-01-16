@@ -72,7 +72,7 @@ xs_sjis_eucjp(SV* sv_str)
     default:
       {
 #ifdef TEST
-	fprintf(stderr,"xs_sjis_eucjp, unknown check-code[%02x] on char-code[%05x]\n",chk_sjis[*src],*src);
+    fprintf(stderr,"xs_sjis_eucjp: invalid value [%02x] at chk_sjis[%05x]\n",chk_sjis[*src],*src);
 #endif
 	SV_Buf_append_ch(&result,*src);
 	++src;
@@ -197,7 +197,7 @@ xs_eucjp_sjis(SV* sv_str)
     default:
       {
 #ifdef TEST
-	fprintf(stderr,"xs_eucjp_sjis, unknown check-code[%02x] on char-code[%05x]\n",chk_sjis[*src],*src);
+	fprintf(stderr,"xs_eucjp_sjis, invalid value [%02x] at chk_sjis[%05x]\n",chk_sjis[*src],*src);
 #endif
       }
     } /*switch */

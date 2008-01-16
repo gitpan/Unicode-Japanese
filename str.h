@@ -1,7 +1,7 @@
 #ifndef UNICODE__JAPANESE__STR_H__
 #define UNICODE__JAPANESE__STR_H__
 
-/* $Id: str.h,v 1.13 2006/07/03 01:33:15 hio Exp $ */
+/* $Id: str.h 4654 2006-07-03 01:33:16Z hio $ */
 
 #ifndef UJ_UINT32
 #define UJ_UINT32 unsigned int

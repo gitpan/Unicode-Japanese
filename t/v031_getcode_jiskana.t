@@ -1,5 +1,5 @@
 #! /usr/bin/perl -w
-# $Id: v031_getcode_jiskana.t,v 1.1 2005/09/28 13:17:10 hio Exp $
+# $Id: v031_getcode_jiskana.t 4613 2005-09-28 13:17:10Z hio $
 use strict;
 use Test::More tests => 2;
 

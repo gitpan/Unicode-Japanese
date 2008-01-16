@@ -1,5 +1,9 @@
 Revision history for Perl extension Unicode::Japanese.
 
+-.-- --- --- -- --:--:-- --- ----
+    - Fixed enormous english error messages and documentation which were
+      grammatically incorrect or way too hard to be understood.
+
 0.44 Fri Sep 14 14:26:22 JST 2007
 	- fix, broken emoji convert on alpha cpu.
 	- fix, t/pod.t failed before perl 5.8.0.

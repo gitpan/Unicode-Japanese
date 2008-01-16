@@ -7,8 +7,8 @@ MANIFEST.noxs
 META.yml                                 Module meta-data (added by MakeMaker)
 Makefile.PL
 README
-SIGNATURE             you can verify with cpansign
-bin/ujconv            iconv like tool with Unicode::Japanese
+SIGNATURE             module signature; you can verify the module with cpansign
+bin/ujconv            iconv-like tool with Unicode::Japanese
 bin/ujguess           Unicode::Japanese による文字コード判定ツール
 conv.c                sjis<=>utf8 変換コード
 eucjp.c               sjis<=>eucjp 変換コード

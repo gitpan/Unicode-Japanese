@@ -1,5 +1,5 @@
 
-/* $Id: sjis_doti.c,v 1.9 2006/07/03 01:33:15 hio Exp $ */
+/* $Id: sjis_doti.c 4654 2006-07-03 01:33:16Z hio $ */
 
 #include "Japanese.h"
 #include <stdio.h>

@@ -4,7 +4,7 @@
  * ----------------------------------------------------------------------------
  * Mastering programed by YAMASHINA Hio
  * ----------------------------------------------------------------------------
- * $Id: conv.c,v 1.12 2006/09/05 05:56:20 hio Exp $
+ * $Id: conv.c 4697 2007-09-14 06:17:00Z pho $
  * ------------------------------------------------------------------------- */
 
 #ifdef _MSC_VER
@@ -39,7 +39,7 @@ typedef enum bool { false, true, } bool;
 
 /* ----------------------------------------------------------------------------
  * SV* sv_utf8 = xs_sjis_utf8(SV* sv_sjis)
- * convert sjis into utf8.
+ * convert string from sjis to utf8.
  * ------------------------------------------------------------------------- */
 EXTERN_C
 SV*
@@ -81,13 +81,13 @@ xs_sjis_utf8(SV* sv_str)
       ptr = (UJ_UINT8*)&g_s2u_table[(src[0]-0xa1)*3];
       ++src;
     }else if( src+1<src_end && 0x81<=src[0] && src[0]<=0x9f )
-    { /* a double-byte letter (ja:2バイト文字) */
+    { /* a two-bytes letter (ja:2バイト文字) */
       const UJ_UINT16 sjis = (src[0]<<8)+src[1]; /* ntohs */
       ECHO_U2S((stderr,"sjis.dbcs#1: %04x\n",sjis));
       ptr = (UJ_UINT8*)&g_s2u_table[(sjis - 0x8100 + 0x3f)*3];
       src += 2;
     }else if( src+1<src_end && 0xe0<=src[0] && src[0]<=0xfc )
-    { /* a double-byte letter (ja:2バイト文字) */
+    { /* a two-bytes letter (ja:2バイト文字) */
       const UJ_UINT16 sjis = (src[0]<<8)+src[1]; /* ntohs */
       ECHO_U2S((stderr,"sjis.dbcs#2: %04x\n",sjis));
       ptr = (UJ_UINT8*)&g_s2u_table[(sjis- 0xe000 + 0x1f3f)*3];
@@ -129,7 +129,7 @@ xs_sjis_utf8(SV* sv_str)
 
 /* ----------------------------------------------------------------------------
  * SV* sv_sjis = xs_utf8_sjis(SV* sv_utf8)
- * convert utf8 into sjis.
+ * convert from utf8 to sjis.
  * ------------------------------------------------------------------------- */
 EXTERN_C
 SV*
@@ -162,7 +162,7 @@ xs_utf8_sjis(SV* sv_str)
     
     if( *src<=0x7f )
     {
-      /* ascii chars sequence (ja:ASCIIはまとめて追加〜) */
+      /* append the block of contiguous ascii chars (ja:ASCIIはまとめて追加〜) */
       int len = 1;
       while( src+len<src_end && src[len]<=0x7f )
       {
@@ -175,21 +175,21 @@ xs_utf8_sjis(SV* sv_str)
     
     /* non-ascii */
     if( 0xe0<=*src && *src<=0xef )
-    { /* 3byte range. mostly enter here. */
+    { /* 3-bytes letters. most letters are 3-bytes. */
       const int       utf8_len = 3;
       const UJ_UINT32 ucs_min  = 0x800;
       const UJ_UINT32 ucs_max  = 0xffff;
       ECHO_U2S((stderr,"utf8-len: [%d]\n",utf8_len));
-      /* check length */
+      /* check the length */
       if( src+utf8_len<=src_end )
       { /* noop */
       }else
-      { /* no enough sequence */
+      { /* no enough space in the buffer */
         SV_Buf_append_ch(&result,'?');
         ++src;
         continue;
       }
-      /* check follow sequences */
+      /* check successive bytes */
       if( 0x80<=src[1] && src[1]<=0xbf && 0x80<=src[2] && src[2]<=0xbf )
       { /* noop */
       }else
@@ -199,7 +199,7 @@ xs_utf8_sjis(SV* sv_str)
         continue;
       }
       
-      /* compute code point */
+      /* compute the code point */
       ucs = ((src[0] & 0x0F)<<12)|((src[1] & 0x3F)<<6)|(src[2] & 0x3F);
       src += utf8_len;
       if( ucs_min<=ucs && ucs<=ucs_max )
@@ -216,16 +216,16 @@ xs_utf8_sjis(SV* sv_str)
       const UJ_UINT32 ucs_min  = 0x010000;
       const UJ_UINT32 ucs_max  = 0x10ffff;
       ECHO_U2S((stderr,"utf8-len: [%d]\n",utf8_len));
-      /* check length */
+      /* check the length */
       if( src+utf8_len<=src_end )
       { /* noop */
       }else
-      { /* no enough sequence */
+      { /* no enough space in the buffer */
         SV_Buf_append_ch(&result,'?');
         ++src;
         continue;
       }
-      /* check follow sequences */
+      /* check successive bytes */
       if( 0x80<=src[1] && src[1]<=0xbf && 0x80<=src[2] && src[2]<=0xbf
           && 0x80<=src[3] && src[3]<=0xbf )
       { /* noop */
@@ -236,7 +236,7 @@ xs_utf8_sjis(SV* sv_str)
         continue;
       }
       
-      /* compute code point */
+      /* compute the code point */
       ucs = ((src[0] & 0x07)<<18)|((src[1] & 0x3F)<<12)|
         ((src[2] & 0x3f) << 6)|(src[3] & 0x3F);
       src += utf8_len;
@@ -247,14 +247,14 @@ xs_utf8_sjis(SV* sv_str)
         SV_Buf_append_ch(&result,'?');
         continue;
       }
-      /* private area: block emoji */ 
+      /* private area (emoji) */ 
       if( 0x0f0000<=ucs && ucs<=0x0fffff )
       { 
         SV_Buf_append_ch(&result,'?');
         continue;
       }
       
-      /* > U+10FFFF not supported by UTF-8 (RFC 3629). */
+      /* > U+10FFFF isn't representable in UTF-8 (RFC 3629). */
       if( ucs>0x10FFFF )
       {
         SV_Buf_append_ch(&result,'?');
@@ -266,11 +266,11 @@ xs_utf8_sjis(SV* sv_str)
       const UJ_UINT32 ucs_min  =  0x80;
       const UJ_UINT32 ucs_max  = 0x7ff;
       ECHO_U2S((stderr,"utf8-len: [%d]\n",utf8_len));
-      /* check length */
+      /* check the length */
       if( src+utf8_len<=src_end )
       { /* noop */
       }else
-      { /* no enough sequence */
+      { /* no enough space in the buffer */
         SV_Buf_append_ch(&result,'?');
         ++src;
         continue;
@@ -285,7 +285,7 @@ xs_utf8_sjis(SV* sv_str)
         continue;
       }
       
-      /* compute code point */
+      /* compute the code point */
       ucs = ((src[0] & 0x1F)<<6)|(src[1] & 0x3F);
       src += utf8_len;
       if( ucs_min<=ucs && ucs<=ucs_max )
@@ -301,16 +301,16 @@ xs_utf8_sjis(SV* sv_str)
     {
       const int          utf8_len = 5;
       ECHO_U2S((stderr,"utf8-len: [%d]\n",utf8_len));
-      /* check length */
+      /* check the length */
       if( src+utf8_len<=src_end )
       { /* noop */
       }else
-      { /* no enough sequence */
+      { /* no enough space in the buffer */
         SV_Buf_append_ch(&result,'?');
         ++src;
         continue;
       }
-      /* check follow sequences */
+      /* check successive bytes */
       if( 0x80<=src[1] && src[1]<=0xbf && 0x80<=src[2] && src[2]<=0xbf
           && 0x80<=src[3] && src[3]<=0xbf && 0x80<=src[4] && src[4]<=0xbf )
       { /* noop */
@@ -321,8 +321,8 @@ xs_utf8_sjis(SV* sv_str)
         continue;
       }
       
-      /* compute code point */
-      /* > U+10FFFF not supported by UTF-8 (RFC 3629). */
+      /* compute the code point */
+      /* > U+10FFFF isn't representable in UTF-8 (RFC 3629). */
       src += utf8_len;
       SV_Buf_append_ch(&result,'?');
       continue;
@@ -330,16 +330,16 @@ xs_utf8_sjis(SV* sv_str)
     {
       const int          utf8_len = 6;
       ECHO_U2S((stderr,"utf8-len: [%d]\n",utf8_len));
-      /* check length */
+      /* check the length */
       if( src+utf8_len<=src_end )
       { /* noop */
       }else
-      { /* no enough sequence */
+      { /* no enough space in the buffer */
         SV_Buf_append_ch(&result,'?');
         ++src;
         continue;
       }
-      /* check follow sequences */
+      /* check successive bytes */
       if( 0x80<=src[1] && src[1]<=0xbf && 0x80<=src[2] && src[2]<=0xbf
           && 0x80<=src[3] && src[3]<=0xbf && 0x80<=src[4] && src[4]<=0xbf
           && 0x80<=src[5] && src[5]<=0xbf )
@@ -351,8 +351,8 @@ xs_utf8_sjis(SV* sv_str)
         continue;
       }
       
-      /* compute code point */
-      /* > U+10FFFF not supported by UTF-8 (RFC 3629). */
+      /* compute the code point */
+      /* > U+10FFFF isn't representable in UTF-8 (RFC 3629). */
       src += utf8_len;
       SV_Buf_append_ch(&result,'?');
       continue;
@@ -379,7 +379,7 @@ xs_utf8_sjis(SV* sv_str)
       sjis_ptr = char_null; /* "\0\0" */
     }
     if( sjis_ptr[0]!=0 || sjis_ptr[1]!=0 )
-    { /* mapping dest exists. */
+    { /* this letter can actually be mapped. */
       if( sjis_ptr[1]!=0 )
       {
         SV_Buf_append_mem(&result, sjis_ptr, 2);

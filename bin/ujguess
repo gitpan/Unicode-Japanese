@@ -6,7 +6,7 @@
 #
 # Copyright 2005 YAMASHINA Hio
 # -----------------------------------------------------------------------------
-# $Id: ujguess,v 1.3 2007/01/16 02:01:36 hio Exp $
+# $Id: ujguess 4697 2007-09-14 06:17:00Z pho $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::UJGuess;
 use strict;
@@ -110,10 +110,10 @@ sub print_usage
 {
   print "usage: ujguess [options] [files...]\n";
   print "options:\n";
-  print "  --no-filename    print only encoding name\n";
-  print "  --show-filename  print both filename and encoding name\n";
+  print "  --no-filename    print only the name of character set\n";
+  print "  --show-filename  print both names of the file and character set\n";
   print "  -h|--help        print this message\n";
-  print "  -V|--version     print version\n";
+  print "  -V|--version     print the version of ujguess\n";
 }
 
 # -----------------------------------------------------------------------------
@@ -130,7 +130,7 @@ __END__
 
 =head1 NAME
 
-ujguess -- guessing text encoding
+ujguess -- Guess encoding of given files
 
 =head1 SYNOPSIS
 
@@ -142,27 +142,27 @@ ujguess 0.02
 
 =head1 DESCRIPTION
 
-B<ujguess> guesses encoding of contens.
+B<ujguess> guesses encoding of given files.
 
 =over 4
 
 =item --no-filename
 
-Not prepend file name with each result.
-This is default if just one file is passed.
+Don't prepend file name to each results.
+This is the default behavior if there is just one file to be processed.
 
 =item --show-filename
 
-Prepend file name with each result.
-This is default if two or more files are passed.
+Prepend file name to each results.
+This is the default behavior if there are two or more files to be processed.
 
 =item -h,--help
 
-Show usage.
+Print a short help message.
 
 =item -V,--version
 
-Show version.
+Print the version of B<ujguess>.
 
 =back
 

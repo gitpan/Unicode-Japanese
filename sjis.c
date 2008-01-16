@@ -1,5 +1,5 @@
 
-/* $Id: sjis.c,v 1.2 2005/02/17 02:22:09 hio Exp $ */
+/* $Id: sjis.c 4544 2005-02-17 02:22:09Z hio $ */
 
 #include "sjis.h"
 
