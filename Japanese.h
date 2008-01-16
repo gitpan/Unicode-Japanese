@@ -2,7 +2,7 @@
 #ifndef UNICODE__JAPANESE_H__
 #define UNICODE__JAPANESE_H__
 
-/* $Id: Japanese.h 4653 2006-07-03 01:23:13Z hio $ */
+/* $Id: Japanese.h 5228 2008-01-16 08:52:26Z hio $ */
 
 #if !defined(__cplusplus) && !defined(bool)
 #define bool char
@@ -148,5 +148,22 @@ extern UJ_UINT8 const* g_s2u_table;
 #define PL_sv_undef sv_undef
 #endif
 #endif /* UNIJP__PERL_OLDER_THAN_5_005 */
+
+/* for 5.005_xx */
+#ifndef call_pv
+#define call_pv perl_call_pv
+#endif
+#ifndef eval_pv
+#define eval_pv perl_eval_pv
+#endif
+#ifndef get_sv
+#define get_sv perl_get_sv
+#endif
+
+/* for 5.004_xx */
+#ifndef PL_na
+#define PL_na UNIJP_PL_na
+static STRLEN UNIJP_PL_na;
+#endif
 
 #endif /* UNICODE__JAPANESE_H__ */

@@ -1,7 +1,7 @@
 ## ----------------------------------------------------------------------------
 # t/emoji.t
 # -----------------------------------------------------------------------------
-# $Id: emoji.t 4673 2007-08-30 07:42:46Z mikage $
+# $Id: emoji.t 5221 2008-01-16 06:56:15Z hio $
 # -----------------------------------------------------------------------------
 
 use strict;
@@ -15,8 +15,9 @@ use Unicode::Japanese qw(no_I18N_Japanese);
 use lib 't';
 require 'esc.pl';
 
-our $STR = Unicode::Japanese->new();
-our $PPSTR = Unicode::Japanese::PurePerl->new();
+use vars qw($STR $PPSTR);
+$STR = Unicode::Japanese->new();
+$PPSTR = Unicode::Japanese::PurePerl->new();
 if( !-e 't/pureperl.flag' && $Unicode::Japanese::xs_loaderror )
 {
   print STDERR "xs load error : [$Unicode::Japanese::xs_loaderror]\n";

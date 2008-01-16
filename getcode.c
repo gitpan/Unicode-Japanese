@@ -1,5 +1,5 @@
 
-/* $Id: getcode.c 4697 2007-09-14 06:17:00Z pho $ */
+/* $Id: getcode.c 5234 2008-01-16 09:45:32Z hio $ */
 
 #include "Japanese.h"
 #include "getcode.h"
@@ -9,7 +9,22 @@
 #define dAX I32 ax = MARK - PL_stack_base + 1
 #endif
 
+#define PERL_PATCHLEVEL_H_IMPLICIT
+#include "patchlevel.h"
+#if PATCHLEVEL == 4
+/* 5.004 */
+#define PL_stack_base Perl_stack_base
+extern SV ** PL_stack_base;
+#endif
+
 #define GC_DISP 0
+
+#ifndef __cplusplus
+#undef bool
+#undef true
+#undef false
+typedef enum bool { false, true, } bool;
+#endif
 
 /* 文字コード定数 */
 enum charcode_t
@@ -185,7 +200,7 @@ struct CodeResult
 };
 typedef struct CodeResult CodeResult;
 
-static int _is_acceptable_state(const CodeCheck* check)
+static bool _is_acceptable_state(const CodeCheck* check)
 {
   /* special cases. */
   if( check->table==map_jis_jsky[11] )

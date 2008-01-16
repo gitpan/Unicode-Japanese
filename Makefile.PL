@@ -3,15 +3,14 @@
 # -----------------------------------------------------------------------------
 # Makefile.PL for Unicode-Japanese.
 # -----------------------------------------------------------------------------
-# $Id: Makefile.PL 4697 2007-09-14 06:17:00Z pho $
+# $Id: Makefile.PL 5235 2008-01-16 09:46:12Z hio $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::MakeMaker;
 
 use strict;
 use ExtUtils::Manifest;
 use ExtUtils::MakeMaker;
-use ExtUtils::Embed;
-use File::Spec;
+#use File::Spec; # not included in perl-5.004.
 use inc::ExtUtils::MY_Metafile qw(my_metafile);
 
 my $MANIFEST_bak = $ExtUtils::Manifest::MANIFEST;
@@ -138,9 +137,8 @@ sub configure
   {
     # compilation check.
     use Config;
-    use ExtUtils::Embed;
     my $cc = exists $argv{CC} ? $argv{CC} : $Config{cc};
-    my $ccopts = exists $argv{CCFLAGS} ? $argv{CCFLAGS} : exists $param_xs{CCFLAGS} ? $param_xs{CCFLAGS} : ExtUtils::Embed::ccopts();
+    my $ccopts = exists $argv{CCFLAGS} ? $argv{CCFLAGS} : exists $param_xs{CCFLAGS} ? $param_xs{CCFLAGS} : ccopts();
     
     my $xstest_src = $^O eq 'MSWin32' ? 'memmap_win32.c' : 'memmap_unix.c';
     my $xstest_out = $^O eq 'MSWin32' ? 'memmap_win32.obj' : 'memmap_unix.o';
@@ -194,7 +192,14 @@ sub configure
         print " >> compilation failed. exit status: $rc\n";
         return disableXS();
       }
-      $cmd = File::Spec->catfile(".",$xstest_out);
+      if( eval{ require File::Spec; 1; } )
+      {
+        my $curdir = File::Spec->curdir();
+        $cmd = File::Spec->catfile($curdir, $xstest_out);
+      }else
+      {
+        $cmd = "./$xstest_out";
+      }
       my @list  = `$cmd`;
       if( $? )
       {
@@ -314,6 +319,13 @@ EOF
 
 # --------------------------------------------------------------------
 # misc.
+
+sub ccopts
+{
+  # ExtUtils::Embed::ccopts in perl-5.004 always print the result.
+  my $ccopts = `$^X -MExtUtils::Embed -e ccopts`;
+  $ccopts;
+}
 
 sub add_ccflags
 {

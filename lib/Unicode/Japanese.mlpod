@@ -160,10 +160,14 @@ perl 5.10.x, 5.8.x, etc. (5.005_03 以降).
 (optional)
 C Compiler.
 This module supports both XS and Pure Perl.
+If you have no C Compilers,
+Unicode::Japanese will be installed as Pure Perl module.
 J<< ja;
 (なくてもOK)
 C コンパイラ.
 このモジュールは XS と Pure Perl 両方に対応しています.
+C コンパイラがないときには, Unicode::Japanese は
+Pure Perl モジュールとしてインストールされます.
 >>
 
 =item *

@@ -115,6 +115,8 @@ perl 5.10.x, 5.8.x, etc. (5.005_03 以降).
 (なくてもOK)
 C コンパイラ.
 このモジュールは XS と Pure Perl 両方に対応しています.
+C コンパイラがないときには, Unicode::Japanese は
+Pure Perl モジュールとしてインストールされます.
 
 =item *
 

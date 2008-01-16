@@ -5,11 +5,11 @@
 #
 # Copyright 2006 YAMASHINA Hio
 # -----------------------------------------------------------------------------
-# $Id: MY_Metafile.pm 571 2007-11-29 04:33:45Z hio $
+# $Id: MY_Metafile.pm 5219 2008-01-16 06:54:15Z hio $
 # -----------------------------------------------------------------------------
 package ExtUtils::MY_Metafile;
 use strict;
-use warnings;
+#use warnings; # warnings was first released with perl 5.006
 use ExtUtils::MakeMaker;
 
 use vars qw($VERSION @EXPORT %META_PARAMS $DIAG_VERSION $DEFAULT_META_SPEC_VERSION);
