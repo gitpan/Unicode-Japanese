@@ -1,5 +1,5 @@
 
-/* $Id: sjis_imode1.c 4654 2006-07-03 01:33:16Z hio $ */
+/* $Id: sjis_imode1.c 5246 2008-01-17 08:47:46Z hio $ */
 
 #include "Japanese.h"
 #include <stdio.h>
@@ -106,9 +106,14 @@ xs_sjis_imode1_utf8(SV* sv_str)
       const UJ_UINT32* ptr32;
       ECHO_S2U((stderr,"code: %02x %02x\n", src[0],src[1]));
       ptr32 = &g_ei2u1_table[((src[0]&1)<<8)|src[1]];
-      if( *ptr32!=0 )
+      if( ((char*)ptr32)[3]!=0 )
       {
-        SV_Buf_append_ch4(&result,*ptr32);
+        SV_Buf_append_ch4(&result, *ptr32);
+        src += 2;
+        continue;
+      }else if( *ptr32 )
+      {
+        SV_Buf_append_mem(&result, ptr32, strlen((char*)ptr32));
         src += 2;
         continue;
       }else

@@ -40,9 +40,10 @@ t/0.loadxs.t
 t/00-load.t
 t/allchar_utf8.pl
 t/base.t
-t/emoji.t
+t/emoji-imode-utf8.t
 t/emoji-jsky-chopped.t
 t/emoji-jsky-utf8.t
+t/emoji.t
 t/esc.pl              制御文字をエスケープする関数. t/*.t 用.
 t/fromutf8.t
 t/getcode.t
@@ -64,7 +65,10 @@ t/util.t
 t/v031_getcode_jiskana.t
 t/v038_guess_imode2.t
 t/v041_sjisau.t
+t/v045_getcode_doti.t
+t/v045_imodexs.t
 t/verify_sjis_ucs2.pl
+t/wavedash.t
 t/z2h.t
 ucs2_utf8.c
 utf16.c

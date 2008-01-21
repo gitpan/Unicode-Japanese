@@ -14,40 +14,40 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 16a584c5a07b839945ea5b168d5d42d52edf727c Changes
+SHA1 60d4e1d06f25dfc3c3d9c701ad364c9196084fcf Changes
 SHA1 bf474b813127b07628ac7c62d5f96823c0ab6d1d Japanese.h
 SHA1 05648216eedbb5ef9d32a8d734b45567db642b90 Japanese.xs
-SHA1 b1e1eca0eecac28fb3379610f69c18c8250dc599 MANIFEST
+SHA1 62097a0515424923370864df2ccbf618629a3d06 MANIFEST
 SHA1 0edcc56e470bd78f377ee06dc42e899f15a1b8fc MANIFEST.en
 SHA1 ad151c6cb4b374a73bc8f914ad3af27774c90e00 MANIFEST.noxs
-SHA1 ebe2dba8ff94accf4653e7df097f973dd5978f22 META.yml
+SHA1 990aea950fdeeb8946ce5651d807a6966e2b0153 META.yml
 SHA1 c2673ed2bb2735dea32f56158b6e22a4335abf7f Makefile.PL
 SHA1 8d6ff82969698abdfbe499497f34b2c79cb8d32e README
 SHA1 0cf078b78ca37b390bd4366d4b4ff07bd088bb3c bin/ujconv
 SHA1 349482b02308360ef16301308bc7c0b83a7e63f5 bin/ujguess
 SHA1 89d330a6aef41d5deed2f4493dd335a7b974a66d conv.c
 SHA1 93ade81b713ee33d5ba79b1b91ddbce3da5c2667 eucjp.c
-SHA1 f3e8e03e50b37923b163c324fa7dbcfb53a07466 getcode.c
+SHA1 979ec8a59d920c5ed08a26b36c53b7c0e9714bba getcode.c
 SHA1 03ad986c53a11e79ef517e80b197f97884871ba0 getcode.h
-SHA1 06368bfcff609ca5980f5af33bd0dec84a1e3932 getcode_map.c
+SHA1 d417c2414406282f062c61b0bbbebb9c460b2579 getcode_map.c
 SHA1 c4c840f2f85dfaad39032429e86cc5d4ea707822 hints/MSWin32.pl
 SHA1 557f2ede42f57b21717760fabbfffcc14988de6c hints/freebsd.pl
 SHA1 e324966e955fa89e7ab9002386c9d415e0df8e5a hints/linux.pl
 SHA1 968c48aa9b0b989fd9f647187b54829fbf093a08 hints/solaris.pl
 SHA1 b54729e4ce5de2e2ef2884bc712de8b5108e4a35 hints/sunos.pl
-SHA1 eecc7f85537b8f3561a6a6b57026abf96fd74056 inc/ExtUtils/MY_Metafile.pm
+SHA1 a3ceec01d49ca8481a63f6b2863de1323c306191 inc/ExtUtils/MY_Metafile.pm
 SHA1 9e5f2c8a07caf886c8f30d4e2718536ca31b1510 jis.c
-SHA1 71d946d5b75fd86f406687cedc9a277436ec97f3 lib/Unicode/Japanese.mlpod
-SHA1 2d9de07b33bd9e437f4938dcfdd6a6c623943676 lib/Unicode/Japanese.pm
-SHA1 a62c1d41abf0614238ff88113488a68ae5ced9ab lib/Unicode/Japanese/JA.pod
+SHA1 a875caa7d98b9fb38bddf47739d69e0c707c2a23 lib/Unicode/Japanese.mlpod
+SHA1 e703b3f959d26a34cdb36f657a66521b84c52c75 lib/Unicode/Japanese.pm
+SHA1 4059fc30c0b77eb705b3319d65059c410cd537af lib/Unicode/Japanese/JA.pod
 SHA1 3cf4c56370546c490d3938ef2ba6a5eb6a20adc1 memmap_common.c
 SHA1 4e31b7013d2d6781386ae77e30c0743f3c2ff709 memmap_unix.c
 SHA1 8f11a65faed0e27e600a454b4d69e01a5571765d memmap_win32.c
 SHA1 0a5c01bbc5eaf8f8983992a4fc5f662fd4749f3f sjis.c
 SHA1 b1a79e3579b329c96347724a93bf617947002aae sjis.h
 SHA1 83b891d154ddb180a938bf55e06a46d6f638fce0 sjis_doti.c
-SHA1 b8245f83b621271407cd4af48613245377c45cba sjis_imode1.c
-SHA1 cf9e0c4b39820b17169f7f48ebc69e9c59e7ebd8 sjis_imode2.c
+SHA1 6be8401237cf4156f6ae4684b24ee72b48fc8ec0 sjis_imode1.c
+SHA1 5bd70068feba05a14f96b2847afd8351a63240db sjis_imode2.c
 SHA1 c8614225e8c1bb26f47473e874c72b93b5269210 sjis_jsky1.c
 SHA1 311b83654d015b17edb54ed046be240001eaa367 sjis_jsky2.c
 SHA1 7670733c41c827f761cfaf4cfa4b803e97642208 str.h
@@ -55,6 +55,7 @@ SHA1 af5790509c718ac3f8bcc5648c26bec27b4c1a08 t/0.loadxs.t
 SHA1 a7c3dd1d7f86781a24a56f2fb2766dfd0b88d0b0 t/00-load.t
 SHA1 bde3c1c70fe3ebd850ab392a7a9007d60acb371b t/allchar_utf8.pl
 SHA1 1d721dfde6eb2313c539312c2f98ab70fdd03dc8 t/base.t
+SHA1 ca6406227a96eebd7377a626214996a5ad67edca t/emoji-imode-utf8.t
 SHA1 488077dd44c4680c30bbde2fb8404ae888f1a439 t/emoji-jsky-chopped.t
 SHA1 07e4e7873122a5351a5eb457c216be5b8a743030 t/emoji-jsky-utf8.t
 SHA1 8e16aeeced8e53ee93b0d3e86792a33639cea8bc t/emoji.t
@@ -79,7 +80,10 @@ SHA1 0f6f939aaf0a9b63b2d9d9f2708e487c606a6447 t/util.t
 SHA1 988b33eef21abc215e3358f9da15dc3a82f9e282 t/v031_getcode_jiskana.t
 SHA1 2fae07d96cdb0a32d063c0b9b4309e9cb9765e75 t/v038_guess_imode2.t
 SHA1 4c7e0dae4166184d19e38d71fb213d6fb440ec77 t/v041_sjisau.t
+SHA1 cd396bc78a3cdc245ec7098b1dee780b590a4afa t/v045_getcode_doti.t
+SHA1 ba97c7547658d0254690101be99f77871ab03b6e t/v045_imodexs.t
 SHA1 13f4e49b7772da4ea39e21a7164335f1eecbd3dd t/verify_sjis_ucs2.pl
+SHA1 05b221a973bb2df67ac205e9d30f68f9923ade5d t/wavedash.t
 SHA1 44895dce947f98f2d42e6c927149f3aeb053a042 t/z2h.t
 SHA1 723bebc02ecfd8a5b751ae09ee2d1f3b42390e20 ucs2_utf8.c
 SHA1 8ce079722c1395877bb59b82317ce10dc608818d utf16.c
@@ -89,7 +93,7 @@ SHA1 f065f2f01a183562f858c0c4e283a13e07d8cd74 xs_test.c
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFHjdinewjCT38k4dkRAu1FAJ0SOi9JvgJdHDpOp3zDPnDmTmCh7QCfSmgx
-6mv9IyScKOXSxvA1M7JER2w=
-=wAHw
+iD8DBQFHlFo+ewjCT38k4dkRAihNAJ9a8iqkvPEgF7Um74B4usutd65Y/QCeIivR
+U6eV7rI1RE2QxTcyoBDxcpE=
+=trzS
 -----END PGP SIGNATURE-----

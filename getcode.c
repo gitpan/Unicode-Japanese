@@ -1,5 +1,5 @@
 
-/* $Id: getcode.c 5234 2008-01-16 09:45:32Z hio $ */
+/* $Id: getcode.c 5277 2008-01-21 08:11:28Z hio $ */
 
 #include "Japanese.h"
 #include "getcode.h"
@@ -9,12 +9,19 @@
 #define dAX I32 ax = MARK - PL_stack_base + 1
 #endif
 
-#define PERL_PATCHLEVEL_H_IMPLICIT
 #include "patchlevel.h"
-#if PATCHLEVEL == 4
+
+#if !defined(PERL_VERSION)  && defined(PATCHLEVEL)
+/* 5.005_xx and prior */
+#define PERL_REVISION   5
+#define PERL_VERSION    PATCHLEVEL
+#define PERL_SUBVERSION SUBVERSION
+#endif
+
+#if PERL_VERSION <= 4 && !defined(PL_stack_base)
 /* 5.004 */
+extern SV ** Perl_stack_base;
 #define PL_stack_base Perl_stack_base
-extern SV ** PL_stack_base;
 #endif
 
 #define GC_DISP 0
@@ -42,9 +49,9 @@ enum charcode_t
   cc_utf32_be,
   cc_utf32_le,
   cc_sjis_jsky,
+  cc_sjis_au,
   cc_sjis_imode,
   cc_sjis_doti,
-  cc_sjis_au,
   cc_last,
 };
 typedef enum charcode_t charcode_t;

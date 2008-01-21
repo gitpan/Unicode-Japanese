@@ -1,8 +1,13 @@
 Revision history for Perl extension Unicode::Japanese.
 
--.-- --- --- -- --:--:-- --- ----
+0.45 Mon Jan 21 17:32:36 JST 2008
     - Fixed enormous english error messages and documentation which were
       grammatically incorrect or way too hard to be understood.
+    - fix, old perl compatibility (now available on perl-5.004 and later).
+    - add, utf8-imode encoding.
+    - fix, null chars were show when input is invalid sjis-imode.
+    - fix, guess ordering on xs (imode-doti-au => au-imode-doti to comform to doing on pp)
+    - fix, some doti text was guessed as au text on pp mode when it begin with au text.
 
 0.44 Fri Sep 14 14:26:22 JST 2007
 	- fix, broken emoji convert on alpha cpu.

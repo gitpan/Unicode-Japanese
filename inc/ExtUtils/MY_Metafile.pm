@@ -5,7 +5,7 @@
 #
 # Copyright 2006 YAMASHINA Hio
 # -----------------------------------------------------------------------------
-# $Id: MY_Metafile.pm 5219 2008-01-16 06:54:15Z hio $
+# $Id: MY_Metafile.pm 5247 2008-01-17 08:56:01Z hio $
 # -----------------------------------------------------------------------------
 package ExtUtils::MY_Metafile;
 use strict;
@@ -29,7 +29,8 @@ $DEFAULT_META_SPEC_VERSION = '1.3';
 #
 sub inc::ExtUtils::MY_Metafile::import
 {
-	push(@inc::ExtUtils::MY_Metafile::ISA, __PACKAGE__);
+	my $pkg = 'ExtUtils::MY_Metafile';
+	push(@inc::ExtUtils::MY_Metafile::ISA, $pkg);
 	goto &import;
 }
 

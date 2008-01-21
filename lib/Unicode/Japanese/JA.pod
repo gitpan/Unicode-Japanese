@@ -106,7 +106,7 @@ new, set, getcode メソッドの入力には, utf8-flaged/bytes を問いませ
 
 
 
-perl 5.10.x, 5.8.x, etc. (5.005_03 以降).
+perl 5.10.x, 5.8.x, etc. (5.004 以降).
 
 =item *
 
@@ -127,6 +127,8 @@ Pure Perl モジュールとしてインストールされます.
 
 =back
 
+実行時に必須なモジュールはありません.
+
 =head1 メソッド
 
 =over 4
@@ -137,7 +139,7 @@ Pure Perl モジュールとしてインストールされます.
 
 パラメータを指定すると，set メソッドに渡されます．
 
-=item unijp($str [, $icode [, $encode]])
+=item $s = unijp($str [, $icode [, $encode]])
 
 Unicode::Janaese->new(...) と同義.
 
@@ -156,15 +158,29 @@ Unicode::Janaese->new(...) と同義.
 インスタンスに文字列をセットします．
 文字コード指定を省略すると UTF-8 と見なされます．
 
-文字コードを指定する場合は，
-'auto', 'utf8', 'ucs2', 'ucs4', 'utf16-be', 'utf16-le', 'utf16',
-'utf32-be', 'utf32-le', 'utf32', 'jis', 'euc', 'euc-jp',
-'sjis', 'cp932', 'sjis-imode', 'sjis-imode1', 'sjis-imode2',
-'sjis-doti', 'sjis-doti1', 'sjis-jsky', 'sjis-jsky1', 'sjis-jsky2',
-'jis-jsky', 'jis-jsky1', 'jis-jsky2', 'jis-au', 'jis-au1', 'jis-au2',
-'sjis-au', 'sjis-au1', 'sjis-au2', 'sjis-icon-au', 'sjis-icon-au1', 'sjis-icon-au2', 
-'euc-icon-au', 'euc-icon-au1', 'euc-icon-au2', 'jis-icon-au', 'jis-icon-au1', 'jis-icon-au2',
-'utf8-icon-au', 'utf8-icon-au1', 'utf8-icon-au2', 'ascii', 'binary'
+利用可能な文字コード:
+
+ auto
+ utf8 ucs2 ucs4
+ utf16-be utf16-le utf16
+ utf32-be utf32-le utf32
+ sjis cp932 euc euc-jp jis
+ sjis-imode sjis-imode1 sjis-imode2
+ utf8-imode utf8-imode1 utf8-imode2
+ sjis-doti sjis-doti1
+ sjis-jsky sjis-jsky1 sjis-jsky2
+ jis-jsky  jis-jsky1  jis-jsky2
+ utf8-jsky utf8-jsky1 utf8-jsky2
+ sjis-au sjis-au1 sjis-au2
+ jis-au  jis-au1  jis-au2
+ sjis-icon-au sjis-icon-au1 sjis-icon-au2
+ euc-icon-au  euc-icon-au1  euc-icon-au2
+ jis-icon-au  jis-icon-au1  jis-icon-au2
+ utf8-icon-au utf8-icon-au1 utf8-icon-au2
+ ascii binary
+
+(L<|/サポートされているエンコーディング>
+も参照.)
 
 文字コードを自動判別する場合は，'auto' を指定しなくてはいけません．
 'auto' 時の文字コード自動判別は，getcode() メソッドにより
@@ -292,27 +308,31 @@ EUC-JP コードとして正しい形式なら，euc と判定します．
 
 SJIS コードとして正しい形式なら，sjis と判定します．
 
-SJIS コードと au の絵文字として正しい形式なら，sjis-au と判定します．
-
 =item 10
 
 
 
-SJIS と i-mode の絵文字として正しい形式なら，sjis-imode と判別します．
+SJIS コードと au の絵文字として正しい形式なら，sjis-au と判定します．
 
 =item 11
 
 
 
-SJIS と dot-i の絵文字として正しい形式なら，sjis-doti と判別します．
+SJIS と i-mode の絵文字として正しい形式なら，sjis-imode と判別します．
 
 =item 12
 
 
 
-UTF-8 として正しい形式なら，utf8 と判定します．
+SJIS と dot-i の絵文字として正しい形式なら，sjis-doti と判別します．
 
 =item 13
+
+
+
+UTF-8 として正しい形式なら，utf8 と判定します．
+
+=item 14
 
 
 
@@ -420,12 +440,26 @@ getcode とは違い, すべての受理可能な文字コードの
 
 =over 2
 
-=item $ocode: 出力コード ('utf8', 'euc', 'euc-jp', 'jis', 'sjis', 'cp932',
-'sjis-imode', 'sjis-imode1', 'sjis-imode2', 'sjis-doti', 'sjis-doti1', 'sjis-jsky', 'sjis-jsky1', 'sjis-jsky2',
-'jis-jsky', 'jis-jsky1', 'jis-jsky2', 'jis-au', 'jis-au1', 'jis-au2', 'sjis-au', 'sjis-au1', 'sjis-au2',
-'sjis-icon-au', 'sjis-icon-au1', 'sjis-icon-au2', 'euc-icon-au', 'euc-icon-au1', 'euc-icon-au2',
-'jis-icon-au', 'jis-icon-au1', 'jis-icon-au2', 'utf8-icon-au', 'utf8-icon-au1', 'utf8-icon-au2',
-'ucs2', 'ucs4', 'utf16', 'binary'), の中から指定．)
+=item $ocode: 出力コード (以下から指定)
+
+ utf8 ucs2 ucs4 utf16
+ sjis cp932 euc euc-jp jis
+ sjis-imode sjis-imode1 sjis-imode2
+ utf8-imode utf8-imode1 utf8-imode2
+ sjis-doti sjis-doti1
+ sjis-jsky sjis-jsky1 sjis-jsky2
+ jis-jsky  jis-jsky1  jis-jsky2
+ utf8-jsky utf8-jsky1 utf8-jsky2
+ sjis-au sjis-au1 sjis-au2
+ jis-au  jis-au1  jis-au2
+ sjis-icon-au sjis-icon-au1 sjis-icon-au2
+ euc-icon-au  euc-icon-au1  euc-icon-au2
+ jis-icon-au  jis-icon-au1  jis-icon-au2
+ utf8-icon-au utf8-icon-au1 utf8-icon-au2
+ binary
+
+(L<|/サポートされているエンコーディング>
+も参照.)
 
 携帯向け文字コードのうち，末尾に数字がついているものは，数字が大きいほど
 大きな絵文字セット（最新機種の絵文字セット）を表しています．
@@ -604,6 +638,91 @@ UTF-8 文字に対して length() を使うと全角文字は１文字あたり�
 binary だったときはバイト列を返します.
 
 =back
+
+=head1 サポートされているエンコーディング
+
+ +---------------+----+-----+-------+
+ |encoding       | in | out | guess |
+ +---------------+----+-----+-------+
+ |auto           : OK : --  | ----- |
+ +---------------+----+-----+-------+
+ |utf8           : OK : OK  | OK    |
+ |ucs2           : OK : OK  | ----- |
+ |ucs4           : OK : OK  | ----- |
+ |utf16-be       : OK : --  | ----- |
+ |utf16-le       : OK : --  | ----- |
+ |utf16          : OK : OK  | OK(#) |
+ |utf32-be       : OK : --  | OK    |
+ |utf32-le       : OK : --  | OK    |
+ |utf32          : OK : --  | OK(#) |
+ +---------------+----+-----+-------+
+ |sjis           : OK : OK  | OK    |
+ |cp932          : OK : OK  | ----- |
+ |euc            : OK : OK  | OK    |
+ |euc-jp         : OK : OK  | ----- |
+ |jis            : OK : OK  | OK    |
+ +---------------+----+-----+-------+
+ |sjis-imode     : OK : OK  | OK    |
+ |sjis-imode1    : OK : OK  | ----- |
+ |sjis-imode2    : OK : OK  | ----- |
+ |utf8-imode     : OK : OK  | ----- |
+ |utf8-imode1    : OK : OK  | ----- |
+ |utf8-imode2    : OK : OK  | ----- |
+ +---------------+----+-----+-------+
+ |sjis-doti      : OK : OK  | OK    |
+ |sjis-doti1     : OK : OK  | ----- |
+ +---------------+----+-----+-------+
+ |sjis-jsky      : OK : OK  | OK    |
+ |sjis-jsky1     : OK : OK  | ----- |
+ |sjis-jsky2     : OK : OK  | ----- |
+ |jis-jsky       : OK : OK  | ----- |
+ |jis-jsky1      : OK : OK  | ----- |
+ |jis-jsky2      : OK : OK  | ----- |
+ |utf8-jsky      : OK : OK  | ----- |
+ |utf8-jsky1     : OK : OK  | ----- |
+ |utf8-jsky2     : OK : OK  | ----- |
+ +---------------+----+-----+-------+
+ |sjis-au        : OK : OK  | OK    |
+ |sjis-au1       : OK : OK  | ----- |
+ |sjis-au2       : OK : OK  | ----- |
+ |jis-au         : OK : OK  | ----- |
+ |jis-au1        : OK : OK  | ----- |
+ |jis-au2        : OK : OK  | ----- |
+ |sjis-icon-au   : OK : OK  | ----- |
+ |sjis-icon-au1  : OK : OK  | ----- |
+ |sjis-icon-au2  : OK : OK  | ----- |
+ |euc-icon-au    : OK : OK  | ----- |
+ |euc-icon-au1   : OK : OK  | ----- |
+ |euc-icon-au2   : OK : OK  | ----- |
+ |jis-icon-au    : OK : OK  | ----- |
+ |jis-icon-au1   : OK : OK  | ----- |
+ |jis-icon-au2   : OK : OK  | ----- |
+ |utf8-icon-au   : OK : OK  | ----- |
+ |utf8-icon-au1  : OK : OK  | ----- |
+ |utf8-icon-au2  : OK : OK  | ----- |
+ +---------------+----+-----+-------+
+ |ascii          : OK : --  | OK    |
+ |binary         : OK : OK  | ----- |
+ +---------------+----+-----+-------+
+ (#): guessed when it has bom.
+
+=head2 自動認識優先順位
+
+ 1.  utf32 (#)
+ 2.  utf16 (#)
+ 3.  utf32-be
+ 4.  utf32-le
+ 5.  ascii
+ 6.  jis
+ 7.  sjis-jsky (pp)
+ 8.  euc
+ 9.  sjis
+ 10. sjis-jsky (xs)
+ 11. sjis-au
+ 12. sjis-imode
+ 13. sjis-doti
+ 14. utf8
+ 15. unknown
 
 =head1 DESCRIPTION OF UNICODE MAPPING
 
