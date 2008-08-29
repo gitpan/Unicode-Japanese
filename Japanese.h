@@ -2,7 +2,7 @@
 #ifndef UNICODE__JAPANESE_H__
 #define UNICODE__JAPANESE_H__
 
-/* $Id: Japanese.h 5228 2008-01-16 08:52:26Z hio $ */
+/* $Id: Japanese.h 41491 2008-02-15 07:21:13Z hio $ */
 
 #if !defined(__cplusplus) && !defined(bool)
 #define bool char
@@ -83,6 +83,10 @@ extern "C"
   /* ucs2<=>utf-8 */
   SV* xs_ucs2_utf8(SV* sv_str);
   SV* xs_utf8_ucs2(SV* sv_str);
+  
+  /* ucs4<=>utf-8 */
+  SV* xs_ucs4_utf8(SV* sv_str);
+  SV* xs_utf8_ucs4(SV* sv_str);
   
   /* utf-16<=>utf8 */
   SV* xs_utf16_utf8(SV* sv_str);

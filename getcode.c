@@ -1,14 +1,17 @@
 
-/* $Id: getcode.c 5277 2008-01-21 08:11:28Z hio $ */
+/* $Id: getcode.c 5404 2008-02-01 05:07:01Z hio $ */
 
 #include "Japanese.h"
 #include "getcode.h"
+
+#include <string.h>
 
 #ifndef dAX
 /* 5.6.x? */
 #define dAX I32 ax = MARK - PL_stack_base + 1
 #endif
 
+#define PERL_PATCHLEVEL_H_IMPLICIT
 #include "patchlevel.h"
 
 #if !defined(PERL_VERSION)  && defined(PATCHLEVEL)
@@ -348,6 +351,8 @@ static int getcode_list(SV* sv_str, CodeCheck* check)
   return cc_max;
 }
 
+#ifndef NO_XSUBS
+
 /* getcode´Ø¿ô */
 SV* xs_getcode(SV* sv_str)
 {
@@ -441,6 +446,8 @@ int xs_getcode_list(SV* sv_str)
   }
   return matches;
 }
+
+#endif
 
 /* ----------------------------------------------------------------------------
  * End of File.

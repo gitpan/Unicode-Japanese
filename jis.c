@@ -1,8 +1,10 @@
 
-/* $Id: jis.c 4654 2006-07-03 01:33:16Z hio $ */
+/* $Id: jis.c 5403 2008-02-01 05:06:12Z hio $ */
 
 #include "Japanese.h"
 #include "sjis.h"
+
+#include <string.h>
 
 #define S2J_DISP 0
 #define J2S_DISP 0

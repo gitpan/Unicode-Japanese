@@ -137,13 +137,14 @@ Pure Perl モジュールとしてインストールされます.
 
 新しい Unicode::Japanese インスタンスを指定します．
 
-パラメータを指定すると，set メソッドに渡されます．
+パラメータを指定すると，L</set> メソッドに渡されます．
 
 =item $s = unijp($str [, $icode [, $encode]])
 
 Unicode::Janaese->new(...) と同義.
 
 =item $s->set($str [, $icode [, $encode]])
+X<set>
 
 =over 2
 
@@ -362,7 +363,7 @@ UTF-16 の BOM があれば，utf16 と判定します．
 
 以下のコードについて, 正しい文字コードであることを状態遷移を用いて調べます.
 
-ascii / euc-jp / sjis / jis / utf8 / utf32-be / utf32-le / sjis-jsky /
+ascii / euc / sjis / jis / utf8 / utf32-be / utf32-le / sjis-jsky /
 sjis-imode / sjis-au / sjis-doti
 
 
@@ -372,7 +373,7 @@ sjis-imode / sjis-au / sjis-doti
 
 最後まで正しかったものの中から, 以下の優先順で１つをえらんで, それと判定します.
 
-utf32-be / utf32-le / ascii / jis / euc-jp / sjis / sjis-jsky / sjis-imode /
+utf32-be / utf32-le / ascii / jis / euc / sjis / sjis-jsky / sjis-imode /
 sjis-au / sjis-doti / utf8
 
 
@@ -771,7 +772,7 @@ J-SKY の絵文字は，エスケープシーケンス "\e\$" の後に，絵文
 U+0FFB00 - U+0FFDFF の領域にマッピングします．
 
 Unicode::Japanese では，Unicode から J-SKY 絵文字にマッピングするとき，
-バイト目が同じ絵文字が連続している場合は，圧縮処理を自動的に行います．
+1バイト目が同一である絵文字が連続している場合は，圧縮処理を自動的に行います．
 
 =item AU
 

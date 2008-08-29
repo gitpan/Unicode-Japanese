@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 # Makefile.PL for Unicode-Japanese.
 # -----------------------------------------------------------------------------
-# $Id: Makefile.PL 5235 2008-01-16 09:46:12Z hio $
+# $Id: Makefile.PL 41491 2008-02-15 07:21:13Z hio $
 # -----------------------------------------------------------------------------
 package Unicode::Japanese::MakeMaker;
 
@@ -35,10 +35,11 @@ my %param = (
 
     'CONFIGURE'         => \&configure,	 
     'clean'    => { FILES => 't/pureperl.flag mediate.c mediate.h' },
+    'depend'   => { libunijp => ";\$(MAKE) -C c_lib" },
   );
 my %param_xs = (
     'OBJECT' => join(' ',qw( Japanese.o memmap_common.o memmap_unix.o
-                             conv.o ucs2_utf8.o utf8.o
+                             conv.o ucs2_utf8.o ucs4.o utf8.o
 			     getcode.o getcode_map.o sjis.o eucjp.o jis.o
 			     sjis_imode1.o sjis_imode2.o sjis_jsky1.o sjis_jsky2.o sjis_doti.o utf16.o
 			     mediate.o 

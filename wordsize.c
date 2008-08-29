@@ -3,10 +3,10 @@
 
 int main()
 {
-  printf( "short = %d\n", sizeof(short) );
-  printf( "int = %d\n",   sizeof(int)   );
-  printf( "long = %d\n",  sizeof(long)  );
-  printf( "void* = %d\n", sizeof(void*) );
+  printf( "short = %ld\n", (long)sizeof(short) );
+  printf( "int = %ld\n",   (long)sizeof(int)   );
+  printf( "long = %ld\n",  (long)sizeof(long)  );
+  printf( "void* = %ld\n", (long)sizeof(void*) );
   return 0;
 }
 

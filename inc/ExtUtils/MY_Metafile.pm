@@ -3,23 +3,23 @@
 # -----------------------------------------------------------------------------
 # Mastering programmed by YAMASHINA Hio
 #
-# Copyright 2006 YAMASHINA Hio
+# Copyright 2006-2008 YAMASHINA Hio
 # -----------------------------------------------------------------------------
-# $Id: MY_Metafile.pm 5247 2008-01-17 08:56:01Z hio $
+# $Id: MY_Metafile.pm 5362 2008-01-30 05:09:42Z hio $
 # -----------------------------------------------------------------------------
 package ExtUtils::MY_Metafile;
 use strict;
-#use warnings; # warnings was first released with perl 5.006
+#use warnings; # warnings pragma was first released with perl 5.006.
 use ExtUtils::MakeMaker;
 
-use vars qw($VERSION @EXPORT %META_PARAMS $DIAG_VERSION $DEFAULT_META_SPEC_VERSION);
+use vars qw($VERSION @EXPORT);
 
-$VERSION = '0.08';
+$VERSION = '0.09';
 @EXPORT = qw(my_metafile);
 
-%META_PARAMS; # DISTNAME(pkgname)=>HASHREF.
-$DIAG_VERSION and &_diag_version;
+use vars qw(%META_PARAMS); # DISTNAME(pkgname)=>HASHREF.
 
+use vars qw($DEFAULT_META_SPEC_VERSION);
 $DEFAULT_META_SPEC_VERSION = '1.3';
 
 1;
@@ -63,7 +63,13 @@ sub import
 sub _diag_version
 {
 	my $mmver = $ExtUtils::MakeMaker::VERSION;
-	if( $mmver >= 6.30 )
+	my $mmvernum = $mmver;
+	if( $mmvernum =~ /^(\d+)\.(\d+)_(\d+)\z/ )
+	{
+	  $mmvernum = "$1.$2$3";
+	  $mmver .= "=$mmvernum";
+	}
+	if( $mmvernum >= 6.30 )
 	{
 		print STDERR "# ExtUtils::MY_Metafile for MM 6.30 or later ($mmver).\n";
 	}else
@@ -114,7 +120,12 @@ sub _mm_metafile
 	# format as makefile text.
 	#
 	my ($make_target, $metaout_file);
-	if( $ExtUtils::MakeMaker::VERSION >= 6.30 )
+	my $mmvernum = $ExtUtils::MakeMaker::VERSION;
+	if( $mmvernum =~ /^(\d+)\.(\d+)_(\d+)\z/ )
+	{
+	  $mmvernum = "$1.$2$3";
+	}
+	if( $mmvernum >= 6.30 )
 	{
 		$make_target  = "# for MM 6.30 or later.\n";
 		$make_target .= "metafile : create_distdir\n";
@@ -404,7 +415,7 @@ ExtUtils::MY_Metafile - META.yml customize with ExtUtil::MakeMaker
 
 =head1 VERSION
 
-Version 0.08
+Version 0.09
 
 
 =head1 SYNOPSIS
@@ -526,7 +537,7 @@ L<http://search.cpan.org/dist/ExtUtils-MY_Metafile>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2006 YAMASHINA Hio, all rights reserved.
+Copyright 2006-2008 YAMASHINA Hio, all rights reserved.
 
 
 This program is free software; you can redistribute it and/or modify it

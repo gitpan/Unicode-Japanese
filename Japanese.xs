@@ -1,5 +1,5 @@
 
-/* $Id: Japanese.xs 4631 2006-04-14 05:18:55Z pho $ */
+/* $Id: Japanese.xs 41491 2008-02-15 07:21:13Z hio $ */
 
 #include "Japanese.h"
 
@@ -213,6 +213,26 @@ _utf8_ucs2(this_,str)
     SV* str;
 CODE:
     RETVAL = xs_utf8_ucs2(str);
+OUTPUT:
+    RETVAL
+
+#========================#
+# ucs4 <=> utf8          #
+#========================#
+
+SV*
+_ucs4_utf8(this_,str)
+    SV* str;
+CODE:
+    RETVAL = xs_ucs4_utf8(str);
+OUTPUT:
+    RETVAL
+
+SV*
+_utf8_ucs4(this_,str)
+    SV* str;
+CODE:
+    RETVAL = xs_utf8_ucs4(str);
 OUTPUT:
     RETVAL
 
