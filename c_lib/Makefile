@@ -92,7 +92,7 @@ libunijp.en.3: libunijp.en.pod
 libunijp.en.pod: libunijp.mlpod
 	$(MLPOD2POD) --langs=en libunijp.mlpod | iconv -f utf-8 -t euc-jp > $@
 
-unijp_version.h unijp_int.h: ../lib/Unicode/Japanese.pm
+unijp_version.h unijp_int.h: ../lib/Unicode/Japanese.pm autogen.pl
 	$(MAKE) autogen
 autogen:
 	$(MAKE) wordsize

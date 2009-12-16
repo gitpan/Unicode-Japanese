@@ -1,5 +1,8 @@
 Revision history for Perl extension Unicode::Japanese.
 
+0.47 Mon Dec 14 11:45:31 JST 2009
+    - fix, libunijp did not work on non-devel release.
+
 0.46 Fri Aug 29 16:55:29 JST 2008
     - libunijp, erlang-support.
     - fix, static methods are failed until creattion of an instance.

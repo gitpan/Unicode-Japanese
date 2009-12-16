@@ -135,7 +135,7 @@ sub gen_unijp_version_h
       $ver_str = $1;
       $ver_maj = $2;
       $ver_min = $3;
-      $ver_dev = $4;
+      $ver_dev = $4 || 0;
     }
     close $fh;
   }

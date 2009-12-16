@@ -17,10 +17,10 @@ extern "C"
 {
 #endif
 
-#define UNIJP_VERSION_STRING "0.46"
+#define UNIJP_VERSION_STRING "0.46_01"
 #define UNIJP_VERSION_MAJOR  0
 #define UNIJP_VERSION_MINOR  46
-#define UNIJP_VERSION_PATCH  
+#define UNIJP_VERSION_PATCH  1
 
 #ifdef __cplusplus
 }
